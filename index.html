@@ -1161,6 +1161,8 @@ function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,st
   if(STORES[shop]&&GEO[shop])cap.real=shop}
  else if(v.t=="hotel"){bg=stripClose(interiorSVG("hotel",{id:"h"+ck,n:"hotel"},ck))+`<g transform="translate(780 670) scale(.85)">${furnSVG("suitcase")}</g><g transform="translate(1070 680) scale(.7)">${furnSVG("wing","#7a1f2e")}</g><text x="600" y="545" font-size="44">🛎️</text></svg>`;cap={t:"🏨 "+C.hotel,d:"Your cozy room in "+C.n};kind="hotel";
   spots.push(spotObj(330,500,300,250,"Nap in the bed","nap",{bx:330,by:610}),spotObj(1070,610,140,150,"Sit in the armchair","sit",{bx:1070,by:640}),spotObj(780,620,150,110,"Open my suitcase","suitcase",{bx:880,by:690}),spotObj(620,540,120,120,"Ring for room service","menu",{bx:620,by:690}),spotObj(910,210,300,260,"Look out the window","hl",{line:"What a view of "+C.n.split(/[,&]/)[0].trim()+"!",icon:"🪟",bx:900,by:690}));cap.real=ck}
+ else if(v.t=="window"){const st=STORES[v.store];bg=interiorSVG("window",{id:v.store,store:v.store},"nyc");cap={t:"🎄 "+st.n,d:"The holiday windows on a winter night"};kind="window";start={x:300,y:690};
+  spots.push(spotObj(600,330,500,300,"Admire the holiday window","hl",{line:pick(["Look at all the twinkling lights!","It's like a little winter wonderland!","I could look at this all night!"]),icon:"✨",bx:520,by:690}),spotObj(980,560,220,220,"Walk inside "+st.n,"enter",{store:v.store,bx:900,by:690}));if(GEO[v.store])cap.real=v.store}
  return{bg,spots,cap,start,kind,loc:ck}}
 /* ---------- render ---------- */
 function renderScene(){const b=B(),v=b.view;const sc=buildScene(v,b.loc);curScene=sc;const st=stage();st.className="scene";
@@ -1169,9 +1171,9 @@ function renderScene(){const b=B(),v=b.view;const sc=buildScene(v,b.loc);curScen
  st.innerHTML=`<div class="scenebox"><div class="sbox">${sc.bg}<div class="spots">${sp}</div><div class="bear sb ${pos.cls||""}" data-b="${b.id}" style="left:${pos.x/12}%;top:${(pos.y-235)/7}%"><div class="bwrap">${bearSVG(b,pos.cls=="nap"?"sleep":"happy")}</div><div class="fxs"></div></div></div>${sc.cap?`<div class="caption" id="scap"><b>${esc(sc.cap.t)}</b><span id="scapd">${esc(sc.cap.d)}</span></div>`:""}</div>
  <div class="bar"><button class="btn back" data-act="backStreet">◀ Back to the street</button><button class="btn" data-act="camera">📷 Take a photo</button>${sc.cap&&sc.cap.real?`<button class="btn teal" data-act="real" data-arg="${sc.cap.real}">🌍 See the real place</button>`:""}<span class="note">Tap the glowing things to look, sit, shop or eat</span></div>`;
  fitBox(st.querySelector(".scenebox"),st.querySelector(".sbox"));tryBackdrop(v,b.loc);if(!b.scenePos||b.scenePos.key!=sceneKey(v))setTimeout(()=>react(QUIET.has(v.aid)?"quiet":"wonder",QUIET.has(v.aid)?"A quiet, thoughtful place.":null),300)}
-function sceneKey(v){return v.t+":"+(v.aid||v.shop||"")}
+function sceneKey(v){return v.t+":"+(v.aid||v.shop||v.store||"")}
 const BD_MISS={};
-function backdropName(v,loc){return v.t=="inside"?v.aid:v.t=="shopin"?v.shop:v.t=="hotel"?"hotel_"+loc:null}
+function backdropName(v,loc){return v.t=="inside"?v.aid:v.t=="shopin"?v.shop:v.t=="hotel"?"hotel_"+loc:v.t=="window"?v.store+"_front":null}
 function tryBackdrop(v,loc){const n=backdropName(v,loc);if(!n||BD_MISS[n]===true)return;const exts=["webp","jpg","png"];const go=k=>{if(k>=exts.length){BD_MISS[n]=true;return}const url="scenes/"+n+"."+exts[k];if(BD_MISS[n]===url)return apply(url);const im=new Image();im.onload=()=>{BD_MISS[n]=url;apply(url)};im.onerror=()=>go(k+1);im.src=url};
  const apply=url=>{const box=stage().querySelector(".sbox");if(!box||sceneKey(B().view)!=sceneKey(v))return;const svg=box.querySelector(".scenesvg,svg");if(svg&&!box.querySelector(".bdimg")){svg.style.display="none";box.insertAdjacentHTML("afterbegin",`<img class="bdimg" src="${url}" alt="">`);box.classList.add("imgmode");box.querySelectorAll(".sp").forEach(el=>{if(parseFloat(el.style.top)<16)el.style.top="16%"})}};go(0)}
 function fitBox(box,inner){if(!box||!inner)return;const W=box.clientWidth,H=box.clientHeight;let w=Math.min(W,H*12/7*1.16),h=w*7/12;if(h<H&&w<W){}inner.style.width=w+"px";inner.style.height=h+"px"}
@@ -1190,6 +1192,7 @@ function doSpot(s){const b=B(),ck=b.loc;switch(s.act){
  case"menu":openMenu(ck);break;
  case"mirror":openWardrobe();react("twirl","How do I look?");break;
  case"suitcase":openSuitcase();break;
+ case"enter":go({t:"shopin",shop:s.store});break;
  case"bell":sfx("bell");react("music","Ding ding ding!");break;
  case"ride":startRide();break;
  case"show":startShow();break;
@@ -1354,7 +1357,7 @@ function renderLoc(){const b=B(),C=CITIES[b.loc],M=MONTHS[curMonth()];let where=
 function stage(){return $("#stage")}
 function bearEl(b,expr,cls){return`<div class="bear ${cls||""}" data-b="${b.id}"><div class="bwrap">${bearSVG(b,expr||"normal")}</div><div class="fxs"></div></div>`}
 function renderStage(){const b=B(),v=b.view,st=stage();st.className="";$("#gift").hidden=!giftReady();
- if(v.t=="street")return renderStreet();if(v.t=="castle")return renderCastle();if(v.t=="inside"||v.t=="shopin"||v.t=="hotel")return renderScene();
+ if(v.t=="street")return renderStreet();if(v.t=="castle")return renderCastle();if(v.t=="inside"||v.t=="shopin"||v.t=="hotel"||v.t=="window")return renderScene();
  let kind,a,html,chips=[];
  if(v.t=="inside"){a=att(b.loc,v.aid)||{id:"x",n:"",k:"landmark"};kind=a.k;if(["pit","riverbridge","bearfountain","conservatory","tower"].includes(kind)&&b.loc=="bern")kind="landmark";
   html=interiorSVG(kind=="pit"?"landmark":kind,a,b.loc);
