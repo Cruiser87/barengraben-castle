@@ -366,6 +366,11 @@ W("king_robe","King's royal robe with ermine","outfit","royalcape","#4b1030",700
 W("crown_king","King's gold crown","head","crown","#d4af37",900,"boutique","bern","boy");
 W("appenzell","Appenzeller red vest","outfit","appenzell","#c0392b",300,"boutique","bern","boy");
 W("cane","Gentleman's walking cane","bag","cane","#3b2414",160,"boutique","bern","boy");
+// Photo clothes (pictures from the family)
+W("p_gown_ruffle","Pink ruffle ballgown","outfit","photo","#f4a6b8",900,"boutique","bern","girl");ITEMS.p_gown_ruffle.photo="items/gown_ruffle.png";ITEMS.p_gown_ruffle.ar=554/515;
+W("p_tiara","Diamond tiara","head","photo","#e6f2ff",2500,"boutique","bern","girl");ITEMS.p_tiara.photo="items/tiara_diamond.png";ITEMS.p_tiara.ar=500/384;
+W("p_necklace","Rose-gold diamond necklace","neck","photo","#e8b4a0",1500,"boutique","bern","girl");ITEMS.p_necklace.photo="items/necklace_rosegold.png";ITEMS.p_necklace.ar=392/500;
+W("ballgown_magenta","Magenta pleated ballgown","outfit","ballgown","#c2185b",650,"boutique","bern","girl");
 // Royal furniture
 F("throne","Gilded velvet throne","throne",1500,"home","#9b1b30");
 F("piano_grand","Rosewood grand piano","piano",1800,"home","#3b1a0a");
@@ -616,10 +621,16 @@ function bearSVG(bear,expr,opt){
  if(hs=="crown")top+=`<path d="M62 36 L60 4 L80 18 L100 -6 L120 18 L140 4 L138 36Z" fill="${hc}" stroke="${hd}" stroke-width="2.5"/><path d="M66 30 Q100 18 134 30 L134 36 Q100 28 66 36Z" fill="#9b1b30"/><path d="M62 36 Q100 26 138 36" stroke="${hd}" stroke-width="4" fill="none"/>`+[[80,26,"#c0392b"],[100,24,"#27408b"],[120,26,"#1f6b4a"]].map(g=>`<circle cx="${g[0]}" cy="${g[1]}" r="4.5" fill="${g[2]}" stroke="#fff" stroke-width="1.2"/>`).join("")+[[60,2],[100,-8],[140,2]].map(g=>`<circle cx="${g[0]}" cy="${g[1]}" r="4" fill="#fdf8ef" stroke="${hd}"/>`).join("")+`<path d="M96 -10 h8 M100 -14 v8" stroke="${hd}" stroke-width="3"/>`;
  if(hs=="tiara")top+=`<path d="M62 34 L70 8 L82 26 L100 -2 L118 26 L130 8 L138 34 Q100 26 62 34Z" fill="${hc}" stroke="${hd}" stroke-width="2"/><circle cx="100" cy="12" r="5" fill="#f49ac1" stroke="#fff"/><circle cx="72" cy="22" r="3" fill="#81d8d0"/><circle cx="128" cy="22" r="3" fill="#81d8d0"/><circle cx="100" cy="2" r="2" fill="#fff"/>`;
  const sh=`<ellipse cx="100" cy="254" rx="62" ry="8" fill="#000" opacity=".14"/>`;
- return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}</g><g class="bhead">${head}${top}</g></svg>`;
+ const PB=!!bear.photo;let ph="";
+ const pimg=(slot,cx,top,w,h)=>{const it=w0[slot]&&ITEMS[w0[slot].id];if(!it||!it.photo)return"";if(!w)w=h*it.ar;if(!h)h=w/it.ar;return`<image href="${it.photo}" x="${cx-w/2}" y="${top}" width="${w}" height="${h}" preserveAspectRatio="none"/>`};
+ const w0=w;
+ if(PB){ph=pimg("outfit",100,78,0,184)+pimg("neck",100,58,62,0)+pimg("head",100,-40,86,0);
+  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}<image href="${bear.photo}" x="11" y="-10" width="178" height="270" preserveAspectRatio="xMidYMax meet"/>${front}</g><g>${ph}</g><g class="bhead">${top}</g></svg>`}
+ ph=pimg("outfit",100,138,0,124)+pimg("neck",100,128,56,0);const ptop=pimg("head",100,-38,92,0);
+ return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${ph}</g><g class="bhead">${head}${top}${ptop}</g></svg>`;
 }
 function bearMini(I,color){const w={};w[I.slot]={id:I.id};let s=bearSVG({color:color||"white",wear:w},"happy");if(["head","neck","ears"].includes(I.slot))s=s.replace('viewBox="-30 -36 260 300"','viewBox="10 -30 180 200"');else if(I.slot=="feet")s=s.replace('viewBox="-30 -36 260 300"','viewBox="30 160 140 110"');else if(I.slot=="wrist"||I.slot=="watch")s=s.replace('viewBox="-30 -36 260 300"','viewBox="20 130 160 130"');return s}
-function bearHead(bear){const s=bearSVG(bear,"normal");return s.replace('viewBox="-30 -36 260 300"','viewBox="22 -20 156 160"')}
+function bearHead(bear){const s=bearSVG(bear,"normal");return s.replace('viewBox="-30 -36 260 300"',bear.photo?'viewBox="38 -22 124 124"':'viewBox="22 -20 156 160"')}
 
 /* ============ ART: STREETS, LANDMARKS, INTERIORS, ROOMS ============ */
 const BASE=470,SLOT=300;let LABELS=[];
@@ -858,7 +869,7 @@ function nlayer(type,g){const c=SND.ctx,src=noiseSrc();SND.nodes.push(src);const
  else if(type=="room"){f.type="lowpass";f.frequency.value=200}
  src.connect(f);f.connect(gn);gn.connect(SND.bus)}
 function env(node,t,a,d,peak,out){const g=SND.ctx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0008,t+a+d);node.connect(g);g.connect(out||SND.bus);return g}
-function tone(inst,midi,t,dur,vel,out){const c=SND.ctx;out=out||SND.bus;vel=vel||1;const f=mtof(midi);
+function tone(inst,midi,t,dur,vel,out){if(inst=="bell")inst="musicbox";const c=SND.ctx;out=out||SND.bus;vel=vel||1;const f=mtof(midi);
  if(inst=="musicbox"||inst=="pluck"){[1,4.01,2].forEach((m,i)=>{const o=c.createOscillator();o.type="sine";o.frequency.value=f*m;env(o,t,.005,inst=="pluck"?.6:1.4/(i+1),.09*vel/(i*1.5+1),out);o.start(t);o.stop(t+2)})}
  else if(inst=="bell"){[1,2.76,5.4,8.9].forEach((m,i)=>{const o=c.createOscillator();o.frequency.value=f*m;env(o,t,.004,2.6/(i+1),.07*vel/(i+1),out);o.start(t);o.stop(t+3)})}
  else if(inst=="accordion"||inst=="organ"){const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=inst=="organ"?1400:1700;const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045*vel,t+.05);g.gain.setValueAtTime(.045*vel,t+dur*.8);g.gain.linearRampToValueAtTime(0,t+dur);lp.connect(g);g.connect(out);
@@ -886,20 +897,20 @@ function setSound(profile){if(!SND.ctx||SND.cur==profile)return;stopProfile();SN
  const P=profile,mon=curMonth();
  if(P=="castle"){nlayer("fire",.12);crackles(.16);const tk=setInterval(()=>{const o=c.createOscillator();o.frequency.value=1900;env(o,c.currentTime,.001,.03,.045);o.start();o.stop(c.currentTime+.06)},1000);SND.timers.push(tk);music({bpm:66,bpb:3,prog:PROG.gentle,root:72,inst:"musicbox",dens:.8,seed:7})}
  else if(P=="hotel"){nlayer("room",.03);music({bpm:62,bpb:4,prog:PROG.gentle,root:72,inst:"musicbox",dens:.6,seed:3})}
- else if(P=="bern"){nlayer("river",.1);music({bpm:100,bpb:3,prog:PROG.waltz,root:60,inst:"accordion",dens:.7,bass:true,seed:5,legato:.8});every(18000,30000,t=>[0,4,7,12].forEach((n,i)=>tone("bell",72+n,t+i*.7,2,.7)))}
- else if(P=="boat"||P=="harbor"){waveSwells(.16);every(3500,9000,t=>gullCry(t,1));every(8000,15000,t=>{tone("bell",79,t,2,.8);tone("bell",79,t+1.2,2,.6)});if(P=="harbor"){nlayer("city",.02);music({bpm:72,bpb:3,prog:PROG.gentle,root:67,inst:"pluck",dens:.35,seed:51})}}
+ else if(P=="bern"){nlayer("river",.1);music({bpm:100,bpb:3,prog:PROG.waltz,root:60,inst:"accordion",dens:.7,bass:true,seed:5,legato:.8})}
+ else if(P=="boat"||P=="harbor"){waveSwells(.16);every(3500,9000,t=>gullCry(t,1));if(P=="harbor"){nlayer("city",.02);music({bpm:72,bpb:3,prog:PROG.gentle,root:67,inst:"pluck",dens:.35,seed:51})}}
  else if(P=="paris"){nlayer("city",.04);murmur(.03);music({bpm:120,bpb:3,prog:PROG.minor,root:62,inst:"accordion",dens:.85,bass:true,seed:9,legato:.7})}
  else if(P=="italy"){nlayer("fountain",.07);murmur(.03);music({bpm:84,bpb:4,prog:PROG.maj,root:62,inst:"mandolin",dens:.7,bass:true,seed:13})}
  else if(P=="nordic"){murmur(.05);waveSwells(.08);every(6000,12000,t=>gullCry(t,.8));music({bpm:96,bpb:4,prog:PROG.gentle,root:64,inst:"pluck",dens:.6,seed:17})}
- else if(P=="amsterdam"){nlayer("river",.07);every(5000,11000,t=>{tone("bell",93,t,.6,.5);tone("bell",93,t+.15,.6,.45)});music({bpm:108,bpb:3,prog:PROG.waltz,root:62,inst:"organ",dens:.75,bass:true,seed:21,legato:.6})}
- else if(P=="prague"){every(14000,26000,t=>[0,7,4,0].forEach((n,i)=>tone("bell",67+n,t+i*.9,2,.6)));music({bpm:70,bpb:4,prog:PROG.minor,root:60,inst:"strings",dens:.55,bass:true,seed:23,legato:1.6})}
+ else if(P=="amsterdam"){nlayer("river",.07);music({bpm:108,bpb:3,prog:PROG.waltz,root:62,inst:"organ",dens:.75,bass:true,seed:21,legato:.6})}
+ else if(P=="prague"){music({bpm:70,bpb:4,prog:PROG.minor,root:60,inst:"strings",dens:.55,bass:true,seed:23,legato:1.6})}
  else if(P=="germany"){nlayer("chatter",.015);music({bpm:112,bpb:2,prog:PROG.maj,root:60,inst:"accordion",dens:.7,bass:true,oom:true,inst2:"pluck",seed:29,legato:.6})}
- else if(P=="rothenburg"){music({bpm:72,bpb:3,prog:PROG.gentle,root:72,inst:"musicbox",dens:.8,seed:31});every(12000,20000,t=>tone("bell",84,t,2,.5))}
- else if(P=="uk"){nlayer("city",.02);music({bpm:68,bpb:4,prog:PROG.gentle,root:60,inst:"strings",dens:.5,bass:true,seed:37,legato:1.5});every(25000,40000,t=>[0,-5].forEach((n,i)=>tone("bell",55+n,t+i*1.6,3,1)))}
- else if(P=="nyc"||P=="boston"){nlayer("city",.08);murmur(.03);every(9000,20000,t=>{const o=c.createOscillator();o.type="square";o.frequency.value=440;const f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=900;o.connect(f);env(f,t,.02,.35,.02);o.start(t);o.stop(t+.4)});every(6000,14000,t=>{tone("bell",P=="boston"?88:91,t,1,.35);tone("bell",P=="boston"?88:91,t+.18,1,.3)});if(mon==11||P=="window")music({bpm:76,bpb:4,prog:PROG.maj,root:72,inst:"bell",dens:.45,seed:41});else music({bpm:80,bpb:4,prog:PROG.gentle,root:64,inst:"pluck",dens:.35,seed:43})}
- else if(P=="window"){nlayer("city",.02);music({bpm:76,bpb:4,prog:PROG.maj,root:72,inst:"bell",dens:.55,seed:41})}
- else if(P=="cafe"){murmur(.06);every(4000,9000,t=>{tone("bell",96,t,.3,.25)});music({bpm:92,bpb:3,prog:PROG.waltz,root:64,inst:mon==11?"bell":"accordion",dens:.45,seed:61,legato:.7})}
- else if(P=="shop"){murmur(.03);music({bpm:84,bpb:4,prog:PROG.maj,root:mon==11?72:67,inst:mon==11?"bell":"musicbox",dens:.55,seed:63})}
+ else if(P=="rothenburg"){music({bpm:72,bpb:3,prog:PROG.gentle,root:72,inst:"musicbox",dens:.8,seed:31})}
+ else if(P=="uk"){nlayer("city",.02);music({bpm:68,bpb:4,prog:PROG.gentle,root:60,inst:"strings",dens:.5,bass:true,seed:37,legato:1.5})}
+ else if(P=="nyc"||P=="boston"){nlayer("city",.08);murmur(.03);every(9000,20000,t=>{const o=c.createOscillator();o.type="square";o.frequency.value=440;const f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=900;o.connect(f);env(f,t,.02,.35,.02);o.start(t);o.stop(t+.4)});if(mon==11||P=="window")music({bpm:76,bpb:4,prog:PROG.maj,root:72,inst:"musicbox",dens:.45,seed:41});else music({bpm:80,bpb:4,prog:PROG.gentle,root:64,inst:"pluck",dens:.35,seed:43})}
+ else if(P=="window"){nlayer("city",.02);music({bpm:76,bpb:4,prog:PROG.maj,root:72,inst:"musicbox",dens:.55,seed:41})}
+ else if(P=="cafe"){murmur(.06);music({bpm:92,bpb:3,prog:PROG.waltz,root:64,inst:"accordion",dens:.45,seed:61,legato:.7})}
+ else if(P=="shop"){murmur(.03);music({bpm:84,bpb:4,prog:PROG.maj,root:mon==11?72:67,inst:"musicbox",dens:.55,seed:63})}
  else if(P=="aquarium"){bubbles();music({bpm:58,bpb:4,prog:PROG.gentle,root:60,inst:"strings",dens:.3,seed:65,legato:2})}
  else if(P=="ballpark"){murmur(.09);every(7000,14000,t=>[0,4,7,12,7,12].forEach((n,i)=>tone("organ",67+n,t+i*.22,.2,.8)));every(12000,22000,t=>{const s2=noiseSrc();const f=c.createBiquadFilter();f.type="bandpass";f.frequency.value=900;s2.connect(f);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.4);g.gain.linearRampToValueAtTime(0,t+2.5);f.connect(g);g.connect(SND.bus);setTimeout(()=>{try{s2.stop()}catch(e){}},3000)})}
  else if(P=="theater"){murmur(.02);music({bpm:66,bpb:4,prog:PROG.gentle,root:60,inst:"strings",dens:.5,seed:67,legato:1.6})}
@@ -912,7 +923,7 @@ function sfx(name){if(!sndInit()||SND.muted)return;const c=SND.ctx,t=c.currentTi
  else if(name=="buy")[0,7,12].forEach((n,i)=>tone("pluck",72+n,t+i*.06,.3,1,o));
  else if(name=="twirl")[0,2,4,7,9,12,14].forEach((n,i)=>tone("musicbox",84+n,t+i*.04,.2,.6,o));
  else if(name=="yum"){const os=c.createOscillator();os.frequency.setValueAtTime(400,t);os.frequency.exponentialRampToValueAtTime(800,t+.12);env(os,t,.01,.15,.08,o);os.start(t);os.stop(t+.25)}
- else if(name=="bell")[0,0,0].forEach((n,i)=>tone("bell",84,t+i*.35,2,1,o));
+ else if(name=="bell")[0,4,7,12].forEach((n,i)=>tone("musicbox",79+n,t+i*.12,.4,.9,o));
  else if(name=="cuckoo"){tone("pluck",79,t,.3,1.4,o);tone("pluck",75,t+.35,.4,1.4,o);tone("pluck",79,t+1,.3,1.4,o);tone("pluck",75,t+1.35,.4,1.4,o)}
  else if(name=="musicbox")[0,4,7,12,7,4,9,5,7,2,0].forEach((n,i)=>tone("musicbox",79+n,t+i*.28,.3,1,o));
  else if(name=="whoosh"){const s=noiseSrc(),f=c.createBiquadFilter();f.type="bandpass";f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(3000,t+.7);s.connect(f);env(f,t,.2,.6,.12,o);setTimeout(()=>{try{s.stop()}catch(e){}},1200)}
@@ -1582,9 +1593,10 @@ function openStory(){const w=storiesWaiting();const L=S.story.list.slice().rever
 function openSettings(){openModal("⚙️ Settings",`<h3>Town season</h3><label class="lbl">Theme <select id="setMonth"><option value="auto" ${S.month=="auto"?"selected":""}>Follow the calendar (${MONTHS[new Date().getMonth()].n})</option>${MONTHS.map((m,i)=>`<option value="${i}" ${S.month==i?"selected":""}>${m.n} — ${m.t}</option>`).join("")}</select></label>
  <h3>Sound</h3><div class="row wrap"><label class="bc2"><input type="checkbox" id="setMute" ${S.snd.muted?"":"checked"}> Sounds on</label><label class="bc2"><input type="checkbox" id="setMusic" ${S.snd.music?"checked":""}> Music on</label><label class="lbl">Volume <input type="range" id="setVol" min="0" max="1" step=".05" value="${S.snd.vol}"></label></div>
  <h3>Real-city Street View</h3><p class="note">Every city and landmark has a 🌍 button that walks the real streets in Google Street View. ${ON_CLAUDE?"Here on claude.ai it opens in a new tab.":"It opens right inside the game."} Optional: paste a free Google Maps Embed API key to make the in-game view load more reliably.</p><label class="lbl">Maps key <input id="setKey" value="${esc(S.mapsKey||"")}" placeholder="optional" autocomplete="off" spellcheck="false"></label>
- <h3>Bear names</h3><div class="names2">${S.bears.map(b=>`<label class="lbl"><span class="av">${bearHead(b)}</span><input data-bid="${b.id}" class="rn" value="${esc(b.name)}" maxlength="18"></label>`).join("")}</div>
+ <h3>Bear names</h3><div class="names2">${S.bears.map(b=>`<label class="lbl"><span class="av">${bearHead(b)}</span><input data-bid="${b.id}" class="rn" value="${esc(b.name)}" maxlength="18">${b.color=="white"?`<span class="bc2"><input type="checkbox" class="pl" data-bid="${b.id}" ${b.photo?"checked":""}> Photo look</span>`:""}</label>`).join("")}</div>
  <h3>Saving</h3><p class="note">Everything saves automatically as you play.${cloud?" It is also saved to your Claude account, so it follows you to other devices.":" It is saved in this browser, so copy a backup code now and then to keep it safe."}</p><div class="row wrap"><button class="btn gold" data-act="exportFile">⬇ Download save file</button><button class="btn" data-act="importFile">⬆ Load save file</button></div><p class="note">A save file keeps everything safe when you switch computers (like moving from Windows 10 to Windows 11). Load it on the new computer and your castle is back.</p><div class="row wrap"><button class="btn" data-act="copySave">📋 Copy backup code</button><button class="btn ghost" data-act="loadSave">📥 Restore from a backup code</button></div><textarea id="saveBox" placeholder="Paste a backup code here, then tap Restore" rows="3"></textarea>`);
  $("#setMonth").onchange=e=>{S.month=e.target.value=="auto"?"auto":+e.target.value;save();renderAll()};$("#setMute").onchange=e=>{S.snd.muted=!e.target.checked;sndInit();save();applySound();renderDock()};$("#setMusic").onchange=e=>{S.snd.music=e.target.checked;save();SND.cur=null;applySound()};$("#setVol").oninput=e=>{S.snd.vol=+e.target.value;save();sndVolume(S.snd.vol)};$("#setKey").onchange=e=>{S.mapsKey=e.target.value.trim();save();toast(S.mapsKey?"🗺️ Maps key saved.":"Maps key removed.")};
+ document.querySelectorAll(".pl").forEach(inp=>inp.onchange=()=>{const b=bearById(inp.dataset.bid);if(inp.checked)b.photo="bears/polar_cub.png";else delete b.photo;save();renderAll();openSettings()});
  document.querySelectorAll(".rn").forEach(inp=>inp.onchange=()=>{const b=bearById(inp.dataset.bid);const v=inp.value.trim();if(v){b.name=v;save();renderTop();renderLoc()}})}
 function renderDock(){$("#sndbtn").textContent=S.snd.muted?"🔇":"🔊"}
 /* ---------- save game ---------- */
@@ -1632,7 +1644,8 @@ const ACT={
  loadSave:()=>{const v=$("#saveBox").value.trim();if(!v){toast("Paste a backup code into the box first.");return}try{const o=JSON.parse(decodeURIComponent(escape(atob(v))));if(!o.bears)throw 0;openConfirm("Replace this game with the backup?","Yes, restore it",()=>{S=o;save();closeModal();renderAll();toast("✅ Backup restored!")})}catch(e){toast("That code didn't work — make sure you copied all of it.")}}
 };
 /* ---------- boot ---------- */
-function migrate(){S.up=S.up||{silver:0,gold:0,crown:0,bees:0};S.snd=S.snd||{vol:.55,muted:false,music:true};S.story=S.story||{first:todayStr(),list:[]};S.bears.forEach(b=>{b.suit=b.suit||{packed:[],snacks:[],camera:true,neu:[]};b.view=b.view||{t:"street"};if(!CITIES[b.loc])b.loc="bern"});if(!bearById(S.active))S.active=S.bears[0].id}
+function migrate(){S.up=S.up||{silver:0,gold:0,crown:0,bees:0};S.snd=S.snd||{vol:.55,muted:false,music:true};S.story=S.story||{first:todayStr(),list:[]};S.bears.forEach(b=>{b.suit=b.suit||{packed:[],snacks:[],camera:true,neu:[]};b.view=b.view||{t:"street"};if(!CITIES[b.loc])b.loc="bern"});if(!bearById(S.active))S.active=S.bears[0].id;
+ if(!S.photoV1){S.photoV1=1;const a=bearById(S.active);const c=a&&a.color=="white"?a:S.bears.find(b=>b.name=="Christina")||S.bears.find(b=>b.color=="white");["p_gown_ruffle","p_tiara","p_necklace"].forEach(i=>S.ward[i]=1);if(c){c.photo="bears/polar_cub.png";c.wear={outfit:{id:"p_gown_ruffle"},head:{id:"p_tiara"},neck:{id:"p_necklace"}}}S._photoNews=c?c.name:"";save()}}
 function boot(){if(!load())newState();migrate();
  document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(el){e.preventDefault();sndInit();applySound();const f=ACT[el.dataset.act];f&&f(el.dataset.arg,el,e)}});
  $("#modal").addEventListener("click",e=>{if(e.target.id=="modal")closeModal()});
@@ -1641,6 +1654,7 @@ function boot(){if(!load())newState();migrate();
  $("#pot").addEventListener("pointerdown",e=>{e.preventDefault();potClick(e)});
  document.addEventListener("pointerdown",()=>{if(sndInit())applySound()},{once:true});
  renderAll();renderDock();renderSaved();
+ if(S._photoNews){const nm=S._photoNews;setTimeout(()=>toast(`🐻‍❄️ ${nm} has a new look, and is wearing her new pink ruffle gown, diamond tiara and rose-gold necklace!`),1200);delete S._photoNews;save()}
  if(!S.seenWelcome){S.seenWelcome=1;save();openModal("Welcome to Bärengraben Castle 🐻",`<div class="welcome"><div class="trio">${S.bears.map(b=>`<span>${bearSVG(b,"happy")}</span>`).join("")}</div><p class="lede">Christina, Matthew and Lizzie are home in Bärengraben Castle, a cozy Victorian town on the turquoise river, just like Bern.</p><ul><li><b>Tap the Giant Honey Pot</b> as often as you like for Honey Coins. Every tap gives a different amount, and some are jackpots!</li><li><b>Tap any building</b> to walk over and go inside: shops, the Bear Pit, the Bear Bank, the train station and the airport.</li><li><b>Pick your bear</b> along the top. <b>🏰 My Castle</b> takes you home to decorate, and <b>🏠 Home</b> brings you back to Bern from anywhere.</li><li>There are no timers and nothing expires. Everything saves by itself, and the <b>💾 Save Game</b> button up top saves any time you like. It can also download a save file to your computer.</li></ul><button class="btn gold big" data-act="close">Let's go!</button></div>`)}
  setTimeout(()=>cloudInit(0),600)}
 window.addEventListener("DOMContentLoaded",boot);
