@@ -367,9 +367,9 @@ W("crown_king","King's gold crown","head","crown","#d4af37",900,"boutique","bern
 W("appenzell","Appenzeller red vest","outfit","appenzell","#c0392b",300,"boutique","bern","boy");
 W("cane","Gentleman's walking cane","bag","cane","#3b2414",160,"boutique","bern","boy");
 // Photo clothes (pictures from the family)
-W("p_gown_ruffle","Pink ruffle ballgown","outfit","photo","#f4a6b8",900,"boutique","bern","girl");ITEMS.p_gown_ruffle.photo="items/gown_ruffle.png";ITEMS.p_gown_ruffle.ar=554/515;
-W("p_tiara","Diamond tiara","head","photo","#e6f2ff",2500,"boutique","bern","girl");ITEMS.p_tiara.photo="items/tiara_diamond.png";ITEMS.p_tiara.ar=500/384;
-W("p_necklace","Rose-gold diamond necklace","neck","photo","#e8b4a0",1500,"boutique","bern","girl");ITEMS.p_necklace.photo="items/necklace_rosegold.png";ITEMS.p_necklace.ar=392/500;
+W("p_gown_ruffle","Pink ruffle ballgown","outfit","photo","#f4a6b8",900,"boutique","bern","girl");ITEMS.p_gown_ruffle.photo="items/gown_ruffle.png";ITEMS.p_gown_ruffle.ar=554/515;ITEMS.p_gown_ruffle.fit="gown";ITEMS.p_gown_ruffle.px=[554,515];ITEMS.p_gown_ruffle.prof=[null,[0.41,0.572],[0.413,0.57],[0.421,0.561],[0.431,0.554],[0.431,0.552],[0.421,0.567],[0.386,0.596],[0.352,0.614],[0.338,0.628],[0.336,0.65],[0.332,0.675],[0.312,0.681],[0.289,0.699],[0.28,0.72],[0.24,0.747],[0.238,0.749],[0.222,0.778],[0.211,0.794],[0.211,0.798],[0.19,0.798],[0.175,0.825],[0.155,0.861],[0.121,0.87],[0.097,0.91],[0.061,0.96],[0.043,0.958],[0.029,0.962],[0.051,0.966],[0.116,0.93],[0.249,0.838],null,null];
+W("p_tiara","Diamond tiara","head","photo","#e6f2ff",2500,"boutique","bern","girl");ITEMS.p_tiara.photo="items/tiara_diamond.png";ITEMS.p_tiara.ar=500/384;ITEMS.p_tiara.fit="tiara";
+W("p_necklace","Rose-gold diamond necklace","neck","photo","#e8b4a0",1500,"boutique","bern","girl");ITEMS.p_necklace.photo="items/necklace_rosegold.png";ITEMS.p_necklace.ar=392/500;ITEMS.p_necklace.fit="necklace";ITEMS.p_necklace.px=[392,500];
 W("ballgown_magenta","Magenta pleated ballgown","outfit","ballgown","#c2185b",650,"boutique","bern","girl");
 // Royal furniture
 F("throne","Gilded velvet throne","throne",1500,"home","#9b1b30");
@@ -621,14 +621,31 @@ function bearSVG(bear,expr,opt){
  if(hs=="crown")top+=`<path d="M62 36 L60 4 L80 18 L100 -6 L120 18 L140 4 L138 36Z" fill="${hc}" stroke="${hd}" stroke-width="2.5"/><path d="M66 30 Q100 18 134 30 L134 36 Q100 28 66 36Z" fill="#9b1b30"/><path d="M62 36 Q100 26 138 36" stroke="${hd}" stroke-width="4" fill="none"/>`+[[80,26,"#c0392b"],[100,24,"#27408b"],[120,26,"#1f6b4a"]].map(g=>`<circle cx="${g[0]}" cy="${g[1]}" r="4.5" fill="${g[2]}" stroke="#fff" stroke-width="1.2"/>`).join("")+[[60,2],[100,-8],[140,2]].map(g=>`<circle cx="${g[0]}" cy="${g[1]}" r="4" fill="#fdf8ef" stroke="${hd}"/>`).join("")+`<path d="M96 -10 h8 M100 -14 v8" stroke="${hd}" stroke-width="3"/>`;
  if(hs=="tiara")top+=`<path d="M62 34 L70 8 L82 26 L100 -2 L118 26 L130 8 L138 34 Q100 26 62 34Z" fill="${hc}" stroke="${hd}" stroke-width="2"/><circle cx="100" cy="12" r="5" fill="#f49ac1" stroke="#fff"/><circle cx="72" cy="22" r="3" fill="#81d8d0"/><circle cx="128" cy="22" r="3" fill="#81d8d0"/><circle cx="100" cy="2" r="2" fill="#fff"/>`;
  const sh=`<ellipse cx="100" cy="254" rx="62" ry="8" fill="#000" opacity=".14"/>`;
- const PB=!!bear.photo;let ph="";
- const pimg=(slot,cx,top,w,h)=>{const it=w0[slot]&&ITEMS[w0[slot].id];if(!it||!it.photo)return"";if(!w)w=h*it.ar;if(!h)h=w/it.ar;return`<image href="${it.photo}" x="${cx-w/2}" y="${top}" width="${w}" height="${h}" preserveAspectRatio="none"/>`};
- const w0=w;
- if(PB){ph=pimg("outfit",100,78,0,184)+pimg("neck",100,58,62,0)+pimg("head",100,-40,86,0);
-  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}<image href="${bear.photo}" x="11" y="-10" width="178" height="270" preserveAspectRatio="xMidYMax meet"/>${front}</g><g>${ph}</g><g class="bhead">${top}</g></svg>`}
- ph=pimg("outfit",100,138,0,124)+pimg("neck",100,128,56,0);const ptop=pimg("head",100,-38,92,0);
- return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${ph}</g><g class="bhead">${head}${top}${ptop}</g></svg>`;
+ const PB=!!bear.photo;const G=photoGeom(PB);const pw=photoWear(w,G);
+ if(PB){const img=`<image href="${bear.photo}" x="33" y="-10" width="178" height="270" preserveAspectRatio="xMidYMax meet"/>`;
+  const gown=w.outfit&&ITEMS[w.outfit.id]&&ITEMS[w.outfit.id].fit=="gown";const uid2="pc"+Math.random().toString(36).slice(2,7);
+  const paws=gown?`<defs><radialGradient id="${uid2}g"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="${uid2}" maskUnits="userSpaceOnUse" x="-30" y="-36" width="260" height="300"><ellipse cx="80" cy="160" rx="22" ry="20" fill="url(#${uid2}g)"/><ellipse cx="126" cy="163" rx="22" ry="20" fill="url(#${uid2}g)"/></mask></defs><g mask="url(#${uid2})">${img}</g>`:"";
+  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${img}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${front}</g>${pw.under}${paws}${pw.over}</g><g class="bhead" transform="translate(0 -30)">${top}</g>${pw.head}</svg>`}
+ return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${pw.under}${pw.over}</g><g class="bhead">${head}${top}${pw.head}</g></svg>`;
 }
+/* photo clothes fitted to the bear */
+function photoGeom(PB){return PB?{cx:100,chest:84,waist:140,hem:258,wTop:84,wHem:200,headTop:-4,tiaraW:54,neckY:70,neckW:58,neckH:60}:{cx:100,chest:146,waist:180,hem:258,wTop:62,wHem:150,headTop:27,tiaraW:66,neckY:140,neckW:44,neckH:45}}
+function photoWear(w,G){let under="",over="",head="";
+ const o=w.outfit&&ITEMS[w.outfit.id];
+ if(o&&o.fit=="gown"){const[PW,PH]=o.px,pr=o.prof;let s="";const rows=pr.length-1;
+  const Y=r=>r<=0.2?G.chest+(G.waist-G.chest)*Math.max(0,(r-0.03)/0.17):G.waist+(G.hem-G.waist)*Math.min(1,(r-0.2)/0.74);
+  const wB=(pr[3][1]-pr[3][0])*PW,sxB=G.wTop/wB,wW=(pr[6][1]-pr[6][0])*PW*sxB;
+  const SUB=4;for(let k=SUB;k<rows*SUB;k++){const i=Math.floor(k/SUB),f=(k%SUB)/SUB,f2=f+1/SUB;const p0=pr[i],p1=pr[i+1]||p0;if(!p0||!p1)continue;const L=(a,b,t)=>a+(b-a)*t;const p=[L(p0[0],p1[0],f),L(p0[1],p1[1],f)],q=[L(p0[0],p1[0],f2),L(p0[1],p1[1],f2)];const r0=k/(rows*SUB),r1=(k+1)/(rows*SUB);if(r0>0.95)break;const gw=((p[1]-p[0])+(q[1]-q[0]))/2*PW,gc=((p[0]+p[1])+(q[0]+q[1]))/4*PW;
+   let tw;if(r0<0.2)tw=gw*sxB;else{const t=Math.min(1,(r0-0.2)/0.7);tw=wW+(G.wHem-wW)*Math.pow(t,0.9)}const sx=tw/gw;const y0=Y(r0),y1=Y(r1)+0.4;
+   s+=`<svg x="${G.cx-gc*sx}" y="${y0}" width="${PW*sx}" height="${Math.max(0.5,y1-y0)}" viewBox="0 ${r0*PH} ${PW} ${(r1-r0)*PH}" preserveAspectRatio="none"><image href="${o.photo}" width="${PW}" height="${PH}"/></svg>`}
+  under+=s}
+ else if(o&&o.photo)under+=`<image href="${o.photo}" x="${G.cx-60}" y="${G.chest}" width="120" height="${G.hem-G.chest}" preserveAspectRatio="xMidYMax meet"/>`;
+ const n=w.neck&&ITEMS[w.neck.id];
+ if(n&&n.fit=="necklace"){const fid="nf"+Math.random().toString(36).slice(2,6);const h=G.neckW*306/295;over+=`<filter id="${fid}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.7" flood-color="#6b3f2a" flood-opacity=".9"/></filter><g filter="url(#${fid})"><image href="items/necklace_drape.png" x="${G.cx-G.neckW/2}" y="${G.neckY}" width="${G.neckW}" height="${h}"/></g>`}
+ else if(n&&n.photo)over+=`<image href="${n.photo}" x="${G.cx-G.neckW/2}" y="${G.neckY}" width="${G.neckW}" height="${G.neckH}"/>`;
+ const h=w.head&&ITEMS[w.head.id];
+ if(h&&h.photo){const tw=G.tiaraW,th=tw/h.ar;head+=`<image href="${h.photo}" x="${G.cx-tw/2}" y="${G.headTop+9-th}" width="${tw}" height="${th}"/>`}
+ return{under,over,head}}
 function bearMini(I,color){const w={};w[I.slot]={id:I.id};let s=bearSVG({color:color||"white",wear:w},"happy");if(["head","neck","ears"].includes(I.slot))s=s.replace('viewBox="-30 -36 260 300"','viewBox="10 -30 180 200"');else if(I.slot=="feet")s=s.replace('viewBox="-30 -36 260 300"','viewBox="30 160 140 110"');else if(I.slot=="wrist"||I.slot=="watch")s=s.replace('viewBox="-30 -36 260 300"','viewBox="20 130 160 130"');return s}
 function bearHead(bear){const s=bearSVG(bear,"normal");return s.replace('viewBox="-30 -36 260 300"',bear.photo?'viewBox="38 -22 124 124"':'viewBox="22 -20 156 160"')}
 
