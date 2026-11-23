@@ -254,6 +254,7 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 .cardphoto{width:100%;height:100%;object-fit:contain}
 .pshop .sp .sl{opacity:0;transition:opacity .15s}.pshop .sp:hover .sl,.pshop .sp:focus .sl{opacity:1;z-index:5}.pshop .sp .bdg{width:min(54px,70%)!important}
 .bdgpic{width:82%;height:82%;object-fit:contain}.ivart{position:relative}.ivmini{position:absolute;right:-8px;bottom:-8px;width:42%;aspect-ratio:1;background:#fffaf0;border:3px solid var(--gold);border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}.ivmini svg{width:100%;height:100%}
+.trip{position:absolute;left:1.5%;right:1.5%;top:13%;height:50%;display:flex;gap:1%;align-items:center;justify-content:center;z-index:0}.tpanel{min-width:0;height:100%;display:flex;align-items:center}.tpanel img{width:100%;height:auto;display:block;border:5px solid #c9a227;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.55),inset 0 0 0 2px #fff}
 </style>
 </head>
 <body>
@@ -1354,7 +1355,7 @@ function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,st
  else if(v.t=="hotel"){bg=stripClose(interiorSVG("hotel",{id:"h"+ck,n:"hotel"},ck))+`<g transform="translate(780 670) scale(.85)">${furnSVG("suitcase")}</g><g transform="translate(1070 680) scale(.7)">${furnSVG("wing","#7a1f2e")}</g><text x="600" y="545" font-size="44">🛎️</text></svg>`;cap={t:"🏨 "+C.hotel,d:"Your cozy room in "+C.n};kind="hotel";
   spots.push(spotObj(330,500,300,250,"Nap in the bed","nap",{bx:330,by:610}),spotObj(1070,610,140,150,"Sit in the armchair","sit",{bx:1070,by:640}),spotObj(780,620,150,110,"Open my suitcase","suitcase",{bx:880,by:690}),spotObj(620,540,120,120,"Ring for room service","menu",{bx:620,by:690}),spotObj(910,210,300,260,"Look out the window","hl",{line:"What a view of "+C.n.split(/[,&]/)[0].trim()+"!",icon:"🪟",bx:900,by:690}));cap.real=ck}
  else if(v.t=="window"){const st=STORES[v.store];bg=interiorSVG("window",{id:v.store,store:v.store},"nyc");cap={t:"🎄 "+st.n,d:"The holiday windows on a winter night"};kind="window";start={x:300,y:690};
-  spots.push(spotObj(600,330,500,300,"Look closely at the holiday window","closeup",{store:v.store,icon:"🔍",bx:520,by:690}),spotObj(980,560,220,220,"Walk inside "+st.n,"enter",{store:v.store,bx:900,by:690}));if(GEO[v.store])cap.real=v.store}
+  if(!TRIPTYCH[v.store])spots.push(spotObj(600,330,500,300,"Look closely at the holiday window","closeup",{store:v.store,icon:"🔍",bx:520,by:690}));spots.push(spotObj(TRIPTYCH[v.store]?1080:980,TRIPTYCH[v.store]?600:560,220,180,"Walk inside "+st.n,"enter",{store:v.store,icon:"🚪",bx:900,by:690}));if(GEO[v.store])cap.real=v.store}
  else if(v.t=="windowclose"){const st=STORES[v.store];bg=interiorSVG("window",{id:v.store,store:v.store},"nyc");cap={t:"✨ "+st.n+" window",d:"Up close to the holiday display"};kind="window";start={x:200,y:690};
   spots.push(spotObj(380,300,200,200,"Look at the display","hl",{line:pick(["So many tiny details!","Look at all the little figures!","It looks so snowy and cozy!"]),icon:"🔍",bx:300,by:690}),spotObj(820,260,200,200,"Twinkling lights","hl",{line:pick(["The lights are sparkling!","It's like a winter wonderland!","I could look at this all night!"]),icon:"✨",bx:740,by:690}),spotObj(1050,560,200,160,"Back to the storefront","front",{store:v.store,icon:"🏬",bx:980,by:690}),spotObj(150,280,200,180,"Next window ▶","nextwin",{store:v.store,n:v.n||1,icon:"🎁",bx:260,by:690}))}
  return{bg,spots,cap,start,kind,loc:ck}}
@@ -1368,7 +1369,10 @@ function renderScene(){const b=B(),v=b.view;const sc=buildScene(v,b.loc);curScen
 function sceneKey(v){return v.t+":"+(v.aid||v.shop||v.store||"")+(v.n||"")}
 const BD_MISS={},BD_AR={};
 function backdropName(v,loc){return v.t=="inside"?v.aid:v.t=="shopin"?v.shop:v.t=="hotel"?"hotel_"+loc:v.t=="window"?v.store+"_front":v.t=="windowclose"?v.store+"_window"+((v.n||1)>1?v.n:""):null}
-function tryBackdrop(v,loc){const n=backdropName(v,loc);if(!n||BD_MISS[n]===true)return;const exts=["webp","jpg","png"];const go=k=>{if(k>=exts.length){BD_MISS[n]=true;return}const url="scenes/"+n+"."+exts[k];if(BD_MISS[n]===url)return apply(url);const im=new Image();im.onload=()=>{BD_MISS[n]=url;BD_AR[url]=im.naturalWidth/im.naturalHeight;apply(url)};im.onerror=()=>go(k+1);im.src=url};
+const TRIPTYCH={macys:[["scenes/macys_front.jpg",1.498],["scenes/macys_window.jpg",1.333],["scenes/macys_window2.jpg",0.752]]};
+function showTriptych(v){const T=TRIPTYCH[v.store],box=stage().querySelector(".sbox");if(!box)return;const svg=box.querySelector(".scenesvg,svg");if(svg)svg.style.display="none";box.classList.add("imgmode");
+ box.insertAdjacentHTML("afterbegin",`<img class="bdblur" src="${T[0][0]}" alt=""><div class="trip">${T.map(([u,ar])=>`<div class="tpanel" style="flex:${ar} 1 0"><img src="${u}" alt=""></div>`).join("")}</div>`)}
+function tryBackdrop(v,loc){if(v.t=="window"&&TRIPTYCH[v.store])return showTriptych(v);const n=backdropName(v,loc);if(!n||BD_MISS[n]===true)return;const exts=["webp","jpg","png"];const go=k=>{if(k>=exts.length){BD_MISS[n]=true;return}const url="scenes/"+n+"."+exts[k];if(BD_MISS[n]===url)return apply(url);const im=new Image();im.onload=()=>{BD_MISS[n]=url;BD_AR[url]=im.naturalWidth/im.naturalHeight;apply(url)};im.onerror=()=>go(k+1);im.src=url};
  const apply=url=>{const box=stage().querySelector(".sbox");if(!box||sceneKey(B().view)!=sceneKey(v))return;const svg=box.querySelector(".scenesvg,svg");if(svg&&!box.querySelector(".bdimg")){svg.style.display="none";const tall=BD_AR[url]&&BD_AR[url]<1.3;box.insertAdjacentHTML("afterbegin",(tall?`<img class="bdblur" src="${url}" alt="">`:"")+`<img class="bdimg ${tall?"contain":""}" src="${url}" alt="">`);box.classList.add("imgmode");box.querySelectorAll(".sp").forEach(el=>{if(parseFloat(el.style.top)<16)el.style.top="16%"})}};go(0)}
 function fitBox(box,inner){if(!box||!inner)return;const W=box.clientWidth,H=box.clientHeight;let w=Math.min(W,H*12/7*1.16),h=w*7/12;if(h<H&&w<W){}inner.style.width=w+"px";inner.style.height=h+"px"}
 window.addEventListener("resize",()=>{const st=stage();if(st&&st.classList.contains("scene"))fitBox(st.querySelector(".scenebox"),st.querySelector(".sbox"))});
@@ -1582,7 +1586,7 @@ function walkTo(x,then){const b=B();if(walking)return;const st=stage(),wrap=st.q
 function tip(){const n=earn(Math.ceil((1+Math.random()*4)*Math.sqrt(mult())));floatAtBear("+"+n+" 🍯")}
 function doBuilding(L,i){tip();const b=B();
  switch(L.act){case"train":return openTravel("train");case"plane":return openTravel("plane");case"catalog":return openCatalog();case"shop":go({t:"shopin",shop:L.shop});return;case"bank":return openBank();case"post":return openPost();case"castles":return openCastleList();
-  case"stand":return openShop("market",{stand:true});case"hotel":go({t:"hotel"});return;case"dept":return openDept(L.store);
+  case"stand":return openShop("market",{stand:true});case"hotel":go({t:"hotel"});return;case"dept":if(TRIPTYCH[L.store])return go({t:"window",store:L.store});return openDept(L.store);
   case"att":return visit(L.aid)}}
 function go(view){const b=B();b.view=view;save();renderLoc();renderStage();applySound()}
 function visit(aid){const b=B();const a=att(b.loc,aid);go({t:"inside",aid});stamp(b.loc,aid,a)}
