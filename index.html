@@ -254,9 +254,6 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 .cardphoto{width:100%;height:100%;object-fit:contain}
 .pshop .sp .sl{opacity:0;transition:opacity .15s}.pshop .sp:hover .sl,.pshop .sp:focus .sl{opacity:1;z-index:5}.pshop .sp .bdg{width:min(54px,70%)!important}
 .bdgpic{width:82%;height:82%;object-fit:contain}.ivart{position:relative}.ivmini{position:absolute;right:-8px;bottom:-8px;width:42%;aspect-ratio:1;background:#fffaf0;border:3px solid var(--gold);border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}.ivmini svg{width:100%;height:100%}
-.mapview{display:grid;grid-template-rows:1fr auto;background:#d8cfb8}.mapbox{min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.mapsvg{width:100%;height:100%}.mb{cursor:pointer}.mb:hover polygon{filter:brightness(1.12)}
-.win{cursor:zoom-in}.win:hover rect{filter:brightness(1.08)}.winpic{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}
-.sqbar{position:absolute;left:10px;top:10px;z-index:7;display:flex;gap:8px;align-items:center}.sqname{background:#fffaf0;border:2px solid var(--gold);border-radius:16px;padding:4px 12px;font-weight:800;font-family:Georgia,serif;color:#3b2a1f}
 </style>
 </head>
 <body>
@@ -853,7 +850,6 @@ function bernExtras(b,x){const cx=x+SLOT/2;
  if(b.kind=="castlelane")return landmark("castle","castle",x,"swiss","Castle Lane","🏰")+sign(x+150,BASE-130,240,b.label,"#3d5a80");
  return null}
 function facade(b,i,style,city){
- if(b.kind=="corner")return cornerSVG(b,i,city);if(COMMERCIAL.has(b.kind))return gtFacade(b,i,style,city);
  const x=60+i*SLOT,S=STYLE[style],wall=S.walls[(i*3+hashStr(b.label))%S.walls.length];let s="";
  const ex=city=="bern"?bernExtras(b,x):null;
  if(ex)s+=ex;
@@ -884,7 +880,8 @@ function streetSVG(blds,style,cityKey,month){
  LABELS=[];blds.forEach((b,i)=>s+=facade(b,i,style,cityKey));
  for(let i=0;i<=blds.length;i++)s+=lamp(60+i*SLOT-8);
  s+=`<rect x="0" y="${BASE}" width="${W}" height="62" fill="url(#cob)"/><rect x="0" y="${BASE}" width="${W}" height="6" fill="#9a8a70"/><rect x="0" y="532" width="${W}" height="68" fill="${style=="nyc"||style=="boston"?"#5f6368":"#8c7f6a"}"/>`;
- s+=plazaEdge(W,blds);
+ if(style=="nyc")for(let x=200;x<W;x+=700)s+=`<g transform="translate(${x} 540)"><rect x="0" y="10" width="150" height="40" rx="10" fill="#f7c600"/><path d="M24 10 Q40 -16 110 -14 Q126 -10 130 10Z" fill="#f7c600"/><rect x="40" y="-8" width="70" height="18" fill="#bfe3f5"/><rect x="60" y="-22" width="30" height="10" fill="#222"/><circle cx="34" cy="50" r="12" fill="#222"/><circle cx="118" cy="50" r="12" fill="#222"/><rect x="0" y="26" width="150" height="5" fill="#222" opacity=".6"/></g>`;
+ if(cityKey=="bern"||style=="swiss")for(let x=320;x<W;x+=1100)s+=`<g transform="translate(${x} 548)"><rect width="160" height="36" rx="6" fill="#c0392b"/><rect x="10" y="6" width="140" height="16" fill="#bfe3f5"/><circle cx="30" cy="38" r="8" fill="#333"/><circle cx="130" cy="38" r="8" fill="#333"/><path d="M80 0 V-30 M60 -30 H100" stroke="#333" stroke-width="3"/></g>`;
  if(M.snow)s+=`<rect x="0" y="${BASE}" width="${W}" height="10" fill="#fff" opacity=".9"/>`;
  s+=seasonSVG(blds,month,W);
  return s+LABELS.join("")+`</svg>`}
@@ -1008,17 +1005,17 @@ const SEASON={
  11:{str:"garland",cols:["#c0392b","#ffcf40","#6bd1ff","#fff"],ban:["#c0392b","✦"],door:"wreath",prop:"tree"}};
 function seasonSVG(blds,month,W){const T=SEASON[month]||SEASON[10];let s="";
  // strings of lights / bunting / garland swagged between lamp posts along the shopfronts
- for(let i=0;i<blds.length;i++){if(blds[i].kind=="corner")continue;const x1=60+i*SLOT+14,x2=60+(i+1)*SLOT-14,y=BASE-222;
-  s+=T.str=="bunting"?sBunting(x1,x2,y,20,T.cols):T.str=="garland"?sGarland(x1,x2,y,26,T.cols)+sBulbs(x1,x2,y+4,26,T.cols,true):T.str=="leaves"?sLeaves(x1,x2,y,26)+sBulbs(x1,x2,y+6,26,T.cols,false):sBulbs(x1,x2,y,26,T.cols,true)}
+ for(let i=0;i<blds.length;i++){const x1=60+i*SLOT+14,x2=60+(i+1)*SLOT-14,y=BASE-205;
+  s+=T.str=="bunting"?sBunting(x1,x2,y,30,T.cols):T.str=="garland"?sGarland(x1,x2,y,26,T.cols)+sBulbs(x1,x2,y+4,26,T.cols,true):T.str=="leaves"?sLeaves(x1,x2,y,26)+sBulbs(x1,x2,y+6,26,T.cols,false):sBulbs(x1,x2,y,26,T.cols,true)}
  // lamp-post banners (and bows/snow caps)
  for(let i=0;i<=blds.length;i++){const lx=60+i*SLOT-8;s+=sBanner(lx+4,BASE-176,T.ban[0],T.ban[1]);if(month==11)s+=`<path d="M${lx} ${BASE-196} l-10 -6 v12Z M${lx} ${BASE-196} l10 -6 v12Z" fill="#c0392b"/>`;if(month==0||month==11)s+=`<ellipse cx="${lx+24}" cy="${BASE-218}" rx="14" ry="5" fill="#fff"/>`}
  // shopfront decor at each building
- blds.forEach((b,i)=>{if(b.kind=="corner")return;const x=60+i*SLOT,dx=x+150,bld=DOORISH.has(b.kind);
-  if(T.door=="wreath"&&bld)s+=sWreath(dx,BASE-74,15,"#2f6b34","#c0392b","#c0392b");
-  if(T.door=="harvest"){if(bld)s+=sWreath(dx,BASE-74,14,"#a0522d","#d4a017","#c0392b");s+=sCorn(x+22,BASE)+sCorn(x+278,BASE)+sPumpkin(x+44,BASE,13)+sPumpkin(x+262,BASE,11)}
+ blds.forEach((b,i)=>{const x=60+i*SLOT,dx=x+150,bld=DOORISH.has(b.kind);
+  if(T.door=="wreath"&&bld)s+=sWreath(x+58,BASE-112,16,"#2f6b34","#c0392b","#c0392b")+sWreath(x+242,BASE-112,16,"#2f6b34","#c0392b","#c0392b");
+  if(T.door=="harvest"){if(bld)s+=sWreath(x+58,BASE-112,15,"#a0522d","#d4a017","#c0392b")+sWreath(x+242,BASE-112,15,"#a0522d","#d4a017","#c0392b");s+=sCorn(x+22,BASE)+sCorn(x+278,BASE)+sPumpkin(x+44,BASE,13)+sPumpkin(x+262,BASE,11)}
   if(T.door=="pumpkins")s+=sPumpkin(x+30,BASE,15)+sPumpkin(x+52,BASE,10)+sPumpkin(x+262,BASE,14);
-  if(T.door=="heart"&&bld)s+=sHeart(dx,BASE-76,13,"#e84a6f");
-  if(T.door=="flowers")s+=sFlowerBox(x+72,BASE-8,90,month==2||month==3?["#f48fb1","#fff176","#ce93d8"]:["#e53935","#fff","#ffb300"])+sFlowerBox(x+228,BASE-8,90,["#f48fb1","#fff176","#ef5350"]);
+  if(T.door=="heart"&&bld)s+=sHeart(x+58,BASE-112,14,"#e84a6f")+sHeart(x+242,BASE-112,14,"#e84a6f");
+  if(T.door=="flowers")s+=sFlowerBox(x+58,BASE-60,60,month==2||month==3?["#f48fb1","#fff176","#ce93d8"]:["#e53935","#fff","#ffb300"])+sFlowerBox(x+242,BASE-60,60,["#f48fb1","#fff176","#ef5350"]);
   if(T.door=="balloons")s+=sBalloons(x+28,BASE,["#ff6b6b","#ffcf40","#6bd1ff"])+sBalloons(x+272,BASE,["#b388ff","#69f0ae","#ff8a80"]);
   if(T.door=="snow"&&bld)s+=`<path d="M${x+20} ${BASE} q20 -18 40 0Z M${x+240} ${BASE} q20 -18 40 0Z" fill="#fff"/>`;
   // a town-square prop every third building, out on the sidewalk
@@ -1027,136 +1024,6 @@ function seasonSVG(blds,month,W){const T=SEASON[month]||SEASON[10];let s="";
  // birthday banner across the street
  if(T.star&&blds.length>2){const x=60+SLOT*1.5;s+=`<g><path d="M${x-150} ${BASE-305} Q${x} ${BASE-275} ${x+150} ${BASE-305}" stroke="#7a5a3a" stroke-width="2" fill="none"/><rect x="${x-140}" y="${BASE-301}" width="280" height="34" rx="8" fill="#fffaf0" stroke="${T.ban[0]}" stroke-width="3"/><text x="${x}" y="${BASE-278}" text-anchor="middle" font-family="Georgia" font-weight="700" font-size="19" fill="${T.ban[0]}">Happy Birthday, ${T.star}!</text></g>`}
  return`<g class="season">${s}</g>`}
-
-/* ---------- TOWN SQUARE: landmark in the middle, four streets (#), storefronts all round ---------- */
-const SQ={
- bern:{a:"bern_zyt",st:["Main Street","7th Street","Austin Avenue","8th Street"]},
- lucerne:{a:"lion",st:["Kapellgasse","Weggisgasse","Hertensteinstrasse","Kornmarkt"]},
- amsterdam:{a:"rijks",st:["Damrak","Kalverstraat","Rokin","Nieuwendijk"]},
- nordic:{a:"waterfront",st:["Bryggen","Torget","Strandkaien","Kong Oscars gate"]},
- paris:{a:"eiffel",st:["Rue de Rivoli","Rue Saint-Honoré","Rue de la Paix","Avenue de l'Opéra"]},
- prague:{a:"astro",st:["Celetná","Železná","Melantrichova","Karlova"]},
- germany:{a:"glockenspiel",st:["Kaufingerstraße","Weinstraße","Dienerstraße","Rosenstraße"]},
- rothenburg:{a:"plonlein",st:["Herrngasse","Schmiedgasse","Hafengasse","Rödergasse"]},
- italy:{a:"colosseum",st:["Via del Corso","Via Condotti","Via dei Fori Imperiali","Via Nazionale"]},
- uk:{a:"bigben",st:["Whitehall","The Strand","Regent Street","Piccadilly"]},
- nyc:{a:"empire",st:["Fifth Avenue","34th Street","Sixth Avenue","42nd Street"]},
- boston:{a:"common",st:["Tremont Street","Beacon Street","Park Street","Boylston Street"]}};
-const COMMERCIAL=new Set(["shop","food","post","bank","catalog","hotel","dept","stand"]);
-const GT_WALLS=["#9c4a33","#d8c7a0","#ece0c2","#874030","#c9a878","#a85a3e"];
-function sqInfo(ck){return SQ[ck]||{a:null,st:["North Street","East Street","South Street","West Street"]}}
-function sqAnchor(ck){const q=sqInfo(ck);return ck=="bern"?BERN_ATT[q.a]:att(ck,q.a)}
-function sqSides(ck){const all=cityStreet(ck),aid=sqInfo(ck).a;const L=all.filter(x=>!(x.act=="att"&&x.aid==aid));const out=[],base=Math.floor(L.length/4),extra=L.length%4;let p=0;for(let k=0;k<4;k++){const c=base+(k<extra?1:0);out.push(L.slice(p,p+c));p+=c}return out}
-function sideList(ck,side){const q=sqInfo(ck),sides=sqSides(ck),k=((side||0)%4+4)%4;
- return[{kind:"corner",dir:-1,label:"Turn onto "+q.st[(k+3)%4],to:(k+3)%4},...sides[k],{kind:"corner",dir:1,label:"Turn onto "+q.st[(k+1)%4],to:(k+1)%4}]}
-function turnCorner(dir){const b=B(),k=((b.side||0)+(dir>0?1:3))%4;b.side=k;const n=sideList(b.loc,k).length;b.x=dir>0?60+SLOT+60:60+(n-1)*SLOT-60;sfx("step");save();renderLoc();renderStreet();setTimeout(()=>toast("🚶 "+sqInfo(b.loc).st[k]),200)}
-/* items shown in a shop's display windows */
-function windowItems(L){if(L.act=="shop"){const it=shopItems(L.shop);const pics=it.filter(i=>i.pic),rest=it.filter(i=>!i.pic);return pics.concat(rest).slice(0,8)}
- if(L.act=="stand")return[ITEMS.bratwurst].filter(Boolean);return[]}
-function winThing(I,x,y,s){if(!I)return"";if(I.pic){const ar=I.picAR||1,w=ar>=1?s:s*ar,h=ar>=1?s/ar:s;return`<image href="${I.pic}" x="${x-w/2}" y="${y-h}" width="${w}" height="${h}"/>`}
- const e=I.c=="wear"?wearIcon(I):I.i||"✨";return`<text x="${x}" y="${y-3}" text-anchor="middle" font-size="${s*.8}">${e}</text>`}
-/* ---- Victorian commercial block storefront (flush, parapet, arched windows, canopy on posts) ---- */
-function gtFacade(b,i,style,city){const x=60+i*SLOT,S=STYLE[style],hs=hashStr(b.label+i);
- const walls=city=="bern"?GT_WALLS:S.walls,wall=walls[hs%walls.length],trim=city=="bern"?"#efe6cf":S.trim,dark=shadeHex(wall,-.28);
- const brick=/^#[89a]/.test(wall)&&city=="bern"||["#9b3d2e","#a8432f","#8e3b2b","#b04a35","#a04030","#8b4a3c","#7a3b2e"].includes(wall);
- const h=b.kind=="hotel"?420:b.kind=="dept"?415:335+(hs%4)*24,top=BASE-h;let s="";
- s+=`<rect x="${x}" y="${top}" width="${SLOT}" height="${h}" fill="${wall}"/>`;
- if(brick)for(let y=top+8;y<BASE-150;y+=9)s+=`<path d="M${x} ${y} H${x+SLOT}" stroke="${dark}" stroke-width=".7" opacity=".35"/>`;
- else for(let y=top+30;y<BASE-150;y+=30)s+=`<path d="M${x} ${y} H${x+SLOT}" stroke="${dark}" stroke-width=".8" opacity=".25"/>`;
- // pilasters keep the walls flush and divide the block
- s+=`<rect x="${x}" y="${top}" width="12" height="${h}" fill="${shadeHex(wall,-.12)}"/><rect x="${x+SLOT-12}" y="${top}" width="12" height="${h}" fill="${shadeHex(wall,-.12)}"/>`;
- // parapet + ornate cornice hiding the roofline
- const par=hs%3;s+=`<rect x="${x-2}" y="${top}" width="${SLOT+4}" height="20" fill="${trim}"/><rect x="${x-2}" y="${top+20}" width="${SLOT+4}" height="6" fill="${dark}"/>`+Array.from({length:24},(_,k)=>`<rect x="${x+4+k*12.3}" y="${top+26}" width="6" height="7" fill="${trim}"/>`).join("");
- if(par==0)s+=`<path d="M${x+100} ${top} L${x+110} ${top-26} H${x+190} L${x+200} ${top}Z" fill="${trim}"/><text x="${x+150}" y="${top-8}" text-anchor="middle" font-size="14" font-family="Georgia" font-weight="700" fill="${dark}">18${80+hs%20}</text>`;
- else if(par==1)s+=`<path d="M${x+90} ${top} Q${x+150} ${top-44} ${x+210} ${top}Z" fill="${trim}"/><circle cx="${x+150}" cy="${top-14}" r="8" fill="${dark}"/>`;
- else s+=`<path d="M${x+60} ${top} V${top-14} H${x+120} V${top-28} H${x+180} V${top-14} H${x+240} V${top}Z" fill="${trim}"/>`;
- // upper floors: arched windows with keystones
- const rows=h>380?2:1;for(let r=0;r<rows;r++){const wy=top+50+r*95,wh=r==0&&rows==2?70:Math.min(110,BASE-200-wy);
-  for(let k=0;k<3;k++){const wx=x+38+k*82;s+=`<path d="M${wx} ${wy+wh} V${wy+26} a28 26 0 0 1 56 0 V${wy+wh}Z" fill="#cfe6f2" stroke="${trim}" stroke-width="5"/><path d="M${wx+28} ${wy+2} V${wy+wh} M${wx} ${wy+wh*.55} H${wx+56}" stroke="${trim}" stroke-width="3"/><path d="M${wx+22} ${wy-3} h12 l-2 9 h-8Z" fill="${trim}"/><rect x="${wx-4}" y="${wy+wh}" width="64" height="7" fill="${trim}"/>`}}
- if(b.kind=="hotel")s+=`<rect x="${x+258}" y="${top+40}" width="30" height="170" rx="6" fill="#7a1f2e" stroke="#c9a227" stroke-width="3"/>`+"HOTEL".split("").map((c,k)=>`<text x="${x+273}" y="${top+72+k*32}" text-anchor="middle" fill="#fdf3d6" font-size="22" font-family="Georgia" font-weight="700">${c}</text>`).join("");
- // sign band
- s+=`<rect x="${x+12}" y="${BASE-190}" width="${SLOT-24}" height="44" fill="${dark}"/>`+sign(x+150,BASE-168,250,b.label,b.kind=="food"?"#7a1f2e":b.kind=="dept"?"#1f2f5b":b.kind=="bank"?"#5a3a26":"#2f4d3a");
- // storefront: two display windows + recessed door with transom
- const items=windowItems(b),glass=b.kind=="dept"&&STORES[b.store]?"#132235":"#e3f1f8";
- s+=`<rect x="${x+12}" y="${BASE-146}" width="${SLOT-24}" height="146" fill="${shadeHex(wall,-.35)}"/>`;
- s+=`<g class="win" data-i="${i}">`+[[x+20,104],[x+176,104]].map(([wx,ww],k)=>{let t=`<rect x="${wx}" y="${BASE-136}" width="${ww}" height="112" fill="${glass}" stroke="${trim}" stroke-width="5"/><rect x="${wx+4}" y="${BASE-40}" width="${ww-8}" height="12" fill="${shadeHex(wall,-.15)}"/>`;
-  const its=items.slice(k*3,k*3+3);if(its.length)its.forEach((I,j)=>t+=winThing(I,wx+18+j*34,BASE-42-(j%2)*18,40));
-  else if(b.kind=="dept"&&STORES[b.store])t+=`<g class="twinkle">${Array.from({length:7},(_,j)=>`<circle cx="${wx+10+j*14}" cy="${BASE-126}" r="3" fill="${["#ffe08a","#ff8a80","#80d8ff"][j%3]}"/>`).join("")}</g><text x="${wx+ww/2}" y="${BASE-60}" text-anchor="middle" font-size="40">${["🎄","🎁","⛄","🎈"][(i+k)%4]}</text>`;
-  else t+=`<text x="${wx+ww/2}" y="${BASE-62}" text-anchor="middle" font-size="34">${(b.icons||["🪴","🕰️"])[k%((b.icons||[1,2]).length)]||"🪴"}</text>`;
-  return t+`<path d="M${wx+8} ${BASE-130} l26 0 l-30 60Z" fill="#fff" opacity=".35"/>`}).join("")+`</g>`;
- s+=`<rect x="${x+126}" y="${BASE-140}" width="48" height="140" fill="${trim}"/><rect x="${x+132}" y="${BASE-134}" width="36" height="28" fill="#cfe6f2"/><rect x="${x+132}" y="${BASE-102}" width="36" height="102" fill="${b.kind=="bank"?"#5a3a26":"#3b2a1f"}"/><circle cx="${x+162}" cy="${BASE-50}" r="3" fill="#d4af37"/>`;
- // canopy over the sidewalk: metal canopy or striped awning, with posts at the curb
- const awn=hs%2&&b.kind!="bank";if(awn){const c=b.col||["#7a1f2e","#1f5b3a","#27408b","#b5651d"][hs%4];s+=awning(x+6,BASE-150,SLOT-12,c)}
- else s+=`<path d="M${x+2} ${BASE-152} H${x+SLOT-2} L${x+SLOT+4} ${BASE-128} H${x-4}Z" fill="#2f3b33"/><rect x="${x-4}" y="${BASE-128}" width="${SLOT+8}" height="7" fill="#1e2722"/>`+Array.from({length:12},(_,k)=>`<path d="M${x+8+k*25} ${BASE-121} q6 6 12 0" stroke="#1e2722" stroke-width="2" fill="none"/>`).join("");
- s+=[x+16,x+SLOT-16].map(px=>`<rect x="${px-3}" y="${BASE-124}" width="6" height="${124+52}" fill="#1e2722"/><circle cx="${px}" cy="${BASE+52}" r="5" fill="#1e2722"/>`).join("");
- // potted planters by the door
- s+=[x+112,x+188].map(px=>`<path d="M${px-11} ${BASE+2} h22 l-3 18 h-16Z" fill="#7a4a2a"/><circle cx="${px}" cy="${BASE-4}" r="12" fill="#3e7d3a"/><circle cx="${px-5}" cy="${BASE-10}" r="4" fill="${["#e84a6f","#ffcf40","#fff"][hs%3]}"/>`).join("");
- if(b.kind=="post")s+=`<rect x="${x+270}" y="${BASE-66}" width="24" height="66" rx="5" fill="${style=="uk"?"#c0392b":"#1f4e79"}" stroke="#222" stroke-width="2"/>`;
- return`<g class="bld" data-i="${i}"><rect x="${x}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/>${s}</g>`}
-/* ---- a street corner: the cross street running away, with a street sign ---- */
-function cornerSVG(b,i,city){const x=60+i*SLOT,cx=x+150;let s=`<path d="M${x+60} ${BASE} L${cx-14} ${BASE-170} H${cx+14} L${x+240} ${BASE}Z" fill="#8c8478"/><path d="M${x+40} ${BASE} L${cx-18} ${BASE-170} M${x+260} ${BASE} L${cx+18} ${BASE-170}" stroke="#b8a88e" stroke-width="8"/>`;
- const wl=city=="bern"?GT_WALLS:STYLE[CITIES[city].style].walls;s+=`<path d="M${x} ${BASE} V${BASE-330} L${cx-20} ${BASE-250} V${BASE-170} L${x+40} ${BASE}Z" fill="${shadeHex(wl[i%wl.length],-.1)}"/><path d="M${x+SLOT} ${BASE} V${BASE-330} L${cx+20} ${BASE-250} V${BASE-170} L${x+260} ${BASE}Z" fill="${shadeHex(wl[(i+1)%wl.length],-.15)}"/>`;
- s+=Array.from({length:6},(_,k)=>`<rect x="${x+70+k*28}" y="${BASE+40}" width="16" height="44" fill="#f4f1e8" opacity=".85"/>`).join("");
- const px=b.dir>0?x+70:x+230;s+=`<rect x="${px-3}" y="${BASE-200}" width="6" height="200" fill="#1e2722"/><rect x="${px-80}" y="${BASE-214}" width="160" height="30" rx="4" fill="#1f6b3a" stroke="#fff" stroke-width="2"/><text x="${px}" y="${BASE-194}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff" font-family="Arial">${esc(sqInfo(city).st[b.to])}</text>`;
- LABELS.push(`<g class="bld" data-i="${i}" transform="translate(${cx} ${BASE+28})"><rect x="-128" y="-22" width="256" height="40" rx="20" fill="#fffaf0" stroke="#1f6b3a" stroke-width="3"/>${wrapLabel((b.dir>0?"Turn onto ":"⬅ Turn onto ")+sqInfo(city).st[b.to]+(b.dir>0?" ➡":""),0,4,14,"#1f4d3a",34)}</g>`);
- return`<g class="bld" data-i="${i}"><rect x="${x}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/>${s}</g>`}
-/* ---- front strip: angled parking, then the plaza edge (fence, benches, live oaks) kept low so the bear stays visible ---- */
-function plazaEdge(W,blds){let s="";for(let x=30;x<W;x+=64)s+=`<path d="M${x} 538 l26 34" stroke="#f4f1e8" stroke-width="3" opacity=".8"/>`;
- const CARS=["#7a1f2e","#27408b","#e8dfd0","#1f5b3a","#c9a227","#555"];for(let k=0,x=70;x<W-80;x+=64,k++)if(hashStr("car"+k)%3==0)s+=`<g transform="translate(${x+22} 556) skewX(-30)"><rect x="-22" y="-14" width="44" height="26" rx="8" fill="${CARS[k%6]}"/><rect x="-14" y="-10" width="28" height="10" rx="3" fill="#bfe3f5"/></g>`;
- s+=`<rect x="0" y="578" width="${W}" height="22" fill="#6fae5a"/>`+Array.from({length:Math.ceil(W/16)},(_,k)=>`<path d="M${k*16} 590 V578" stroke="#1e2722" stroke-width="2"/>`).join("")+`<path d="M0 580 H${W}" stroke="#1e2722" stroke-width="3"/>`;
- for(let x=180;x<W;x+=420)s+=`<g><rect x="${x-7}" y="566" width="14" height="34" fill="#5a4030"/><ellipse cx="${x}" cy="566" rx="70" ry="16" fill="#3f6b35" opacity=".95"/><ellipse cx="${x-40}" cy="572" rx="40" ry="12" fill="#4b7d3f"/><ellipse cx="${x+44}" cy="572" rx="38" ry="11" fill="#4b7d3f"/></g>`;
- for(let x=390;x<W;x+=420)s+=`<g><path d="M${x-34} 586 h68 M${x-34} 578 h68" stroke="#1e2722" stroke-width="4"/><path d="M${x-30} 586 v12 M${x+30} 586 v12" stroke="#1e2722" stroke-width="4"/></g>`;
- return s}
-/* ---- shop window close-up ---- */
-function bgWindow(shop,ck){const M=curMonth(),T=SEASON[M]||SEASON[10],Sh=SHOPS[shop]||{n:""};const vel=["#5b1a2b","#1f3a5b","#2f4d3a","#4a2a5b"][hashStr(shop)%4];
- let s=svgOpen()+`<defs><radialGradient id="wvel" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="${shadeHex(vel,.25)}"/><stop offset="1" stop-color="${shadeHex(vel,-.35)}"/></radialGradient></defs><rect width="1200" height="700" fill="#2b1a10"/><rect x="60" y="40" width="1080" height="600" fill="url(#wvel)"/>`;
- s+=Array.from({length:9},(_,k)=>`<path d="M${60+k*135} 40 q67 40 135 0" fill="none" stroke="${shadeHex(vel,-.2)}" stroke-width="6"/>`).join("");
- s+=`<ellipse cx="600" cy="610" rx="520" ry="60" fill="#e8dcc2"/><path d="M180 560 H1020 L980 600 H220Z" fill="#c9b18a"/><rect x="330" y="420" width="540" height="22" rx="6" fill="#efe4cc"/><rect x="340" y="442" width="520" height="118" fill="#d9c7a0"/><rect x="500" y="300" width="200" height="18" rx="6" fill="#efe4cc"/><rect x="510" y="318" width="180" height="102" fill="#d9c7a0"/>`;
- s+=sBulbs(70,1130,60,40,T.cols,true)+sGarland(70,1130,52,40,T.cols).replace(/stroke-width="7"/,'stroke-width="5"');
- s+=`<path d="M60 40 H1140 V640 H60Z" fill="none" stroke="#5a3a26" stroke-width="40"/><path d="M40 20 H1160 V660 H40Z" fill="none" stroke="#c9a227" stroke-width="6"/>`;
- s+=`<text x="600" y="120" text-anchor="middle" font-family="Georgia" font-style="italic" font-weight="700" font-size="40" fill="#e8c766" opacity=".9">${esc(Sh.n)}</text>`;
- s+=`<path d="M120 60 l90 0 l-140 300Z M1000 60 l60 0 l-160 330Z" fill="#fff" opacity=".07"/>`;
- return s+`</svg>`}
-function windowScene(v){const L=sideList(B().loc,B().side).find(x=>x.shop==v.shop)||{act:"shop",shop:v.shop};const its=windowItems(L);
- const P=[[600,250],[430,400],[600,400],[770,400],[290,545],[490,545],[710,545],[910,545]];const spots=its.slice(0,8).map((I,k)=>spotObj(P[k][0],P[k][1],130,130,I.n+(I.p?" · 🍯"+fmt(I.p):""),I.c=="food"?"eat":"buy",{id:I.id,food:I.c=="food"?I.id:null,html:I.pic?`<img class="winpic" src="${I.pic}" alt="">`:itemIconHTML(I),bx:P[k][0],by:690}));
- spots.push(spotObj(1060,560,170,150,"Go inside ▶","enterShop",{shop:v.shop,icon:"🚪",bx:980,by:690}));
- return{bg:bgWindow(v.shop,B().loc),spots,cap:{t:"🪟 "+(SHOPS[v.shop]||{n:""}).n,d:"Window shopping · tap anything to take a closer look"},start:{x:160,y:690},kind:"shopwindow",loc:B().loc}}
-/* ---- angled bird's-eye map of the whole square ---- */
-function sqP(px,py){return[100+px,30+py*.6]}
-function renderMap(){const b=B(),ck=b.loc,C=CITIES[ck],q=sqInfo(ck),sides=sqSides(ck),A=sqAnchor(ck),st=stage();st.className="mapview";
- const P=(px,py)=>sqP(px,py).map(v=>Math.round(v)).join(",");const poly=(pts,fill,extra)=>`<polygon points="${pts.map(p=>P(p[0],p[1])).join(" ")}" fill="${fill}" ${extra||""}/>`;
- let s=`<svg viewBox="0 0 1200 720" class="mapsvg" xmlns="http://www.w3.org/2000/svg"><rect width="1200" height="720" fill="#d8cfb8"/>`;
- s+=poly([[0,0],[1000,0],[1000,1000],[0,1000]],"#e7dfc9");
- // the # roads
- [[290,350],[650,710]].forEach(([a,z])=>{s+=poly([[a,0],[z,0],[z,1000],[a,1000]],"#8c8478")+poly([[0,a],[1000,a],[1000,z],[0,z]],"#8c8478")});
- for(let k=0;k<1000;k+=60)[[320,k],[680,k]].forEach(([x,y])=>{s+=`<path d="M${P(x,y)} L${P(x,y+30)}" stroke="#f4f1e8" stroke-width="3"/>`;s+=`<path d="M${P(y,x)} L${P(y+30,x)}" stroke="#f4f1e8" stroke-width="3"/>`});
- // central lawn, walkways, live oaks
- s+=poly([[358,358],[642,358],[642,642],[358,642]],"#78b35f")+poly([[358,488],[642,488],[642,512],[358,512]],"#e8dcc2")+poly([[488,358],[512,358],[512,642],[488,642]],"#e8dcc2");
- [[400,400],[600,400],[400,600],[600,600],[380,500],[620,500],[440,630],[560,630]].forEach(([x,y],k)=>{const[X,Y]=sqP(x,y);s+=`<ellipse cx="${X}" cy="${Y+4}" rx="30" ry="12" fill="#000" opacity=".15"/><rect x="${X-3}" y="${Y-18}" width="6" height="20" fill="#5a4030"/><ellipse cx="${X}" cy="${Y-26}" rx="30" ry="20" fill="${k%2?"#3f6b35":"#4b7d3f"}"/>`});
- // the anchor landmark, drawn from its street art
- if(A){const[X,Y]=sqP(500,500),sc=.56;s+=`<g class="mb anchor" data-anchor="1" transform="translate(${X-150*sc} ${Y-470*sc}) scale(${sc})">${landmark(A.k=="tower"&&ck=="bern"?"tower":A.k,A.sp||(ck=="bern"?"clocktower":null),0,C.style,A.n,A.i,ck)}</g><g class="mb" data-anchor="1"><rect x="${X-110}" y="${Y+6}" width="220" height="30" rx="15" fill="#fffaf0" stroke="#c9a227" stroke-width="3"/><text x="${X}" y="${Y+27}" text-anchor="middle" font-size="15" font-weight="700" fill="#3b2a1f" font-family="Georgia">${esc((A.i||"")+" "+A.n)}</text></g>`}
- // storefront blocks on all four sides, facing the square (front row drawn low and see-through)
- const blocks=[];sides.forEach((list,k)=>{const n=list.length||1;const IV=k%2==0?[[125,285],[355,645],[715,875]]:[[355,645]];
-   let cnt=IV.length==1?[n]:(()=>{const e=Math.max(n>=3?1:0,Math.round(n*160/610));return[e,n-2*e,e]})();let j=0;
-   IV.forEach((iv,m)=>{const c=cnt[m];if(c==0){const a=(iv[0]+iv[1])/2,sz=iv[1]-iv[0]-6;let cx,cy;if(k==0){cx=a;cy=255}else if(k==1){cx=745;cy=a}else if(k==2){cx=1000-a;cy=745}else{cx=255;cy=1000-a}blocks.push({L:null,k,j:-1,cx,cy,w:k%2?60:sz,d:k%2?sz:60})}
-   for(let r=0;r<c;r++,j++){const L=list[j],len=iv[1]-iv[0],a=iv[0]+(r+.5)*len/c,sz=len/c-6;let cx,cy;
-     if(k==0){cx=a;cy=255}else if(k==1){cx=745;cy=a}else if(k==2){cx=1000-a;cy=745}else{cx=255;cy=1000-a}
-     blocks.push({L,k,j,cx,cy,w:k%2?60:sz,d:k%2?sz:60})}})});
- blocks.sort((p,q)=>p.cy-q.cy).forEach(B2=>{const{L,k,j,cx,cy,w,d}=B2;const hgt=k==2?14:!L?36:L.act=="att"?54:40+((j*17)%3)*8;const x0=cx-w/2,x1=cx+w/2,y0=cy-d/2,y1=cy+d/2;
-  const WL=ck=="bern"?GT_WALLS:STYLE[C.style].walls,wall=WL[(j+k+20)%WL.length];
-  const[ax,ay]=sqP(x0,y1),[bx,by]=sqP(x1,y1),[cx2,cy2]=sqP(x1,y0),[dx,dy]=sqP(x0,y0);
-  const roof=`${ax},${ay-hgt} ${bx},${by-hgt} ${cx2},${cy2-hgt} ${dx},${dy-hgt}`;const front=`${ax},${ay} ${bx},${by} ${bx},${by-hgt} ${ax},${ay-hgt}`;
-  if(!L){const[lx0,ly0]=[0,0];s+=`<g style="${k==2?"opacity:.75":""}"><polygon points="${front}" fill="${shadeHex(wall,-.2)}" stroke="#3b2a1f" stroke-width="1"/><polygon points="${roof}" fill="${shadeHex(wall,0)}" stroke="#3b2a1f" stroke-width="1"/></g>`;return}
-  const icon=L.icon||(L.icons&&L.icons[0])||{station:"🚆",airport:"✈️",hotel:"🏨",post:"📮",bank:"🍯",catalog:"📖",dept:"🛍️",food:"☕",stand:"🌭",castles:"🏰"}[L.kind]||(L.act=="castles"?"🏰":"🏬");
-  const[lx,ly]=sqP(cx,cy);
-  s+=`<g class="mb" data-side="${k}" data-j="${j}" style="${k==2?"opacity:.75":""}"><polygon points="${front}" fill="${shadeHex(wall,-.15)}" stroke="#3b2a1f" stroke-width="1"/><polygon points="${roof}" fill="${shadeHex(wall,.08)}" stroke="#3b2a1f" stroke-width="1"/><text x="${lx}" y="${ly-hgt-6}" text-anchor="middle" font-size="22">${icon}</text></g>`});
- // street names
- [[200,322,0],[680,200,1],[800,682,2],[322,800,3]].forEach(([x,y,k])=>{const[X,Y]=sqP(x,y);s+=`<text x="${X}" y="${Y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Arial" ${k%2?`transform="rotate(-90 ${X} ${Y})"`:""}>${esc(q.st[k])}</text>`});
- // where the bear is
- const sb=b.side||0,lst=sideList(ck,sb),bi=Math.max(1,Math.min(lst.length-2,Math.round((b.x-60-150)/SLOT))),own=blocks.find(o=>o.k==sb&&o.j==bi-1);if(own){const[X,Y]=sqP(own.cx+(sb==3?50:sb==1?-50:0),own.cy+(sb==0?50:sb==2?-50:0));s+=`<g transform="translate(${X} ${Y-10})"><circle r="17" fill="#fffaf0" stroke="#c0392b" stroke-width="4"/>${bearHead(b).replace("<svg ",'<svg x="-15" y="-15" width="30" height="30" ')}</g>`}
- s+=`</svg>`;
- st.innerHTML=`<div class="mapbox">${s}</div><div class="bar"><button class="btn back" data-act="backStreet">◀ Back to ${esc(q.st[sb])}</button>${A?`<button class="btn teal" data-act="anchorVisit">${esc((A.i||"🏛️")+" Visit "+A.n)}</button>`:""}<span class="note">Tap any shop on the square to walk straight there</span></div>`;
- const svg=st.querySelector("svg");svg.addEventListener("click",e=>{const g=e.target.closest(".mb");if(!g)return;if(g.dataset.anchor){visit(A.id);return}const k=+g.dataset.side,j=+g.dataset.j;b.side=k;b.x=60+(j+1)*SLOT+150;b.view={t:"street"};save();renderLoc();renderStage()})}
 
 /* ============ SOUND: procedural ambience + gentle music ============ */
 const SND={ctx:null,master:null,bus:null,vol:.55,muted:false,cur:null,timers:[],nodes:[],noise:null,musicOn:true};
@@ -1455,7 +1322,7 @@ function bgCafe(ck){const C=CITIES[ck];let s=svgOpen()+`<rect width="1200" heigh
 /* ---------- scene builder ---------- */
 function shopCats(shop){const items=Object.values(ITEMS).filter(i=>i.shop==shop&&i.c=="wear");const defs=[["outfit","Gowns & outfits",["outfit"]],["head","Crowns, tiaras & hats",["head"]],["feet","Shoes & slippers",["feet"]],["jewel","Jewelry case",["neck","ears","wrist","watch"]],["bag","Bags, parasols & canes",["bag"]]];
  const cats=defs.map(d=>({k:d[0],n:d[1],slots:d[2],items:items.filter(i=>d[2].includes(i.slot))})).filter(c=>c.items.length);cats.xs=cats.map((c,i)=>cats.length==1?400:140+i*(800/(cats.length-1)));return cats}
-function buildScene(v,loc){if(v.t=="shopwin")return windowScene(v);const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,start={x:240,y:690},kind="";
+function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,start={x:240,y:690},kind="";
  if(v.t=="inside"){const a=att(ck,v.aid)||{id:"x",n:"",k:"landmark"};const hl=HL[a.id]||[];kind=a.k;cap={t:(a.i||"")+" "+a.n,d:a.d||""};const quiet=QUIET.has(a.id);
   const hlSpot=(h,i,x,y)=>spotObj(x,y,150,150,h[1],h[0]=="🖼️"?"art":"hl",{line:h[2],icon:h[0],quiet,i,seed:hashStr(a.id)+i*7,badge:!/museum|gallery/.test(a.k)||h[0]!="🖼️"&&false});
   if(a.k=="museum"){bg=bgGallery2(a,hl);hl.forEach((h,i)=>spots.push(Object.assign(hlSpot(h,i,[230,600,970][i],h[0]=="🖼️"?210:440),{w:h[0]=="🖼️"?240:170,h:h[0]=="🖼️"?200:190,bx:[230,600,970][i]+(i==2?-150:150),by:690})));spots.push(spotObj(600,620,280,70,"Sit on the bench","sit",{bx:600,by:640}));if(C.shop)spots.push(spotObj(1150,380,110,280,"Museum gift shop","shop",{shop:ck+"_shop",bx:1040,by:690}))}
@@ -1515,7 +1382,6 @@ function doSpot(s){const b=B(),ck=b.loc;switch(s.act){
  case"nap":sceneMove(s.bx,s.by,"nap");sfx("zzz");react("nap");break;
  case"eat":openItem(s.food,true);break;
  case"buy":openItem(s.id);break;
- case"enterShop":go({t:"shopin",shop:s.shop});break;
  case"shop":openShop(s.shop,{slots:s.slots,filter:s.filter,title:s.title,ids:s.ids});break;
  case"menu":openMenu(ck);break;
  case"mirror":openWardrobe();react("twirl","How do I look?");break;
@@ -1683,13 +1549,13 @@ function renderCoins(){$("#coins").innerHTML=`<b>🍯 ${fmt(S.coins)}</b><span>H
 function renderLoc(){const b=B(),C=CITIES[b.loc],M=MONTHS[curMonth()];let where=b.loc=="bern"?"Bärengraben Castle · Bern, Switzerland":C.n+" · "+C.sub;const v=b.view;
  if(v.t=="castle")where=(bearById(v.owner)||b).name+"'s Castle · "+((bearById(v.owner)||b).castle.rooms.find(r=>r.id==v.room)||{n:""}).n;
  if(v.t=="inside"){const a=v.aid&&(att(b.loc,v.aid));where=(a?a.n:v.title||"")+" · "+C.n}
- if(v.t=="street"||v.t=="map")where=sqInfo(b.loc).st[b.side||0]+" · "+(b.loc=="bern"?"Bärengraben, Bern":C.n);if(v.t=="shopwin")where=SHOPS[v.shop].n+" window · "+(b.loc=="bern"?"Bern":C.n);if(v.t=="hotel")where=C.hotel+" · "+C.n;if(v.t=="shopin")where=SHOPS[v.shop].n+" · "+(b.loc=="bern"?"Bern":C.n);if(v.t=="window"||v.t=="windowclose")where=STORES[v.store].n+" holiday window · Midtown NYC";
+ if(v.t=="hotel")where=C.hotel+" · "+C.n;if(v.t=="shopin")where=SHOPS[v.shop].n+" · "+(b.loc=="bern"?"Bern":C.n);if(v.t=="window"||v.t=="windowclose")where=STORES[v.store].n+" holiday window · Midtown NYC";
  const rid=v.t=="inside"&&GEO[v.aid]?v.aid:v.t=="window"||v.t=="windowclose"?v.store:v.t=="shopin"&&GEO[v.shop]?v.shop:b.loc;
  $("#loc").innerHTML=`<span class="pin">📍</span><span class="where"><b>${esc(b.name)}</b> is at <b>${esc(where)}</b></span>${v.t!="castle"?`<button class="realbtn" data-act="real" data-arg="${rid}">🌍 Walk the real ${v.t=="street"?"city":"street"}</button>`:""}<button class="month" data-act="settings">${M.n} · ${M.t}</button>`}
 function stage(){return $("#stage")}
 function bearEl(b,expr,cls){return`<div class="bear ${cls||""}" data-b="${b.id}"><div class="bwrap">${bearSVG(b,expr||"normal")}</div><div class="fxs"></div></div>`}
 function renderStage(){const b=B(),v=b.view,st=stage();st.className="";$("#gift").hidden=!giftReady();
- if(v.t=="street")return renderStreet();if(v.t=="map")return renderMap();if(v.t=="shopwin")return renderScene();if(v.t=="castle")return renderCastle();if(v.t=="inside"||v.t=="shopin"||v.t=="hotel"||v.t=="window"||v.t=="windowclose")return renderScene();
+ if(v.t=="street")return renderStreet();if(v.t=="castle")return renderCastle();if(v.t=="inside"||v.t=="shopin"||v.t=="hotel"||v.t=="window"||v.t=="windowclose")return renderScene();
  let kind,a,html,chips=[];
  if(v.t=="inside"){a=att(b.loc,v.aid)||{id:"x",n:"",k:"landmark"};kind=a.k;if(["pit","riverbridge","bearfountain","conservatory","tower"].includes(kind)&&b.loc=="bern")kind="landmark";
   html=interiorSVG(kind=="pit"?"landmark":kind,a,b.loc);
@@ -1699,13 +1565,13 @@ function renderStage(){const b=B(),v=b.view,st=stage();st.className="";$("#gift"
  st.className="pic";st.innerHTML=`<div class="picbox">${html}${bearEl(b,"wonder","center")}</div><div class="bar"><button class="btn back" data-act="backStreet">◀ Back to the street</button>${chips.map(c=>`<button class="btn" data-act="chip" data-arg="${c[1]}">${esc(c[0])}</button>`).join("")}</div>`;
  if(v.t=="inside"&&a){const cap=`<div class="caption"><b>${a.i||""} ${esc(a.n)}</b><span>${esc(a.d||"")}</span></div>`;st.querySelector(".picbox").insertAdjacentHTML("beforeend",cap)}
  setTimeout(()=>react("wonder"),350)}
-function renderStreet(){const b=B(),ck=b.loc,C=CITIES[ck];b.side=b.side||0;const L=sideList(ck,b.side),W=120+L.length*SLOT;b.x=Math.max(60+SLOT/2,Math.min(W-60-SLOT/2,b.x||510));const st=stage();st.className="streetview";
- st.innerHTML=`<div class="scroller"><div class="swrap" style="aspect-ratio:${W}/600">${streetSVG(L,C.style,ck,curMonth())}<div class="others"></div>${bearEl(b,"normal","walker")}</div></div><div class="sqbar"><span class="sqname">📍 ${esc(sqInfo(ck).st[b.side])}</span><button class="btn small" data-act="openMap">🗺️ Town square map</button></div><div class="hint">Tap a shop window to look inside · tap a door to go in · walk to the corner to turn</div>`;
+function renderStreet(){const b=B(),ck=b.loc,C=CITIES[ck],L=cityStreet(ck),W=120+L.length*SLOT;const st=stage();st.className="streetview";
+ st.innerHTML=`<div class="scroller"><div class="swrap" style="aspect-ratio:${W}/600">${streetSVG(L,C.style,ck,curMonth())}<div class="others"></div>${bearEl(b,"normal","walker")}</div></div><div class="hint">Tap any building to walk over · scroll sideways to explore</div>`;
  const wrap=st.querySelector(".swrap"),bel=wrap.querySelector(".walker");bel.style.left=(b.x/W*100)+"%";
  // other bears in the same city stroll here too
- const others=S.bears.filter(x=>x.id!=b.id&&x.loc==ck&&x.view.t=="street"&&(x.side||0)==b.side);wrap.querySelector(".others").innerHTML=others.slice(0,6).map(o=>`<div class="bear npc" style="left:${(o.x||300)/W*100}%" data-act="pickBear" data-arg="${o.id}" title="${esc(o.name)}"><div class="bwrap">${bearSVG(o,"normal")}</div><div class="tag">${esc(o.name)}</div></div>`).join("");
+ const others=S.bears.filter(x=>x.id!=b.id&&x.loc==ck&&x.view.t=="street");wrap.querySelector(".others").innerHTML=others.slice(0,6).map(o=>`<div class="bear npc" style="left:${(o.x||300)/W*100}%" data-act="pickBear" data-arg="${o.id}" title="${esc(o.name)}"><div class="bwrap">${bearSVG(o,"normal")}</div><div class="tag">${esc(o.name)}</div></div>`).join("");
  const sc=st.querySelector(".scroller");requestAnimationFrame(()=>{sc.scrollLeft=Math.max(0,b.x/W*sc.scrollWidth-sc.clientWidth/2)});
- wrap.querySelector("svg").addEventListener("click",e=>{const g=e.target.closest(".bld"),wn=e.target.closest(".win");const pt=svgPt(wrap.querySelector("svg"),e);if(g){const i=+g.dataset.i,Li=L[i];if(Li.kind=="corner"){walkTo(Li.dir>0?W-70:70,()=>turnCorner(Li.dir));return}walkTo(60+i*SLOT+150,()=>wn?lookInWindow(Li,i):doBuilding(Li,i))}else walkTo(pt.x)});
+ wrap.querySelector("svg").addEventListener("click",e=>{const g=e.target.closest(".bld");const pt=svgPt(wrap.querySelector("svg"),e);if(g){const i=+g.dataset.i;walkTo(60+i*SLOT+150,()=>doBuilding(L[i],i))}else walkTo(pt.x)});
  if(ck=="bern"&&giftReady())toastOnce("gift","🎁 A morning gift box is waiting on your castle porch!")}
 function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 let walking=false;
@@ -1799,8 +1665,6 @@ function hallDo(i){const room=curRoom();const h=hallSpots(room)[i];if(!h)return;
  moveBearTo({x:h.x,y:660});react("wonder",h.line);setTimeout(()=>h.act=="feast"?openFeast():openWardrobe(),500)}
 function ensurePhotoRooms(b){const R=b.castle&&b.castle.rooms;if(!R)return;const add=photoRooms().filter(p=>!R.some(r=>r.id==p.id));if(add.length)R.unshift(...add)}
 
-function lookInWindow(L,i){if(L.act=="dept")return go({t:"window",store:L.store});if(L.act=="shop"&&windowItems(L).length)return go({t:"shopwin",shop:L.shop});doBuilding(L,i)}
-
 /* ============ GAME: shops, modals, actions ============ */
 function openModal(title,body,cls){const m=$("#modal");m.className="show "+(cls||"");m.innerHTML=`<div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="mh"><h2>${title}</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><div class="mb">${body}</div></div>`;m.querySelector(".mb").scrollTop=0}
 function closeModal(){$("#modal").className="";$("#modal").innerHTML=""}
@@ -1846,7 +1710,7 @@ function openBank(){openModal("🏦 Bear Bank",`<div class="bank"><div class="ba
 function openTravel(mode){const b=B();const list=Object.entries(CITIES).filter(([k,c])=>k!=b.loc&&(k=="bern"||c.travel==mode));
  openModal(mode=="plane"?"✈️ International Airport":"🚆 Train Station",`<p class="lede">${mode=="plane"?"Fly to the U.S.":"Ride the rails around Europe"} — tickets are 🍯 20, and you arrive instantly. ${b.suit.packed.length?"":"<br>💡 Tip: pack your suitcase in the castle bedroom first so you can change outfits at your hotel."}</p><div class="dest">${list.map(([k,c])=>`<button class="destb" data-act="travel" data-arg="${k}"><span class="dn">${esc(c.n)}</span><span class="ds">${esc(k=="bern"?"Home · Bern, Switzerland":c.sub)}</span><span class="dt">${k=="bern"?"Free":"🎫 Buy ticket & go"}</span></button>`).join("")}</div>`)}
 function travel(ck){const b=B();const go2=()=>{closeModal();sfx("whoosh");const ov=$("#travelov");ov.innerHTML=`<div>${CITIES[b.loc].travel=="plane"||CITIES[ck].travel=="plane"?"✈️":"🚆"}</div><p>Off to ${esc(CITIES[ck].n)}!</p>`;ov.className="show";setTimeout(()=>{ov.className=""},850);
-  setTimeout(()=>{b.loc=ck;b.view={t:"street"};b.side=0;b.x=510;b.roomPos=null;save();renderAll();if(ck=="bern"&&b.suit.neu.length)toast(`🧳 ${b.name} has ${b.suit.neu.length} new treasure${b.suit.neu.length>1?"s":""} to unpack — open the suitcase!`)},380)};
+  setTimeout(()=>{b.loc=ck;b.view={t:"street"};b.x=ck=="bern"?420:220;b.roomPos=null;save();renderAll();if(ck=="bern"&&b.suit.neu.length)toast(`🧳 ${b.name} has ${b.suit.neu.length} new treasure${b.suit.neu.length>1?"s":""} to unpack — open the suitcase!`)},380)};
  if(ck=="bern")return go2();pay(20,go2,"a ticket")}
 function goHome(){const b=B();if(b.loc!="bern"){travel("bern");return}b.view={t:"street"};b.roomPos=null;save();renderAll()}
 /* ---------- castles ---------- */
@@ -1891,9 +1755,9 @@ function sendCard(){const b=B(),ck=b.loc;S.inv["postcard_"+ck]=(S.inv["postcard_
 function openPassport(){let body=`<p class="lede">Every landmark, museum and boat you visit earns a stamp. Finish a city to win a gold framed poster for your castle wall.</p>`;
  for(const [ck,C] of Object.entries(CITIES)){const A=C.att||[],got=A.filter(a=>S.stamps[a.id]).length;body+=`<div class="pcity ${got==A.length?"done":""}"><h3>${esc(C.n)} <small>${got} / ${A.length}${got==A.length?" · 🏅 Gold poster earned":""}</small></h3><div class="stamps">${A.map(a=>`<span class="stamp ${S.stamps[a.id]?"on":""}" title="${esc(a.n)}">${S.stamps[a.id]?a.i:"·"}<small>${esc(a.n.split(/[(&]/)[0])}</small></span>`).join("")}</div></div>`}
  openModal("🛂 Bear Passport",body)}
-function snapshot(){const b=B(),v=b.view;const p={d:todayStr(),loc:b.loc,side:b.side||0,v:JSON.parse(JSON.stringify(v)),bear:{color:b.color,wear:JSON.parse(JSON.stringify(b.wear)),name:b.name},x:b.x};if(v.t=="castle"){p.room=JSON.parse(JSON.stringify(curRoom()))}return p}
+function snapshot(){const b=B(),v=b.view;const p={d:todayStr(),loc:b.loc,v:JSON.parse(JSON.stringify(v)),bear:{color:b.color,wear:JSON.parse(JSON.stringify(b.wear)),name:b.name},x:b.x};if(v.t=="castle"){p.room=JSON.parse(JSON.stringify(curRoom()))}return p}
 function camera(){const b=B();if(S.photos.length>=80)S.photos.shift();S.photos.push(snapshot());sfx("click");const f=document.createElement("div");f.className="flash big";stage().appendChild(f);setTimeout(()=>f.remove(),600);save();toast("📷 Snap! Added to your Photo Album.");closeModal()}
-function photoSVG(p){const v=p.v;if(v.t=="street"){const L=sideList(p.loc,p.side||0),s=streetSVG(L,CITIES[p.loc].style,p.loc,curMonth());return s.replace(/viewBox="[^"]*" width="\d+" height="600"/,`viewBox="${Math.max(0,p.x-360)} 60 720 540"`)}
+function photoSVG(p){const v=p.v;if(v.t=="street"){const L=cityStreet(p.loc),s=streetSVG(L,CITIES[p.loc].style,p.loc,curMonth());return s.replace(/viewBox="[^"]*" width="\d+" height="600"/,`viewBox="${Math.max(0,p.x-360)} 60 720 540"`)}
  if(v.t=="castle")return roomSVG(p.room)+`<g>${p.room.items.map(itemG).join("")}</g></svg>`;
  
  return buildScene(v,p.loc).bg}
@@ -1953,7 +1817,7 @@ const ACT={
  loan:n=>{borrow(+n);sfx("coin");openBank();toast(`🏦 ${fmt(+n)} Honey Coins borrowed — zero interest!`)},repay:()=>{const p=Math.min(S.loan,S.coins);S.coins-=p;S.loan-=p;save();renderCoins();openBank()},
  travel:ck=>travel(ck),enterCastle:id=>enterCastle(id),
  window:st=>{closeModal();go({t:"window",store:st})},storeIn:st=>{closeModal();go({t:"shopin",shop:st})},
- backStreet:()=>{go({t:"street"})},openMap:()=>go({t:"map"}),anchorVisit:()=>{const A=sqAnchor(B().loc);if(A)visit(A.id)},
+ backStreet:()=>{go({t:"street"})},
  chip:a=>{const b=B();if(a=="look")react("wonder");else if(a=="breeze")react("breeze");else if(a=="wish"){if(S.coins>=1)S.coins-=1;renderCoins();react("wish")}else if(a=="nap"){const el=stage().querySelector(".bear.center");el.classList.add("napping");el.querySelector(".bwrap").innerHTML=bearSVG(b,"sleep");sfx("zzz");react("nap")}else if(a=="suitcase")openSuitcase();else if(a.startsWith("eat:"))eat(ITEMS[a.slice(4)]);else if(a.startsWith("store:"))go({t:"shopin",shop:a.slice(6)});else if(a.startsWith("real:"))realWalk(a.slice(5))},
  hallDo:i=>hallDo(+i),
  room:id=>{B().view.room=id;B().roomPos=null;selU=null;gather=false;save();renderLoc();renderCastle()},
