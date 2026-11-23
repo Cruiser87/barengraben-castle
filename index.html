@@ -852,6 +852,7 @@ function bernExtras(b,x){const cx=x+SLOT/2;
  return null}
 function facade(b,i,style,city){
  const x=60+i*SLOT,S=STYLE[style],wall=S.walls[(i*3+hashStr(b.label))%S.walls.length];let s="";
+ if(["shop","food","bank","catalog","hotel","dept"].includes(b.kind))return archFacade(b,i,city);
  const ex=city=="bern"?bernExtras(b,x):null;
  if(ex)s+=ex;
  else if(b.kind=="shop"||b.kind=="food"||b.kind=="post"||b.kind=="bank"||b.kind=="catalog"||b.kind=="hotel"||b.kind=="station"||b.kind=="airport"||b.kind=="dept"){
@@ -866,7 +867,7 @@ function facade(b,i,style,city){
    else s+=shopfront(x+20,260,b.col||"#c0392b",b.icons,b.label)}}
  else s+=landmark(b.kind,b.sp,x,style,b.label,b.icon,city);
  if(!ex&&!["shop","food","post","bank","catalog","hotel","station","airport","dept"].includes(b.kind))LABELS.push(`<g class="bld" data-i="${i}" transform="translate(${x+150} ${BASE+28})"><rect x="-128" y="-22" width="256" height="40" rx="20" fill="#fffaf0" stroke="#c9a227" stroke-width="3"/>${wrapLabel(b.icon+" "+b.label,0,4,15,"#3b2a1f",30)}</g>`);
- return`<g class="bld" data-i="${i}"><rect x="${x}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/>${s}</g>`}
+ return`<g class="bld" data-i="${i}"><rect x="${x}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/><g filter="url(#aLmk)">${s}</g></g>`}
 function farLayer(far,W,month){let s="";
  if(far=="alps")s+=`<path d="M0 340 L140 200 L230 280 L380 150 L520 290 L650 190 L800 300 L960 170 L1100 280 L1260 160 L1420 300 L1580 190 L1740 290 L1900 180 L2060 300 L2220 170 L2380 290 L2540 200 L2700 300 L2860 180 L3020 290 L3200 200 L3400 300 L3600 190 L3800 290 L4000 200 L4300 300 L4300 470 L0 470Z" fill="#a9c4d6"/><path d="M380 150 L420 190 L400 200 L360 175Z M960 170 L1000 210 L940 200Z M1260 160 L1300 200 L1230 195Z M2220 170 L2260 210 L2190 200Z M3600 190 L3640 230 L3570 220Z" fill="#fff"/>`;
  else if(far=="hills")s+=`<path d="M0 360 Q300 270 600 350 T1200 340 T1800 350 T2400 330 T3000 350 T3600 340 T4300 350 V470 H0Z" fill="#a8c79a"/>`;
@@ -874,17 +875,18 @@ function farLayer(far,W,month){let s="";
  else if(far=="skyline")for(let x=0;x<W;x+=70)s+=`<rect x="${x}" y="${200+((x*13)%140)}" width="60" height="400" fill="#b8c7d3"/>`;
  return s}
 function streetSVG(blds,style,cityKey,month){
- const C=CITIES[cityKey],W=120+blds.length*SLOT,M=MONTHS[month];const sky=M.sunny||!M.snow?C.sky:M.sky;
+ ADEFS=new Map();const C=CITIES[cityKey],W=120+blds.length*SLOT,M=MONTHS[month];const sky=M.sunny||!M.snow?C.sky:M.sky;
  let s=`<svg viewBox="0 0 ${W} 600" width="${W}" height="600" xmlns="http://www.w3.org/2000/svg" class="street"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${M.sky[0]}"/><stop offset=".55" stop-color="${sky[1]}"/></linearGradient><pattern id="cob" width="34" height="20" patternUnits="userSpaceOnUse"><rect width="34" height="20" fill="#b8a88e"/><rect x="1" y="1" width="15" height="8" rx="3" fill="#cbbca2"/><rect x="18" y="1" width="15" height="8" rx="3" fill="#c4b499"/><rect x="9" y="11" width="15" height="8" rx="3" fill="#cbbca2"/><rect x="-8" y="11" width="15" height="8" rx="3" fill="#c4b499"/><rect x="26" y="11" width="15" height="8" rx="3" fill="#c4b499"/></pattern></defs>`;
  s+=`<rect width="${W}" height="600" fill="url(#sky)"/><circle cx="${W-260}" cy="90" r="46" fill="#fff6c8" opacity=".9"/>`+[0,1,2,3,4,5].map(k=>`<g opacity=".85" transform="translate(${(k*613)%W} ${50+(k*37)%90})"><ellipse cx="0" cy="0" rx="60" ry="20" fill="#fff"/><ellipse cx="34" cy="-10" rx="40" ry="22" fill="#fff"/></g>`).join("");
- s+=farLayer(C.far,W,month);
+ s+=aSkyline(cityKey,W);
  LABELS=[];blds.forEach((b,i)=>s+=facade(b,i,style,cityKey));
- for(let i=0;i<=blds.length;i++)s+=lamp(60+i*SLOT-8);
+ for(let i=0;i<=blds.length;i++)s+=i%3==2?aTree(60+i*SLOT,cityKey):aLamp(60+i*SLOT-8,cityKey);
  s+=`<rect x="0" y="${BASE}" width="${W}" height="62" fill="url(#cob)"/><rect x="0" y="${BASE}" width="${W}" height="6" fill="#9a8a70"/><rect x="0" y="532" width="${W}" height="68" fill="${style=="nyc"||style=="boston"?"#5f6368":"#8c7f6a"}"/>`;
  if(style=="nyc")for(let x=200;x<W;x+=700)s+=`<g transform="translate(${x} 540)"><rect x="0" y="10" width="150" height="40" rx="10" fill="#f7c600"/><path d="M24 10 Q40 -16 110 -14 Q126 -10 130 10Z" fill="#f7c600"/><rect x="40" y="-8" width="70" height="18" fill="#bfe3f5"/><rect x="60" y="-22" width="30" height="10" fill="#222"/><circle cx="34" cy="50" r="12" fill="#222"/><circle cx="118" cy="50" r="12" fill="#222"/><rect x="0" y="26" width="150" height="5" fill="#222" opacity=".6"/></g>`;
  if(cityKey=="bern"||style=="swiss")for(let x=320;x<W;x+=1100)s+=`<g transform="translate(${x} 548)"><rect width="160" height="36" rx="6" fill="#c0392b"/><rect x="10" y="6" width="140" height="16" fill="#bfe3f5"/><circle cx="30" cy="38" r="8" fill="#333"/><circle cx="130" cy="38" r="8" fill="#333"/><path d="M80 0 V-30 M60 -30 H100" stroke="#333" stroke-width="3"/></g>`;
  if(M.snow)s+=`<rect x="0" y="${BASE}" width="${W}" height="10" fill="#fff" opacity=".9"/>`;
  s+=seasonSVG(blds,month,W);
+ s=s.replace("</defs>",archDefs()+"</defs>");
  return s+LABELS.join("")+`</svg>`}
 
 /* ---- full-screen interior pictures ---- */
@@ -1009,7 +1011,7 @@ function seasonSVG(blds,month,W){const T=SEASON[month]||SEASON[10];let s="";
  for(let i=0;i<blds.length;i++){const x1=60+i*SLOT+14,x2=60+(i+1)*SLOT-14,y=BASE-205;
   s+=T.str=="bunting"?sBunting(x1,x2,y,30,T.cols):T.str=="garland"?sGarland(x1,x2,y,26,T.cols)+sBulbs(x1,x2,y+4,26,T.cols,true):T.str=="leaves"?sLeaves(x1,x2,y,26)+sBulbs(x1,x2,y+6,26,T.cols,false):sBulbs(x1,x2,y,26,T.cols,true)}
  // lamp-post banners (and bows/snow caps)
- for(let i=0;i<=blds.length;i++){const lx=60+i*SLOT-8;s+=sBanner(lx+4,BASE-176,T.ban[0],T.ban[1]);if(month==11)s+=`<path d="M${lx} ${BASE-196} l-10 -6 v12Z M${lx} ${BASE-196} l10 -6 v12Z" fill="#c0392b"/>`;if(month==0||month==11)s+=`<ellipse cx="${lx+24}" cy="${BASE-218}" rx="14" ry="5" fill="#fff"/>`}
+ for(let i=0;i<=blds.length;i++){if(i%3==2)continue;const lx=60+i*SLOT-8;s+=sBanner(lx+4,BASE-176,T.ban[0],T.ban[1]);if(month==11)s+=`<path d="M${lx} ${BASE-196} l-10 -6 v12Z M${lx} ${BASE-196} l10 -6 v12Z" fill="#c0392b"/>`;if(month==0||month==11)s+=`<ellipse cx="${lx+24}" cy="${BASE-218}" rx="14" ry="5" fill="#fff"/>`}
  // shopfront decor at each building
  blds.forEach((b,i)=>{const x=60+i*SLOT,dx=x+150,bld=DOORISH.has(b.kind);
   if(T.door=="wreath"&&bld)s+=sWreath(x+58,BASE-112,16,"#2f6b34","#c0392b","#c0392b")+sWreath(x+242,BASE-112,16,"#2f6b34","#c0392b","#c0392b");
@@ -1025,6 +1027,176 @@ function seasonSVG(blds,month,W){const T=SEASON[month]||SEASON[10];let s="";
  // birthday banner across the street
  if(T.star&&blds.length>2){const x=60+SLOT*1.5;s+=`<g><path d="M${x-150} ${BASE-305} Q${x} ${BASE-275} ${x+150} ${BASE-305}" stroke="#7a5a3a" stroke-width="2" fill="none"/><rect x="${x-140}" y="${BASE-301}" width="280" height="34" rx="8" fill="#fffaf0" stroke="${T.ban[0]}" stroke-width="3"/><text x="${x}" y="${BASE-278}" text-anchor="middle" font-family="Georgia" font-weight="700" font-size="19" fill="${T.ban[0]}">Happy Birthday, ${T.star}!</text></g>`}
  return`<g class="season">${s}</g>`}
+
+/* ---------- ARCHITECTURE: detailed, town-specific facades, skylines, lamps & trees ---------- */
+const ARCH={
+ bern:{mat:"stone",walls:["#c9c19d","#bdb48f","#d3cba9","#b3aa86"],roof:"tile",roofCol:"#a4442e",trim:"#efe8d4",floors:3,win:"sash",shut:"#3d6b4f",gf:"arcade",fascia:"#2f4d3a",lamp:"lantern",tree:"linden",sky:"bern",box:true},
+ lucerne:{mat:"stucco",walls:["#f1e3c4","#e9d3b4","#f4e9d4","#e7c9a5","#dfe6d4"],roof:"tile",roofCol:"#9c3d2a",trim:"#fffaf0",floors:3,win:"sash",shut:"#7a2a24",gf:"painted",fascia:"#7a2a24",lamp:"lantern",tree:"linden",sky:"lucerne",fresco:true,box:true},
+ amsterdam:{mat:"brick",walls:["#7a3b2e","#5b3326","#8a4a36","#3d2b26","#6b3a2c"],roof:"dutch",roofCol:"#3a2b25",trim:"#ffffff",floors:4,win:"sash",shut:null,gf:"painted",fascia:"#1f3b2e",lamp:"crook",tree:"elm",sky:"amsterdam",narrow:true},
+ nordic:{mat:"wood",walls:["#b03a2e","#d9a441","#e9e2d0","#a8432f","#c97b2a"],roof:"gable",roofCol:"#3b2f2a",trim:"#f4efe3",floors:3,win:"casement",shut:null,gf:"painted",fascia:"#3b2f2a",lamp:"lantern",tree:"birch",sky:"nordic"},
+ paris:{mat:"stone",walls:["#e8dcc4","#efe4cf","#e3d5ba"],roof:"mansard",roofCol:"#6f7c86",trim:"#f6efe0",floors:4,win:"french",shut:null,gf:"paris",fascia:"#1f2a44",lamp:"paris",tree:"plane",sky:"paris",balcony:true},
+ prague:{mat:"stucco",walls:["#f5cba7","#d7bde2","#f9e79f","#fadbd8","#aed6f1","#d5e8d4"],roof:"baroque",roofCol:"#a0412d",trim:"#fffaf0",floors:3,win:"sash",shut:null,gf:"painted",fascia:"#5b2333",lamp:"lantern",tree:"linden",sky:"prague"},
+ germany:{mat:"stucco",walls:["#fff4dc","#f3e4c0","#f6e9e0","#e8efe0"],roof:"tile",roofCol:"#9a3b28",trim:"#ffffff",floors:3,win:"casement",shut:"#2e5d3a",gf:"painted",fascia:"#1f4e79",lamp:"lantern",tree:"linden",sky:"munich",fresco:true,box:true},
+ rothenburg:{mat:"timber",walls:["#f4ead2","#efe0c0","#f6e6d6"],roof:"gable",roofCol:"#9a3b28",trim:"#5a3a26",floors:3,win:"casement",shut:"#7a2a24",gf:"painted",fascia:"#5a3a26",lamp:"lantern",tree:"linden",sky:"rothenburg",box:true},
+ italy:{mat:"stucco",walls:["#d98c4e","#e6a96b","#c96f3b","#e8b88a","#d4a05a"],roof:"tile",roofCol:"#a5502f",trim:"#f3e3c8",floors:3,win:"sash",shut:"#3f6b3a",gf:"italy",fascia:"#5a2a1a",lamp:"lantern",tree:"cypress",sky:"rome"},
+ uk:{mat:"brick",walls:["#c8b48a","#b9a27a","#a5452f","#d3c29b"],roof:"flat",roofCol:"#4d5656",trim:"#f7f4ec",floors:4,win:"sash",shut:null,gf:"painted",fascia:"#1b3a2b",lamp:"lantern",tree:"plane",sky:"london",stuccoBase:true},
+ nyc:{mat:"brownstone",walls:["#7a4f3a","#8a5d45","#c9b89c","#b8a88c","#6b4434"],roof:"flat",roofCol:"#555",trim:"#e8dfcd",floors:5,win:"sash",shut:null,gf:"castiron",fascia:"#1f1f1f",lamp:"crook",tree:"elm",sky:"nyc",fireEscape:true},
+ boston:{mat:"brick",walls:["#9b3d2e","#a8432f","#8e3b2b","#b04a35"],roof:"flat",roofCol:"#3b3b3b",trim:"#f2f0ea",floors:4,win:"sash",shut:"#1e1e1e",gf:"painted",fascia:"#1b2a3a",lamp:"gas",tree:"elm",sky:"boston"}};
+const SHOP_PHOTO={bern_swiss:"scenes/bern_swiss.jpg",paris_couture:"scenes/paris_couture.jpg",munich_tracht:"scenes/munich_tracht.jpg"};
+const STORE_PHOTOS={macys:["scenes/macys_window.jpg","scenes/macys_window2.jpg"]};
+let ADEFS=new Map(),AUID=0;
+function aid(p){return p+(++AUID)}
+function matFill(mat,col){const id=("m_"+mat+col).replace("#","");if(ADEFS.has(id))return`url(#${id})`;const d=shadeHex(col,-.18),l=shadeHex(col,.14);let p="";
+ if(mat=="brick"||mat=="timber"&&false)p=`<pattern id="${id}" width="36" height="12" patternUnits="userSpaceOnUse"><rect width="36" height="12" fill="${col}"/><rect x="18" y="0" width="18" height="6" fill="${shadeHex(col,-.06)}"/><rect x="9" y="6" width="18" height="6" fill="${shadeHex(col,.05)}"/><path d="M0 .5H36M0 6.5H36M.5 0V6M18.5 0V6M9.5 6V12M27.5 6V12" stroke="${shadeHex(col,.32)}" stroke-width="1" opacity=".55"/></pattern>`;
+ else if(mat=="stone"||mat=="brownstone")p=`<pattern id="${id}" width="64" height="26" patternUnits="userSpaceOnUse"><rect width="64" height="26" fill="${col}"/><rect x="32" y="13" width="32" height="13" fill="${shadeHex(col,-.04)}"/><rect x="0" y="0" width="30" height="12" fill="${shadeHex(col,.03)}"/><path d="M0 .5H64M0 13.5H64M.5 0V13M32.5 13V26" stroke="${d}" stroke-width="1" opacity=".45"/><path d="M1 1.5H31M33 14.5H63" stroke="${l}" stroke-width="1" opacity=".6"/></pattern>`;
+ else if(mat=="wood")p=`<pattern id="${id}" width="16" height="40" patternUnits="userSpaceOnUse"><rect width="16" height="40" fill="${col}"/><rect x="0" width="7" height="40" fill="${shadeHex(col,.05)}"/><path d="M15.5 0V40" stroke="${shadeHex(col,-.35)}" stroke-width="1.5"/><path d="M8 0V40" stroke="${d}" stroke-width=".6" opacity=".5"/></pattern>`;
+ else p=`<pattern id="${id}" width="46" height="46" patternUnits="userSpaceOnUse"><rect width="46" height="46" fill="${col}"/>`+[[6,8],[30,5],[18,22],[40,30],[9,38],[27,40],[36,17]].map(([x,y],k)=>`<circle cx="${x}" cy="${y}" r="${k%2?1.4:1}" fill="${k%3?d:l}" opacity=".35"/>`).join("")+`</pattern>`;
+ ADEFS.set(id,p);return`url(#${id})`}
+function archDefs(){return`<linearGradient id="aLit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></linearGradient>
+<linearGradient id="aSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".10"/><stop offset=".15" stop-color="#fff" stop-opacity="0"/><stop offset=".85" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".16"/></linearGradient>
+<linearGradient id="aGlass" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#e9f5fb"/><stop offset=".45" stop-color="#9cc1d6"/><stop offset="1" stop-color="#4f6f86"/></linearGradient>
+<radialGradient id="aWarm" cx=".5" cy=".6" r=".75"><stop offset="0" stop-color="#fff1c4"/><stop offset=".55" stop-color="#f5b860"/><stop offset="1" stop-color="#9a5a24"/></radialGradient>
+<radialGradient id="aShopGlow" cx=".5" cy=".35" r=".8"><stop offset="0" stop-color="#fff4d6"/><stop offset=".6" stop-color="#f2c77e"/><stop offset="1" stop-color="#8a5526"/></radialGradient>
+<linearGradient id="aGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e08a"/><stop offset=".5" stop-color="#d4af37"/><stop offset="1" stop-color="#9c7a1e"/></linearGradient>
+<linearGradient id="aZinc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a97a1"/><stop offset="1" stop-color="#5f6b74"/></linearGradient>
+<linearGradient id="aHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient>
+<filter id="aBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
+<filter id="aLmk" x="-5%" y="-5%" width="115%" height="115%"><feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="3" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.45 0.36" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="t"/><feBlend in="SourceGraphic" in2="t" mode="multiply" result="b"/><feDropShadow dx="6" dy="5" stdDeviation="5" flood-color="#2a1a0c" flood-opacity=".35"/></filter>`+[...ADEFS.values()].join("")}
+/* --- windows --- */
+function aWin(x,y,w,h,K,o){o=o||{};const t=K.trim,lit=o.lit;let s="";
+ if(K.shut&&!o.noShut)s+=[x-w*.42-2,x+w+2].map(sx=>`<rect x="${sx}" y="${y}" width="${w*.42}" height="${h}" fill="${K.shut}"/>`+Array.from({length:Math.floor(h/7)},(_,k)=>`<path d="M${sx+2} ${y+4+k*7} h${w*.42-4}" stroke="${shadeHex(K.shut,-.3)}" stroke-width="1.2"/>`).join("")).join("");
+ const arch=o.arch||K.win=="arched";const top=arch?y+w/2:y;
+ const shape=arch?`M${x} ${y+h} V${top} a${w/2} ${w/2} 0 0 1 ${w} 0 V${y+h}Z`:`M${x} ${y} h${w} v${h} h${-w}Z`;
+ s+=`<path d="${shape}" fill="${shadeHex(K.trim,-.25)}" transform="translate(-3 -3) scale(1)" opacity=".0"/>`;
+ s+=`<path d="${shape}" fill="${lit?"url(#aWarm)":"url(#aGlass)"}" stroke="${t}" stroke-width="4"/>`;
+ if(lit)s+=`<path d="M${x+3} ${y+h*.15} q${w*.25} ${h*.25} 0 ${h*.8} M${x+w-3} ${y+h*.15} q${-w*.25} ${h*.25} 0 ${h*.8}" stroke="${o.curt||"#8b2a3a"}" stroke-width="${w*.16}" fill="none" opacity=".8"/>`;
+ if(K.win=="casement")s+=`<path d="M${x+w/2} ${top} V${y+h} M${x} ${y+h*.38} H${x+w}" stroke="${t}" stroke-width="2.5"/>`;
+ else s+=`<path d="M${x+w/2} ${top} V${y+h} M${x} ${y+h*.5} H${x+w}" stroke="${t}" stroke-width="2"/><path d="M${x} ${y+h*.25} H${x+w} M${x} ${y+h*.75} H${x+w}" stroke="${t}" stroke-width="1" opacity=".7"/>`;
+ if(!lit)s+=`<path d="M${x+w*.15} ${y+h*.9} L${x+w*.55} ${top+4} M${x+w*.4} ${y+h*.95} L${x+w*.8} ${top+h*.2}" stroke="#fff" stroke-width="${w*.08}" opacity=".28"/>`;
+ s+=`<rect x="${x-5}" y="${y+h}" width="${w+10}" height="6" fill="${t}"/><rect x="${x-5}" y="${y+h+6}" width="${w+10}" height="2" fill="#000" opacity=".2"/>`;
+ if(o.ped)s+=`<path d="M${x-6} ${y-4} L${x+w/2} ${y-20} L${x+w+6} ${y-4}Z" fill="${t}" stroke="${shadeHex(t,-.2)}"/>`;
+ else if(o.lintel)s+=`<rect x="${x-6}" y="${y-9}" width="${w+12}" height="8" fill="${t}"/><path d="M${x+w/2-5} ${y-10} h10 l-2 11 h-6Z" fill="${shadeHex(t,-.08)}"/>`;
+ if(o.bal)s+=`<rect x="${x-8}" y="${y+h-14}" width="${w+16}" height="16" fill="none" stroke="#2b2b2b" stroke-width="2"/>`+Array.from({length:Math.floor((w+16)/6)},(_,k)=>`<path d="M${x-8+k*6+3} ${y+h-14} q3 8 0 16" stroke="#2b2b2b" stroke-width="1.3" fill="none"/>`).join("")+`<rect x="${x-10}" y="${y+h+1}" width="${w+20}" height="4" fill="${t}"/>`;
+ if(o.box)s+=`<rect x="${x-3}" y="${y+h+6}" width="${w+6}" height="9" rx="2" fill="#7a4a2a"/>`+Array.from({length:Math.floor(w/7)},(_,k)=>`<circle cx="${x+3+k*7}" cy="${y+h+4}" r="3.6" fill="${["#e53950","#ff6f8a","#fff","#e53950"][k%4]}"/><circle cx="${x+5+k*7}" cy="${y+h+8}" r="2.6" fill="#3e7d3a"/>`).join("");
+ return s}
+/* --- roofs & tops --- */
+function aRoof(K,x,w,top,hs,col){let s="";const rc=K.roofCol;
+ if(K.roof=="mansard"){s+=`<path d="M${x-4} ${top} L${x+14} ${top-70} H${x+w-14} L${x+w+4} ${top}Z" fill="url(#aZinc)"/>`+Array.from({length:Math.floor(w/12)},(_,k)=>`<path d="M${x+14+k*12} ${top-70} L${x+(k*12)*(1+0)} ${top}" stroke="#4f5a62" stroke-width=".8" opacity=".5"/>`).join("");
+  [w*.22,w*.5,w*.78].forEach(dx=>s+=`<rect x="${x+dx-16}" y="${top-60}" width="32" height="40" fill="${col}" stroke="${K.trim}" stroke-width="3"/><path d="M${x+dx-20} ${top-60} a20 16 0 0 1 40 0Z" fill="#5f6b74"/><rect x="${x+dx-10}" y="${top-52}" width="20" height="30" fill="url(#aGlass)"/>`);
+  s+=[x+20,x+w-36].map(cx=>`<rect x="${cx}" y="${top-96}" width="16" height="30" fill="#b9a789"/><rect x="${cx-2}" y="${top-100}" width="20" height="5" fill="#8f7f66"/>`+[0,1,2].map(k=>`<rect x="${cx+1+k*5}" y="${top-106}" width="3" height="7" fill="#b5563b"/>`).join("")).join("")}
+ else if(K.roof=="tile"){s+=`<path d="M${x-14} ${top} L${x+22} ${top-62} H${x+w-22} L${x+w+14} ${top}Z" fill="${rc}"/>`+Array.from({length:6},(_,k)=>`<path d="M${x-14+k*6} ${top-k*10.3} H${x+w+14-k*6}" stroke="${shadeHex(rc,-.25)}" stroke-width="1.4"/>`).join("")+Array.from({length:Math.floor(w/9)},(_,k)=>`<path d="M${x+k*9} ${top} v-6" stroke="${shadeHex(rc,.15)}" stroke-width="1" opacity=".6"/>`).join("");
+  s+=`<rect x="${x+w/2-18}" y="${top-50}" width="36" height="34" fill="${col}" stroke="${K.trim}" stroke-width="2"/><path d="M${x+w/2-24} ${top-50} L${x+w/2} ${top-68} L${x+w/2+24} ${top-50}Z" fill="${shadeHex(rc,-.1)}"/><rect x="${x+w/2-10}" y="${top-44}" width="20" height="24" fill="url(#aGlass)"/>`;
+  if(K.box)s+=`<path d="M${x-18} ${top+2} H${x+w+18}" stroke="${shadeHex(rc,-.35)}" stroke-width="5"/>`+Array.from({length:Math.floor(w/26)},(_,k)=>`<path d="M${x+6+k*26} ${top+2} v10 h8" stroke="${shadeHex(rc,-.35)}" stroke-width="3" fill="none"/>`).join("")}
+ else if(K.roof=="flat"){s+=`<rect x="${x-8}" y="${top-24}" width="${w+16}" height="22" fill="${K.trim}"/><rect x="${x-8}" y="${top-4}" width="${w+16}" height="5" fill="${shadeHex(K.trim,-.25)}"/>`+Array.from({length:Math.floor(w/22)+1},(_,k)=>`<path d="M${x-2+k*22} ${top} v-6 h8 v6" fill="${shadeHex(K.trim,-.12)}" stroke="${shadeHex(K.trim,-.3)}" stroke-width=".8"/>`).join("")+`<rect x="${x-8}" y="${top-30}" width="${w+16}" height="6" fill="${shadeHex(K.trim,-.15)}"/>`;
+  if(K.sky=="nyc"&&hs%3==0)s+=`<g transform="translate(${x+w*.7} ${top-30})"><path d="M-14 0 V-30 H14 V0" stroke="#4a3b2c" stroke-width="3" fill="none"/><path d="M-22 -30 V-74 H22 V-30Z" fill="#8a6a48"/>${[0,1,2,3].map(k=>`<path d="M-22 ${-36-k*10} H22" stroke="#5a4430" stroke-width="2"/>`).join("")}<path d="M-25 -74 L0 -94 L25 -74Z" fill="#5a4430"/></g>`;
+  if(K.sky=="london"||K.sky=="boston")s+=[x+30,x+w-50].map(cx=>`<rect x="${cx}" y="${top-58}" width="22" height="30" fill="${col}"/><rect x="${cx-2}" y="${top-62}" width="26" height="5" fill="${K.trim}"/>`+[0,1,2].map(k=>`<rect x="${cx+2+k*7}" y="${top-72}" width="5" height="11" fill="#b5563b"/>`).join("")).join("")}
+ else if(K.roof=="gable"){s+=`<path d="M${x-12} ${top} L${x+w/2} ${top-150} L${x+w+12} ${top}" fill="none" stroke="${rc}" stroke-width="16" stroke-linejoin="round"/><path d="M${x} ${top} L${x+w/2} ${top-138} L${x+w} ${top}Z" fill="${matFill(K.mat=="timber"?"stucco":K.mat,col)}"/><path d="M${x} ${top} L${x+w/2} ${top-138} L${x+w} ${top}Z" fill="url(#aLit)"/>`;
+  s+=aWin(x+w/2-20,top-90,40,50,K,{lit:hs%2==0});
+  if(K.mat=="timber")s+=`<path d="M${x+w*.25} ${top} L${x+w/2} ${top-138} L${x+w*.75} ${top} M${x+w*.12} ${top-35} H${x+w*.88} M${x+w/2} ${top-138} V${top}" stroke="${K.trim}" stroke-width="7" fill="none" opacity=".9"/>`}
+ else if(K.roof=="dutch"){const v=hs%3,cx=x+w/2;let p="";
+  if(v==0)p=`M${x+20} ${top} V${top-30} H${x+52} V${top-62} H${x+84} V${top-94} H${x+116} V${top-126} H${x+w-116} V${top-94} H${x+w-84} V${top-62} H${x+w-52} V${top-30} H${x+w-20} V${top}Z`;
+  else if(v==1)p=`M${x+20} ${top} Q${x+40} ${top-10} ${x+70} ${top-40} Q${x+96} ${top-60} ${cx-40} ${top-70} V${top-120} Q${cx} ${top-150} ${cx+40} ${top-120} V${top-70} Q${x+w-96} ${top-60} ${x+w-70} ${top-40} Q${x+w-40} ${top-10} ${x+w-20} ${top}Z`;
+  else p=`M${x+20} ${top} Q${x+50} ${top-20} ${x+60} ${top-70} Q${x+70} ${top-130} ${cx} ${top-140} Q${x+w-70} ${top-130} ${x+w-60} ${top-70} Q${x+w-50} ${top-20} ${x+w-20} ${top}Z`;
+  s+=`<path d="${p}" fill="${matFill(K.mat,col)}" stroke="${K.trim}" stroke-width="5"/><path d="${p}" fill="url(#aLit)"/>`+aWin(cx-22,top-100,44,56,K,{lit:hs%2==1})+`<path d="M${cx} ${top-128} v-16 M${cx-10} ${top-140} h20" stroke="#2b2b2b" stroke-width="4"/>`}
+ else if(K.roof=="baroque"){const cx=x+w/2;const p=`M${x+30} ${top} C${x+30} ${top-40} ${x+80} ${top-30} ${x+90} ${top-70} C${x+96} ${top-100} ${cx-30} ${top-96} ${cx-26} ${top-120} Q${cx} ${top-150} ${cx+26} ${top-120} C${cx+30} ${top-96} ${x+w-96} ${top-100} ${x+w-90} ${top-70} C${x+w-80} ${top-30} ${x+w-30} ${top-40} ${x+w-30} ${top}Z`;
+  s+=`<path d="M${x-8} ${top} L${x+20} ${top-40} H${x+w-20} L${x+w+8} ${top}Z" fill="${rc}"/><path d="${p}" fill="${matFill("stucco",col)}" stroke="${K.trim}" stroke-width="5"/><path d="${p}" fill="url(#aLit)"/>`+aWin(cx-18,top-96,36,46,K,{lit:hs%2==0,arch:true})+[x+90,x+w-90].map(vx=>`<circle cx="${vx}" cy="${top-68}" r="9" fill="none" stroke="${K.trim}" stroke-width="4"/>`).join("")+`<circle cx="${cx}" cy="${top-140}" r="6" fill="url(#aGold)"/>`}
+ return s}
+/* --- display windows: her real photo, or a lit, dressed window (never made-up items) --- */
+function aDisplay(x,y,w,h,b,k,K){const id=aid("dw");let s=`<clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/></clipPath>`;
+ const photo=b.act=="shop"&&SHOP_PHOTO[b.shop]?SHOP_PHOTO[b.shop]:b.act=="dept"&&STORE_PHOTOS[b.store]?STORE_PHOTOS[b.store][k%STORE_PHOTOS[b.store].length]:null;
+ if(photo)s+=`<g clip-path="url(#${id})"><image href="${photo}" x="${x-w*.4+k*w*.6}" y="${y-h*.15}" width="${w*1.9}" height="${h*1.3}" preserveAspectRatio="xMidYMid slice"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#ffd98a" opacity=".08"/></g>`;
+ else{const vel=b.kind=="food"?"#7a1f2e":["#7a1f2e","#1f3a5b","#2f4d3a","#5b2a5b","#6b3a1f"][hashStr(b.label)%5];
+  s+=`<g clip-path="url(#${id})"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#aShopGlow)"/>`+
+  `<path d="M${x} ${y} Q${x+w*.18} ${y+h*.5} ${x+w*.08} ${y+h} H${x}Z M${x+w} ${y} Q${x+w*.82} ${y+h*.5} ${x+w*.92} ${y+h} H${x+w}Z" fill="${vel}"/><path d="M${x+6} ${y+8} Q${x+w*.14} ${y+h*.5} ${x+w*.05} ${y+h}" stroke="${shadeHex(vel,.25)}" stroke-width="2" fill="none"/>`+
+  `<path d="M${x} ${y} Q${x+w/4} ${y+20} ${x+w/2} ${y+6} Q${x+3*w/4} ${y+20} ${x+w} ${y} V${y-2} H${x}Z" fill="${shadeHex(vel,-.1)}"/><path d="M${x} ${y+2} Q${x+w/4} ${y+22} ${x+w/2} ${y+8} Q${x+3*w/4} ${y+22} ${x+w} ${y+2}" stroke="url(#aGold)" stroke-width="2" fill="none"/>`+
+  `<ellipse cx="${x+w/2}" cy="${y+h-6}" rx="${w*.32}" ry="5" fill="#fff" opacity=".35"/><rect x="${x}" y="${y+h-10}" width="${w}" height="10" fill="${shadeHex(vel,-.2)}" opacity=".85"/></g>`}
+ s+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="url(#aGold)" stroke-width="4" rx="3"/><path d="M${x+6} ${y+h-8} L${x+w*.32} ${y+6} M${x+w*.24} ${y+h-6} L${x+w*.5} ${y+10}" stroke="#fff" stroke-width="5" opacity=".18"/>`;
+ return s}
+/* --- one complete building facade --- */
+function archFacade(b,i,ck){const K=ARCH[ck]||ARCH.bern,x=60+i*SLOT+10,w=SLOT-20,hs=hashStr(b.label+i);const col=K.walls[hs%K.walls.length];
+ const grand=b.kind=="hotel"||b.kind=="dept",bank=b.kind=="bank";
+ const fh=K.sky=="paris"?54:K.sky=="nyc"?50:58,gfH=132,cap={mansard:190,tile:200,gable:130,dutch:150,baroque:150,flat:215}[K.roof]||190;const nf=Math.max(1,Math.min(Math.floor(cap/fh),K.floors+(grand?1:0)-((hs%3==0&&!grand)?1:0)));
+ const top=BASE-gfH-nf*fh-20;let s="";
+ // soft drop shadow
+ s+=`<rect x="${x+10}" y="${top+12}" width="${w}" height="${BASE-top-12}" fill="#2a1a0c" opacity=".32" filter="url(#aBlur)"/>`;
+ // roof sits behind the cornice
+ s+=aRoof(K,x,w,top,hs,col);
+ // wall
+ const mat=K.mat=="timber"?"stucco":K.mat;s+=`<rect x="${x}" y="${top}" width="${w}" height="${BASE-top}" fill="${matFill(mat,col)}"/>`;
+ if(K.fresco&&hs%2==0)s+=`<rect x="${x+16}" y="${top+10}" width="${w-32}" height="${fh*nf-14}" fill="none" stroke="${shadeHex(col,-.25)}" stroke-width="2" stroke-dasharray="1 6"/><path d="M${x+20} ${top+fh*nf/2} q${w/4} -20 ${w/2-20} 0 t${w/2-20} 0" stroke="${shadeHex(col,-.3)}" stroke-width="2" fill="none" opacity=".5"/>`;
+ if(K.mat=="timber"){const tc=K.trim;for(let f=0;f<nf;f++){const fy=top+f*fh;s+=`<path d="M${x} ${fy} H${x+w} M${x} ${fy+fh} H${x+w}" stroke="${tc}" stroke-width="7"/>`+[0,1,2,3,4].map(k=>`<path d="M${x+k*w/4} ${fy} V${fy+fh}" stroke="${tc}" stroke-width="6"/>`).join("")+[0,2].map(k=>`<path d="M${x+k*w/4+4} ${fy+fh} L${x+(k+1)*w/4-4} ${fy+6} M${x+(k+2)*w/4-4} ${fy+fh} L${x+(k+1)*w/4+4} ${fy+6}" stroke="${tc}" stroke-width="5"/>`).join("")}}
+ if(K.stuccoBase)s+=`<rect x="${x}" y="${top+(nf-1)*fh}" width="${w}" height="${BASE-top-(nf-1)*fh}" fill="${matFill("stone","#efeadf")}"/>`;
+ // upper-floor windows
+ const nw=K.narrow?2:3;for(let f=0;f<nf;f++){const fy=top+14+f*fh,wh=fh-24,ww=K.win=="french"?34:K.narrow?42:36;
+  for(let k=0;k<nw;k++){const wx=x+(w/(nw))*(k+.5)-ww/2,lit=(hashStr(b.label+f*7+k)%100)<34;
+   s+=aWin(wx,fy,ww,wh,K,{lit,ped:K.sky=="paris"&&f==nf-1,lintel:["nyc","boston","uk","bern","lucerne"].includes(K.sky),bal:K.balcony&&(f==nf-1||f==0)&&!K.narrow,box:K.box&&f==nf-1,arch:K.sky=="italy"||K.sky=="rome"?f==nf-1:false,curt:["#8b2a3a","#2f4d3a","#b48a3a"][k%3]})}
+  if(K.balcony&&(f==nf-1||f==0))s+=`<rect x="${x+8}" y="${fy+wh-14}" width="${w-16}" height="16" fill="none" stroke="#2b2b2b" stroke-width="2"/>`+Array.from({length:Math.floor((w-16)/7)},(_,k)=>`<path d="M${x+12+k*7} ${fy+wh-14} q3 8 0 16" stroke="#2b2b2b" stroke-width="1.2" fill="none"/>`).join("")+`<rect x="${x+4}" y="${fy+wh+1}" width="${w-8}" height="4" fill="${K.trim}"/>`;
+  if(f<nf-1&&K.mat!="timber")s+=`<rect x="${x}" y="${top+(f+1)*fh-4}" width="${w}" height="5" fill="${K.trim}" opacity=".85"/>`}
+ if(K.fireEscape&&hs%2==1){const fx=x+w*.62;for(let f=0;f<nf-1;f++){const fy=top+(f+1)*fh-8;s+=`<rect x="${fx-44}" y="${fy}" width="88" height="5" fill="#2b2b2b"/><path d="M${fx-44} ${fy} v-16 h88 v16" stroke="#2b2b2b" stroke-width="2" fill="none"/>`+Array.from({length:12},(_,k)=>`<path d="M${fx-42+k*7.5} ${fy-16} v16" stroke="#2b2b2b" stroke-width="1"/>`).join("")+`<path d="M${fx-36} ${fy} L${fx+30} ${fy+fh-8}" stroke="#2b2b2b" stroke-width="3"/>`}}
+ // cornice band over the ground floor
+ const gy=BASE-gfH;s+=`<rect x="${x-4}" y="${gy-12}" width="${w+8}" height="12" fill="${K.trim}"/><rect x="${x-4}" y="${gy-2}" width="${w+8}" height="3" fill="#000" opacity=".2"/>`;
+ // ground floor
+ s+=aGround(b,K,x,w,gy,hs,col);
+ // light & shade over the whole facade
+ s+=`<rect x="${x}" y="${top}" width="${w}" height="${BASE-top}" fill="url(#aLit)"/><rect x="${x}" y="${top}" width="${w}" height="${BASE-top}" fill="url(#aSide)"/>`;
+ // corner quoins
+ if(K.mat=="stone"||K.mat=="brick"||K.mat=="brownstone")for(let y=top+4;y<gy-14;y+=22)s+=[x,x+w-14].map(qx=>`<rect x="${qx}" y="${y}" width="14" height="18" fill="${shadeHex(col,.1)}" opacity=".55"/>`).join("");
+ if(b.kind=="hotel")s+=hotelExtras(x,w,top,K,b);
+ return`<g class="bld" data-i="${i}"><rect x="${x-10}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/>${s}</g>`}
+function aGround(b,K,x,w,gy,hs,col){let s="";const h=BASE-gy,lum=c=>{const n=parseInt(c.slice(1),16);return((n>>16&255)*.299+(n>>8&255)*.587+(n&255)*.114)/255},fasc=b.col&&b.kind=="shop"?shadeHex(b.col,lum(b.col)>.5?-.55:-.25):K.fascia;const bank=b.kind=="bank";
+ if(bank){s+=`<rect x="${x}" y="${gy}" width="${w}" height="${h}" fill="${matFill("stone","#ece3d0")}"/><path d="M${x+20} ${gy+26} L${x+w/2} ${gy-2} L${x+w-20} ${gy+26}Z" fill="#f3ecdc" stroke="#c9bb9b" stroke-width="2"/><circle cx="${x+w/2}" cy="${gy+16}" r="9" fill="url(#aGold)"/>`+[0,1,2,3,4].map(k=>`<rect x="${x+26+k*54}" y="${gy+30}" width="18" height="${h-44}" fill="#f7f1e3" stroke="#c9bb9b"/><rect x="${x+22+k*54}" y="${gy+26}" width="26" height="6" fill="#e6dcc6"/>`).join("")+`<rect x="${x+w/2-24}" y="${gy+52}" width="48" height="${h-66}" fill="#3b2a1f"/>`+[0,1,2].map(k=>`<rect x="${x+10-k*4}" y="${BASE-14+k*5}" width="${w-20+k*8}" height="5" fill="#d9cfb8"/>`).join("");
+  return s+aSign(x+w/2,gy-34,230,b.label,"#3b2a1f")}
+ s+=`<rect x="${x}" y="${gy}" width="${w}" height="${h}" fill="${K.gf=="castiron"?"#3a3f44":K.gf=="paris"?matFill("stone",shadeHex(col,-.04)):shadeHex(fasc,-.05)}"/>`;
+ // two display windows + door
+ const dw=(w-90)/2;s+=aDisplay(x+12,gy+26,dw,h-46,b,0,K)+aDisplay(x+w-12-dw,gy+26,dw,h-46,b,1,K);
+ s+=`<rect x="${x+w/2-30}" y="${gy+16}" width="60" height="${h-16}" fill="${shadeHex(fasc,-.3)}"/><path d="M${x+w/2-24} ${gy+44} a24 22 0 0 1 48 0Z" fill="url(#aWarm)"/><rect x="${x+w/2-24}" y="${gy+46}" width="48" height="${h-46}" fill="${b.kind=="food"?"#5a2a1a":shadeHex(fasc,-.45)}"/><rect x="${x+w/2-18}" y="${gy+54}" width="36" height="34" fill="url(#aWarm)" opacity=".85"/><circle cx="${x+w/2+16}" cy="${gy+h*.6}" r="3" fill="url(#aGold)"/>`;
+ // pilasters
+ s+=[x,x+w/2-34,x+w/2+30,x+w-6].map((px,k)=>`<rect x="${px-(k==0?0:2)}" y="${gy}" width="${k%3==0?8:6}" height="${h}" fill="${K.gf=="castiron"?"#2b2f33":shadeHex(fasc,.12)}"/>`).join("");
+ if(K.gf=="castiron")s+=[x+4,x+w/2-31,x+w/2+33,x+w-3].map(px=>`<circle cx="${px}" cy="${gy+10}" r="5" fill="#2b2f33"/>`).join("");
+ if(K.gf=="arcade"){s+=`<path d="M${x} ${gy} H${x+w} V${BASE} H${x+w-8} V${gy+60} a${(w-16)/6} 50 0 0 0 ${-(w-16)/3} 0 V${BASE} H${x+w-8-(w-16)/3-8} V${gy+60} a${(w-16)/6} 50 0 0 0 ${-(w-16)/3+8} 0 V${BASE} H${x+8+(w-16)/3} V${gy+60} a${(w-16)/6} 50 0 0 0 ${-(w-16)/3} 0 V${BASE} H${x}Z" fill="${matFill("stone",shadeHex(col,-.05))}"/><rect x="${x}" y="${gy}" width="${w}" height="${h}" fill="#000" opacity=".0"/>`;
+  s+=`<rect x="${x}" y="${gy}" width="${w}" height="16" fill="${shadeHex(col,-.15)}" opacity=".4"/>`}
+ if(K.gf=="italy"||K.gf=="paris"||(K.sky=="nyc"&&hs%2==0)){const ac=b.col||["#7a1f2e","#1f3a5b","#2f4d3a","#c9a227"][hs%4];s+=`<path d="M${x+6} ${gy+10} H${x+w-6} L${x+w+6} ${gy+44} H${x-6}Z" fill="${ac}"/>`+Array.from({length:12},(_,k)=>`<path d="M${x-6+k*(w+12)/12} ${gy+44} q${(w+12)/24} 9 ${(w+12)/12} 0" fill="${shadeHex(ac,-.15)}"/>`).join("")+`<path d="M${x+6} ${gy+10} H${x+w-6}" stroke="${shadeHex(ac,-.3)}" stroke-width="3"/>`}
+ // fascia sign with gilt lettering
+ s+=aSign(x+w/2,gy+(K.gf=="italy"||K.gf=="paris"?-6:-2)-14,w-16,b.label,fasc);
+ // topiary planters
+ s+=[x+w/2-46,x+w/2+46].map(px=>`<path d="M${px-9} ${BASE} h18 l-2 -16 h-14Z" fill="${K.sky=="paris"||K.sky=="nyc"?"#2b2b2b":"#7a4a2a"}"/><rect x="${px-11}" y="${BASE-19}" width="22" height="4" fill="url(#aGold)"/><path d="M${px} ${BASE-19} v-12" stroke="#5a4030" stroke-width="2"/><circle cx="${px}" cy="${BASE-40}" r="13" fill="#2f6b34"/><circle cx="${px-4}" cy="${BASE-44}" r="5" fill="#3f8a44"/>`).join("");
+ return s}
+function aSign(cx,cy,w,label,bg){return`<rect x="${cx-w/2}" y="${cy-16}" width="${w}" height="34" rx="4" fill="${bg}"/><rect x="${cx-w/2+3}" y="${cy-13}" width="${w-6}" height="28" rx="3" fill="none" stroke="url(#aGold)" stroke-width="2"/>`+wrapLabel(label,cx,cy+7,label.length>28?14:17,"#f3d77a",34).replace(/fill="#f3d77a"/g,'fill="url(#aGold)" stroke="#5a4310" stroke-width=".4"')}
+function hotelExtras(x,w,top,K,b){let s=`<path d="M${x+w/2-70} ${BASE-140} H${x+w/2+70} L${x+w/2+84} ${BASE-118} H${x+w/2-84}Z" fill="#7a1f2e"/><rect x="${x+w/2-84}" y="${BASE-118}" width="168" height="8" fill="url(#aGold)"/>`+[x+w/2-78,x+w/2+78].map(px=>`<rect x="${px-2}" y="${BASE-110}" width="4" height="110" fill="url(#aGold)"/>`).join("")+`<rect x="${x+w/2-34}" y="${BASE-6}" width="68" height="6" fill="#a31d2c"/>`;
+ s+=[x+28,x+w-28].map((fx,k)=>`<path d="M${fx} ${top+40} V${top-30}" stroke="#d4af37" stroke-width="3"/><path d="M${fx} ${top-30} h${k?-34:34} v22 h${k?34:-34}Z" fill="${["#7a1f2e","#1f3a5b"][k]}"/>`).join("");
+ s+=`<rect x="${x+w-34}" y="${top+30}" width="28" height="160" rx="5" fill="#1f1f1f" stroke="url(#aGold)" stroke-width="3"/>`+"HOTEL".split("").map((c,k)=>`<text x="${x+w-20}" y="${top+60+k*30}" text-anchor="middle" font-size="22" font-family="Georgia" font-weight="700" fill="url(#aGold)">${c}</text>`).join("");
+ return s}
+/* --- skyline far behind the street --- */
+function aSkyline(ck,W){const K=ARCH[ck]||ARCH.bern,t=K.sky;let s="";const hz="#9fb3c4";
+ const alps=(y,c)=>`<path d="M0 ${y} `+Array.from({length:Math.ceil(W/180)+1},(_,k)=>`L${k*180+90} ${y-120-((k*53)%90)} L${k*180+180} ${y-20-((k*31)%40)}`).join(" ")+` V${BASE} H0Z" fill="${c}"/>`+Array.from({length:Math.ceil(W/180)},(_,k)=>`<path d="M${k*180+60} ${y-80-((k*53)%90)*.66} L${k*180+90} ${y-120-((k*53)%90)} L${k*180+120} ${y-80-((k*53)%90)*.66} Q${k*180+90} ${y-90-((k*53)%90)*.7} ${k*180+60} ${y-80-((k*53)%90)*.66}Z" fill="#fff" opacity=".9"/>`).join("");
+ const roofs=(y,c)=>Array.from({length:Math.ceil(W/70)},(_,k)=>`<rect x="${k*70}" y="${y-((k*37)%60)}" width="72" height="${BASE}" fill="${c}"/>`).join("");
+ const every=(gap,f)=>{let r="";for(let x=gap/2;x<W;x+=gap)r+=f(x);return r};
+ if(t=="bern"||t=="lucerne"||t=="munich")s+=alps(330,"#b9c9d6");
+ if(t=="nordic")s+=`<path d="M0 300 Q${W*.15} 180 ${W*.3} 260 T${W*.6} 230 T${W} 250 V${BASE} H0Z" fill="#8fa59a"/>`;
+ if(t=="bern")s+=every(1500,x=>`<path d="M${x} 360 V250 l12 -60 l12 60 V360Z" fill="${hz}"/>`)+roofs(400,"#b7c1c9");
+ if(t=="lucerne")s+=every(1300,x=>[0,60,120].map(d=>`<rect x="${x+d}" y="330" width="26" height="80" fill="${hz}"/><path d="M${x+d-4} 330 l17 -34 l17 34Z" fill="${hz}"/>`).join(""))+roofs(410,"#bcc6cd");
+ if(t=="paris")s+=roofs(390,"#c6cfd6")+every(1700,x=>`<path d="M${x-50} ${BASE} L${x-8} 190 L${x-3} 140 H${x+3} L${x+8} 190 L${x+50} ${BASE}Z" fill="#a5b2bd"/>`)+every(1700,x=>`<path d="M${x+600} 330 a50 44 0 0 1 100 0Z M${x+560} 340 a24 20 0 0 1 48 0Z M${x+692} 340 a24 20 0 0 1 48 0Z" fill="#cfd8de"/><rect x="${x+560}" y="330" width="180" height="60" fill="#cfd8de"/>`);
+ if(t=="nyc")s+=Array.from({length:Math.ceil(W/60)},(_,k)=>`<rect x="${k*60}" y="${170+((k*71)%170)}" width="52" height="${BASE}" fill="${k%3?"#b7c4cf":"#a9b8c4"}"/>`).join("")+every(1400,x=>`<path d="M${x-40} ${BASE} V160 h14 v-30 h12 v-20 h8 v-40 h4 v40 h8 v20 h12 v30 h14 V${BASE}Z" fill="#94a5b3"/>`)+every(1400,x=>`<path d="M${x+500} ${BASE} V190 h50 V${BASE}Z M${x+505} 190 q20 -60 20 -90 q0 30 20 90Z" fill="#9daebc"/>`);
+ if(t=="london")s+=roofs(400,"#c2c9cc")+every(1500,x=>`<rect x="${x}" y="200" width="44" height="${BASE}" fill="#a9b3b8"/><rect x="${x-4}" y="230" width="52" height="40" fill="#b5bec3"/><circle cx="${x+22}" cy="250" r="13" fill="#dfe5e8"/><path d="M${x-2} 200 L${x+22} 140 L${x+46} 200Z" fill="#a9b3b8"/>`)+every(1500,x=>`<path d="M${x+600} 360 a70 70 0 0 1 140 0Z" fill="#b8c2c7"/><rect x="${x+665}" y="270" width="10" height="24" fill="#b8c2c7"/><rect x="${x+590}" y="360" width="160" height="60" fill="#b8c2c7"/>`);
+ if(t=="rome")s+=roofs(410,"#d9c3a8")+every(1500,x=>`<path d="M${x-80} 340 a80 78 0 0 1 160 0Z" fill="#c9b49b"/><rect x="${x-6}" y="244" width="12" height="20" fill="#c9b49b"/><rect x="${x-110}" y="340" width="220" height="80" fill="#c9b49b"/>`)+every(700,x=>`<ellipse cx="${x+200}" cy="380" rx="60" ry="22" fill="#8fa07a"/><rect x="${x+197}" y="380" width="6" height="40" fill="#7d6a55"/>`);
+ if(t=="prague")s+=roofs(400,"#c9b8b0")+every(1300,x=>[0,70].map(d=>`<path d="M${x+d} ${BASE} V250 l18 -90 l18 90 V${BASE}Z" fill="#8f9aa6"/>`+[-12,48].map(e=>`<path d="M${x+d+e} 250 l6 -26 l6 26Z" fill="#8f9aa6"/>`).join("")).join(""))+every(1300,x=>`<path d="M${x+500} 360 H${x+900} V320 H${x+880} V300 H${x+520} V320 H${x+500}Z" fill="#b2bcc6"/><path d="M${x+690} 300 V230 l12 -40 l12 40 V300Z" fill="#a3aeb9"/>`);
+ if(t=="munich")s+=roofs(410,"#c7c9c2")+every(1300,x=>[0,90].map(d=>`<rect x="${x+d}" y="210" width="50" height="${BASE}" fill="#a9a48f"/><path d="M${x+d-4} 212 a29 36 0 0 1 58 0Z" fill="#7f9f8a"/>`).join(""));
+ if(t=="rothenburg")s+=`<path d="M0 360 Q${W/4} 320 ${W/2} 350 T${W} 340 V${BASE} H0Z" fill="#a8b79a"/>`+every(900,x=>`<rect x="${x}" y="270" width="40" height="${BASE}" fill="#b8a98f"/><path d="M${x-6} 270 L${x+20} 200 L${x+46} 270Z" fill="#9b5a44"/>`)+roofs(410,"#c7b6a3");
+ if(t=="amsterdam")s+=roofs(400,"#bfa99a")+every(1300,x=>`<rect x="${x}" y="230" width="34" height="${BASE}" fill="#9aa6ad"/><path d="M${x-4} 230 L${x+17} 110 L${x+38} 230Z" fill="#7f9aa0"/>`)+every(1300,x=>`<g transform="translate(${x+600} 330)"><path d="M-22 90 L-14 0 H14 L22 90Z" fill="#a3aeb4"/><path d="M0 4 L-60 -50 M0 4 L60 58 M0 4 L-56 58 M0 4 L56 -50" stroke="#a3aeb4" stroke-width="10"/></g>`);
+ if(t=="nordic")s+=Array.from({length:Math.ceil(W/120)},(_,k)=>`<path d="M${k*120+60} 330 V250" stroke="#8a8f94" stroke-width="3"/>`).join("")+roofs(420,"#b7a99a");
+ if(t=="boston")s+=roofs(400,"#c2aaa0")+every(1500,x=>`<rect x="${x}" y="180" width="40" height="${BASE}" fill="#a9b0b5"/><path d="M${x-4} 180 L${x+20} 130 L${x+44} 180Z" fill="#a9b0b5"/>`)+every(1500,x=>`<path d="M${x+700} ${BASE} V120 L${x+760} 110 V${BASE}Z" fill="#9fb8c9"/>`);
+ return s+`<rect y="100" width="${W}" height="${BASE-100}" fill="url(#aHaze)"/>`}
+/* --- local streetlamps & street trees --- */
+function aLamp(x,ck){const t=(ARCH[ck]||ARCH.bern).lamp;const glow=`<circle cx="0" cy="0" r="16" fill="#ffe7a8" opacity=".35"/>`;
+ if(t=="paris")return`<g transform="translate(${x} 0)"><rect x="-4" y="${BASE-200}" width="8" height="200" fill="#1e2a22"/><rect x="-10" y="${BASE-24}" width="20" height="24" fill="#1e2a22"/><path d="M0 ${BASE-200} q-22 -6 -30 -24 M0 ${BASE-200} q22 -6 30 -24" stroke="#1e2a22" stroke-width="4" fill="none"/>${[-30,30].map(d=>`<g transform="translate(${d} ${BASE-232})">${glow}<path d="M-9 -10 h18 l-3 22 h-12Z" fill="#fff2c6" stroke="#1e2a22" stroke-width="2.5"/><path d="M-11 -10 L0 -20 L11 -10Z" fill="#1e2a22"/></g>`).join("")}</g>`;
+ if(t=="crook")return`<g transform="translate(${x} 0)"><rect x="-4" y="${BASE-230}" width="8" height="230" fill="#26302b"/><path d="M0 ${BASE-230} q0 -26 30 -26 q14 0 14 12" stroke="#26302b" stroke-width="6" fill="none"/><g transform="translate(44 ${BASE-238})">${glow}<path d="M-10 0 h20 l-4 14 h-12Z" fill="#fff2c6" stroke="#26302b" stroke-width="2"/></g></g>`;
+ if(t=="gas")return`<g transform="translate(${x} 0)"><rect x="-4" y="${BASE-170}" width="8" height="170" fill="#1d1d1d"/><g transform="translate(0 ${BASE-190})">${glow}<path d="M-12 -14 h24 l-4 30 h-16Z" fill="#ffd36b" stroke="#1d1d1d" stroke-width="3"/><path d="M-14 -14 L0 -28 L14 -14Z" fill="#1d1d1d"/><path d="M0 4 q-4 -6 0 -12 q4 6 0 12" fill="#fff6cf"/></g></g>`;
+ return`<g transform="translate(${x} 0)"><rect x="-4" y="${BASE-190}" width="8" height="190" fill="#1f1f1f"/><path d="M0 ${BASE-190} q 0 -20 22 -24" stroke="#1f1f1f" stroke-width="5" fill="none"/><g transform="translate(26 ${BASE-200})">${glow}<path d="M-10 -14 h20 l-3 24 h-14Z" fill="#fff2c6" stroke="#1f1f1f" stroke-width="2.5"/><path d="M-12 -14 L0 -24 L12 -14Z" fill="#1f1f1f"/></g></g>`}
+function aTree(x,ck){const t=(ARCH[ck]||ARCH.bern).tree;let s=`<rect x="${x-14}" y="${BASE+30}" width="28" height="6" fill="#4a4a4a"/>`;
+ if(t=="cypress")return s+`<rect x="${x-3}" y="${BASE-10}" width="6" height="44" fill="#5a4030"/><path d="M${x} ${BASE-200} C${x+22} ${BASE-140} ${x+22} ${BASE-40} ${x} ${BASE-6} C${x-22} ${BASE-40} ${x-22} ${BASE-140} ${x} ${BASE-200}Z" fill="#2f4f2a"/><path d="M${x} ${BASE-190} C${x+10} ${BASE-140} ${x+12} ${BASE-60} ${x} ${BASE-20}" stroke="#3f6b35" stroke-width="5" fill="none"/>`;
+ if(t=="birch")return s+`<rect x="${x-3}" y="${BASE-120}" width="6" height="154" fill="#f2efe8"/>${[0,1,2,3].map(k=>`<rect x="${x-3}" y="${BASE-100+k*30}" width="6" height="3" fill="#333"/>`).join("")}<ellipse cx="${x}" cy="${BASE-150}" rx="38" ry="52" fill="#8fbf5a" opacity=".92"/>`;
+ const c=t=="plane"?"#5f8f45":t=="elm"?"#4f7d3c":"#5a8a40";
+ return s+`<path d="M${x-3} ${BASE+34} V${BASE-90} M${x} ${BASE-60} l-20 -30 M${x} ${BASE-70} l18 -26" stroke="#5a4030" stroke-width="7" fill="none"/><ellipse cx="${x}" cy="${BASE-140}" rx="62" ry="58" fill="${shadeHex(c,-.12)}"/><ellipse cx="${x-26}" cy="${BASE-120}" rx="38" ry="34" fill="${c}"/><ellipse cx="${x+24}" cy="${BASE-160}" rx="36" ry="32" fill="${shadeHex(c,.1)}"/><ellipse cx="${x+20}" cy="${BASE-112}" rx="30" ry="26" fill="${c}"/>`}
 
 /* ============ SOUND: procedural ambience + gentle music ============ */
 const SND={ctx:null,master:null,bus:null,vol:.55,muted:false,cur:null,timers:[],nodes:[],noise:null,musicOn:true};
