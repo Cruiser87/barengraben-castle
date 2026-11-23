@@ -253,6 +253,7 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 .spphoto{max-width:100%;max-height:100%;object-fit:contain}
 .cardphoto{width:100%;height:100%;object-fit:contain}
 .pshop .sp .sl{opacity:0;transition:opacity .15s}.pshop .sp:hover .sl,.pshop .sp:focus .sl{opacity:1;z-index:5}.pshop .sp .bdg{width:min(54px,70%)!important}
+.bdgpic{width:82%;height:82%;object-fit:contain}.ivart{position:relative}.ivmini{position:absolute;right:-8px;bottom:-8px;width:42%;aspect-ratio:1;background:#fffaf0;border:3px solid var(--gold);border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}.ivmini svg{width:100%;height:100%}
 </style>
 </head>
 <body>
@@ -475,6 +476,21 @@ const STORES={
 // FAO Schwarz toys
 D("fao_teddy","Giant FAO teddy bear","🧸",180,"fao","nyc");D("fao_soldier","Toy soldier","💂",90,"fao","nyc");D("fao_carousel","Music-box carousel","🎠",160,"fao","nyc",{play:"musicbox"});D("fao_dollhouse","Victorian dollhouse","🏠",260,"fao","nyc");D("fao_train","Wooden toy train","🚂",120,"fao","nyc");
 // Build city shop items + foods into ITEMS
+// fuller souvenir shops in every city
+CITIES.nyc.shop={n:"Big Apple Gift Shop",items:[]};
+const MORE_SHOP={
+ lucerne:[["x_swisswatch","Swiss gold pocket watch","⌚",400,{wear:["watch","pocketwatch","#c9a227"]}],["x_lakescarf","Lake Lucerne silk scarf","🧣",90,{wear:["neck","scarf","#2e86c1"]}],["x_alphat","Alpine felt hat","🎩",80,{wear:["head","felthat","#3e6b2a"]}],["x_chaletclock","Little chalet clock","🏠",180,{play:"cuckoo"}],["x_alpquilt","Alpine patchwork quilt","🛏️",150]],
+ amsterdam:[["x_lacecap","Dutch lace cap","👒",60,{wear:["head","bonnet","#fffaf0"],g:"girl"}],["x_tulipvase","Tulip vase","🌷",80],["x_bike","Little Dutch bicycle","🚲",200],["x_gouda","Gouda cheese wheel","🧀",40],["x_canalhouse","Canal house model","🏘️",120]],
+ nordic:[["x_pomhat","Knit pom-pom hat","🧢",50,{wear:["head","beanie","#c0392b"]}],["x_vikingship","Model Viking ship","⛵",150],["x_dalahorse","Painted Dala horse","🐎",70],["x_brasscandle","Brass candle holder","🕯️",60],["x_sheepskin","Sheepskin rug","🐑",120]],
+ paris:[["x_carre","Silk carré scarf","🧣",120,{wear:["neck","scarf","#f49ac1"]}],["x_parispearls","Pearl strand","📿",400,{wear:["neck","pearls","#fdf8ef"]}],["x_eiffelmodel","Little Eiffel Tower","🗼",60],["x_laceparasol","Lace parasol","⛱️",140,{wear:["bag","parasol","#fffaf0"],g:"girl"}],["x_perfume","Perfume bottle","🧴",90]],
+ prague:[["x_garnet","Bohemian garnet necklace","📿",380,{wear:["neck","necklace","#8b0000"]}],["x_puppet","Little Prague puppet","🪆",70],["x_goblets","Bohemian crystal goblets","🥂",130],["x_astroclock","Astronomical clock model","🕰️",210]],
+ germany:[["x_stein","Beer stein","🍺",80],["x_nutcracker","Nutcracker","💂",110],["x_bavscarf","Bavarian checked scarf","🧣",60,{wear:["neck","scarf","#2e86c1"]}],["x_gingerheart","Gingerbread heart","❤️",20]],
+ rothenburg:[["x_starlantern","Paper star lantern","⭐",50],["x_woodangel","Carved wooden angel","👼",90],["x_schneeball","Schneeball pastry tin","🍪",30],["x_teddy","Teddy bear","🧸",80]],
+ italy:[["x_murano","Murano glass vase","🏺",220],["x_strawhat","Straw sun hat","👒",70,{wear:["head","bonnet","#e8d3a0"],g:"girl"}],["x_florscarf","Florentine silk scarf","🧣",110,{wear:["neck","scarf","#d4a017"]}],["x_venmask","Venetian mask","🎭",90],["x_journal","Florentine leather journal","📔",60]],
+ uk:[["x_flatcap","Tweed flat cap","🧢",60,{wear:["head","cap","#6b5b4b"]}],["x_chintzpot","Chintz teapot","🫖",90],["x_corgi","Corgi plush","🐕",50],["x_redbus","Red bus model","🚌",60],["x_thistle","Thistle brooch","📍",120,{wear:["neck","cameo","#7d3c98"]}]],
+ boston:[["x_crimson","Crimson scarf","🧣",60,{wear:["neck","scarf","#a51c30"]}],["x_lighthouse","Lighthouse model","🗼",110],["x_fisherman","Cable-knit fisherman sweater","🧶",140,{wear:["outfit","sweater","#efe6d2"]}],["x_lobsterplush","Lobster plush","🦞",40]],
+ nyc:[["x_nyglobe","NYC snow globe","🔮",60],["x_libertycrown","Liberty crown","👑",30,{wear:["head","crown","#5fb3a1"]}],["x_taxi","Yellow taxi model","🚕",50],["x_nyscarf","Big Apple scarf","🧣",50,{wear:["neck","scarf","#c0392b"]}],["x_empire","Empire State model","🏙️",90]]};
+for(const[k,list] of Object.entries(MORE_SHOP))if(CITIES[k]&&CITIES[k].shop)CITIES[k].shop.items.push(...list);
 for(const [cid,c] of Object.entries(CITIES)){
  if(c.att) c.att=c.att.map(a=>({id:a[0],n:a[1],k:a[2],i:a[3],d:a[4],sp:(a[5]||{}).sp}));
  if(c.food) c.food=c.food.map(f=>FD(f[0],f[1],f[2],f[3],cid+"_food",cid,f[4]));
@@ -608,6 +624,15 @@ D("mu_teaset","Hand-painted porcelain tea set","🫖",200,"munich_tracht","germa
 D("mu_glock","Carved Glockenspiel music box","🎎",260,"munich_tracht","germany",{play:"musicbox"});
 D("mu_nutcracker","Wooden nutcracker & star ornaments","💂",120,"munich_tracht","germany");
 
+// real pictures cut from her shop photos
+const SHOP_PICS={"sw_brooch":["cut",1.131],"sw_choc":["rect",1.174],"sw_cowbell":["cut",0.859],"sw_blouse":["rect",0.456],"sw_tunic":["rect",0.644],"sw_shawl":["rect",0.412],"sw_stone":["rect",2.991],"sw_figs":["rect",2.207],"sw_musicbox":["rect",2.207],"pc_tiara":["cut",1.893],"pc_pearls":["cut",1.0],"pc_flacon":["rect",0.825],"pc_coat_lav":["cut",0.478],"pc_scarf_blush":["cut",0.216],"pc_scarf_slate":["cut",0.184],"pc_scarf_cream":["cut",0.184],"pc_clutch_crystal":["cut",0.778],"pc_bag_taupe":["cut",0.697],"pc_bag_burg":["cut",0.956],"pc_coat_blue":["cut",0.444],"pc_tote":["cut",0.8],"pc_bag_cream":["cut",0.929],"pc_bag_wine":["cut",0.973],"pc_bag_tan":["cut",0.936],"pc_parfum":["cut",0.678],"pc_clutch_gold":["cut",1.252],"pc_clutch_silver":["cut",1.046],"mu_dirndl_burg":["rect",0.247],"mu_dirndl_green":["rect",0.203],"mu_dirndl_navy":["cut",0.303],"mu_blouse":["cut",0.298],"mu_jacket_char":["cut",0.4],"mu_jacket_green":["rect",0.391],"mu_jacket_gray":["rect",0.45],"mu_leder":["cut",0.48],"mu_tiara":["rect",1.189],"mu_necklace":["cut",1.051],"mu_earrings":["rect",1.194],"mu_ring":["rect",0.815],"mu_stein":["cut",0.557],"mu_goblets":["cut",3.019],"mu_figurines":["cut",2.448],"mu_teaset":["cut",3.082],"mu_glock":["cut",1.67],"mu_nutcracker":["rect",1.018]};
+for(const[id,[kind,ar]] of Object.entries(SHOP_PICS)){const I=ITEMS[id];if(!I)continue;I.pic="items/shop/"+id+".png";I.picAR=ar;
+ if(I.c=="decor"){I.photo=I.pic;I.par=ar}}
+for(const id of ["pc_coat_lav","pc_coat_blue"])Object.assign(ITEMS[id],{st:"photo",fit:"coat",photo:ITEMS[id].pic,ar:ITEMS[id].picAR});
+for(const id of ["pc_clutch_crystal","pc_bag_taupe","pc_bag_burg","pc_tote","pc_bag_cream","pc_bag_wine","pc_bag_tan","pc_clutch_gold","pc_clutch_silver"])Object.assign(ITEMS[id],{st:"photo",fit:"bag",photo:ITEMS[id].pic,ar:ITEMS[id].picAR});
+Object.assign(ITEMS.pc_tiara,{st:"photo",fit:"tiara",photo:ITEMS.pc_tiara.pic,ar:ITEMS.pc_tiara.picAR});
+ITEMS.sw_bear.pic="items/carved_bear.png";ITEMS.pc_gown.pic="items/gown_couture.png";ITEMS.pc_gown.picAR=418/430;
+
 /* ============ ART: BEARS ============ */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function shadeHex(h,amt){let c=h.replace("#","");if(c.length==3)c=c.split("").map(x=>x+x).join("");let n=parseInt(c,16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));return"#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("")}
@@ -673,7 +698,7 @@ function bearSVG(bear,expr,opt){
  const bs=wornSt(w.bag),bc=wornCol(w.bag);
  if(bs=="parasol"){back+=`<path d="M150 214 L168 40" stroke="#5a3a26" stroke-width="4"/>`;top+=`<path d="M106 54 Q166 -10 226 54 Q211 46 196 54 Q181 46 166 54 Q151 46 136 54 Q121 46 106 54Z" fill="${bc}" stroke="#d8cdb8" stroke-width="2"/>`+[136,166,196].map(x=>`<path d="M${x} 54 L166 6" stroke="#e5dccb" stroke-width="1.5"/>`).join("")+`<circle cx="166" cy="2" r="4" fill="#d4af37"/>`;front+=`<circle cx="150" cy="208" r="6" fill="${C.fur}" stroke="${C.line}" stroke-width="1.5"/>`}
  else if(bs=="cane")front+=`<path d="M152 196 L160 254" stroke="${bc}" stroke-width="5" stroke-linecap="round"/><circle cx="151" cy="194" r="6" fill="#d4af37" stroke="#8a6d10" stroke-width="1.5"/>`;
- else if(bs)front+=`<path d="M146 176 Q156 150 166 176" fill="none" stroke="${shadeHex(bc,-.3)}" stroke-width="3"/><rect x="138" y="176" width="36" height="28" rx="6" fill="${bc}" stroke="${shadeHex(bc,-.3)}" stroke-width="2"/><rect x="152" y="182" width="8" height="5" rx="1" fill="#c9a227"/>`;
+ else if(bs&&bs!="photo")front+=`<path d="M146 176 Q156 150 166 176" fill="none" stroke="${shadeHex(bc,-.3)}" stroke-width="3"/><rect x="138" y="176" width="36" height="28" rx="6" fill="${bc}" stroke="${shadeHex(bc,-.3)}" stroke-width="2"/><rect x="152" y="182" width="8" height="5" rx="1" fill="#c9a227"/>`;
  // head
  const eyeY=74;let eyes,mouth;
  if(expr=="happy"){eyes=`<path d="M70 ${eyeY+2} Q78 ${eyeY-8} 86 ${eyeY+2}" stroke="${C.nose}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M114 ${eyeY+2} Q122 ${eyeY-8} 130 ${eyeY+2}" stroke="${C.nose}" stroke-width="4" fill="none" stroke-linecap="round"/>`;mouth=`<path d="M88 106 Q100 120 112 106" fill="#d9636e" stroke="${C.nose}" stroke-width="2.5"/>`}
@@ -698,13 +723,13 @@ function bearSVG(bear,expr,opt){
  const sh=`<ellipse cx="100" cy="254" rx="62" ry="8" fill="#000" opacity=".14"/>`;
  const PB=!!bear.photo;const G=photoGeom(PB);const pw=photoWear(w,G);
  if(PB){const img=`<image href="${bear.photo}" x="33" y="-10" width="178" height="270" preserveAspectRatio="xMidYMax meet"/>`;
-  const gown=w.outfit&&ITEMS[w.outfit.id]&&ITEMS[w.outfit.id].fit=="gown";const uid2="pc"+Math.random().toString(36).slice(2,7);
+  const gown=w.outfit&&ITEMS[w.outfit.id]&&["gown","coat"].includes(ITEMS[w.outfit.id].fit);const uid2="pc"+Math.random().toString(36).slice(2,7);
   const paws=gown?`<defs><radialGradient id="${uid2}g"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="${uid2}" maskUnits="userSpaceOnUse" x="-30" y="-36" width="260" height="300"><ellipse cx="80" cy="160" rx="22" ry="20" fill="url(#${uid2}g)"/><ellipse cx="126" cy="163" rx="22" ry="20" fill="url(#${uid2}g)"/></mask></defs><g mask="url(#${uid2})">${img}</g>`:"";
   return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${img}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${front}</g>${pw.under}${paws}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${neckS}</g>${pw.over}</g><g class="bhead" transform="translate(0 -30)">${top}</g>${pw.head}</svg>`}
  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${pw.under}${neckS}${pw.over}</g><g class="bhead">${head}${top}${pw.head}</g></svg>`;
 }
 /* photo clothes fitted to the bear */
-function photoGeom(PB){return PB?{cx:100,chest:84,waist:140,hem:258,wTop:84,wHem:200,headTop:-4,tiaraW:54,neckY:70,neckW:58,neckH:60}:{cx:100,chest:146,waist:180,hem:258,wTop:62,wHem:150,headTop:27,tiaraW:66,neckY:140,neckW:44,neckH:45}}
+function photoGeom(PB){return PB?{cx:100,chest:84,waist:140,hem:258,wTop:84,wHem:200,headTop:-4,tiaraW:54,neckY:70,neckW:58,neckH:60,bagX:146,bagY:150,bagW:52}:{cx:100,chest:146,waist:180,hem:258,wTop:62,wHem:150,headTop:27,tiaraW:66,neckY:140,neckW:44,neckH:45,bagX:160,bagY:172,bagW:40}}
 function photoWear(w,G){let under="",over="",head="";
  const o=w.outfit&&ITEMS[w.outfit.id];
  if(o&&o.fit=="gown"){const[PW,PH]=o.px,pr=o.prof;let s="";const rows=pr.length-1;
@@ -714,12 +739,14 @@ function photoWear(w,G){let under="",over="",head="";
    let tw;if(r0<LW)tw=gw*sxB;else{const t=Math.min(1,(r0-LW)/(LH-LW-0.04));tw=wW+(G.wHem-wW)*Math.pow(t,0.9)}const sx=tw/gw;const y0=Y(r0),y1=Y(r1)+0.4;
    s+=`<svg x="${G.cx-gc*sx}" y="${y0}" width="${PW*sx}" height="${Math.max(0.5,y1-y0)}" viewBox="0 ${r0*PH} ${PW} ${(r1-r0)*PH}" preserveAspectRatio="none"><image href="${o.photo}" width="${PW}" height="${PH}"/></svg>`}
   under+=s}
+ else if(o&&o.fit=="coat"){const top=G.chest-(G.bagX<150?14:8),h=G.hem-6-top,wd=Math.max(h*o.ar,G.wTop*1.3);under+=`<image href="${o.photo}" x="${G.cx-wd/2}" y="${top}" width="${wd}" height="${h}" preserveAspectRatio="none"/>`}
  else if(o&&o.photo)under+=`<image href="${o.photo}" x="${G.cx-60}" y="${G.chest}" width="120" height="${G.hem-G.chest}" preserveAspectRatio="xMidYMax meet"/>`;
  const n=w.neck&&ITEMS[w.neck.id];
  if(n&&n.fit=="necklace"){const fid="nf"+Math.random().toString(36).slice(2,6);const h=G.neckW*306/295;over+=`<filter id="${fid}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="0.6" stdDeviation="0.7" flood-color="#6b3f2a" flood-opacity=".9"/></filter><g filter="url(#${fid})"><image href="items/necklace_drape.png" x="${G.cx-G.neckW/2}" y="${G.neckY}" width="${G.neckW}" height="${h}"/></g>`}
  else if(n&&n.photo)over+=`<image href="${n.photo}" x="${G.cx-G.neckW/2}" y="${G.neckY}" width="${G.neckW}" height="${G.neckH}"/>`;
  const h=w.head&&ITEMS[w.head.id];
  if(h&&h.photo){const tw=G.tiaraW,th=tw/h.ar;head+=`<image href="${h.photo}" x="${G.cx-tw/2}" y="${G.headTop+9-th}" width="${tw}" height="${th}"/>`}
+ const bg=w.bag&&ITEMS[w.bag.id];if(bg&&bg.fit=="bag"){const bw=G.bagW,bh=bw/bg.ar;over+=`<image href="${bg.photo}" x="${G.bagX-bw/2}" y="${G.bagY}" width="${bw}" height="${bh}"/>`}
  return{under,over,head}}
 function bearMini(I,color){const w={};w[I.slot]={id:I.id};let s=bearSVG({color:color||"white",wear:w},"happy");if(["head","neck","ears"].includes(I.slot))s=s.replace('viewBox="-30 -36 260 300"','viewBox="10 -30 180 200"');else if(I.slot=="feet")s=s.replace('viewBox="-30 -36 260 300"','viewBox="30 160 140 110"');else if(I.slot=="wrist"||I.slot=="watch")s=s.replace('viewBox="-30 -36 260 300"','viewBox="20 130 160 130"');return s}
 function bearHead(bear){const s=bearSVG(bear,"normal");return s.replace('viewBox="-30 -36 260 300"',bear.photo?'viewBox="38 -22 124 124"':'viewBox="22 -20 156 160"')}
@@ -852,12 +879,11 @@ function streetSVG(blds,style,cityKey,month){
  s+=farLayer(C.far,W,month);
  LABELS=[];blds.forEach((b,i)=>s+=facade(b,i,style,cityKey));
  for(let i=0;i<=blds.length;i++)s+=lamp(60+i*SLOT-8);
- // month garland
- if(M.lights||M.deco){let g="";for(let x=40;x<W;x+=24)g+=`<text x="${x}" y="${BASE-238+Math.sin(x/40)*8}" font-size="16" fill="${M.lights?["#ffcf40","#ff6b6b","#6bd1ff"][(x/24|0)%3]:"#c0392b"}" class="${M.lights?"twinkle":""}">${M.lights?"●":M.deco}</text>`;s+=`<g opacity=".9">${g}</g>`}
  s+=`<rect x="0" y="${BASE}" width="${W}" height="62" fill="url(#cob)"/><rect x="0" y="${BASE}" width="${W}" height="6" fill="#9a8a70"/><rect x="0" y="532" width="${W}" height="68" fill="${style=="nyc"||style=="boston"?"#5f6368":"#8c7f6a"}"/>`;
  if(style=="nyc")for(let x=200;x<W;x+=700)s+=`<g transform="translate(${x} 540)"><rect x="0" y="10" width="150" height="40" rx="10" fill="#f7c600"/><path d="M24 10 Q40 -16 110 -14 Q126 -10 130 10Z" fill="#f7c600"/><rect x="40" y="-8" width="70" height="18" fill="#bfe3f5"/><rect x="60" y="-22" width="30" height="10" fill="#222"/><circle cx="34" cy="50" r="12" fill="#222"/><circle cx="118" cy="50" r="12" fill="#222"/><rect x="0" y="26" width="150" height="5" fill="#222" opacity=".6"/></g>`;
  if(cityKey=="bern"||style=="swiss")for(let x=320;x<W;x+=1100)s+=`<g transform="translate(${x} 548)"><rect width="160" height="36" rx="6" fill="#c0392b"/><rect x="10" y="6" width="140" height="16" fill="#bfe3f5"/><circle cx="30" cy="38" r="8" fill="#333"/><circle cx="130" cy="38" r="8" fill="#333"/><path d="M80 0 V-30 M60 -30 H100" stroke="#333" stroke-width="3"/></g>`;
  if(M.snow)s+=`<rect x="0" y="${BASE}" width="${W}" height="10" fill="#fff" opacity=".9"/>`;
+ s+=seasonSVG(blds,month,W);
  return s+LABELS.join("")+`</svg>`}
 
 /* ---- full-screen interior pictures ---- */
@@ -943,6 +969,61 @@ function roomSVG(room,bearsHere){
   else s+=`<rect y="520" width="1200" height="180" fill="#8b5a2b"/>`+Array.from({length:14},(_,i)=>`<path d="M${i*90} 520 L${i*90-50} 700" stroke="#6b4423" stroke-width="3"/>`).join("");
   s+=`<ellipse cx="600" cy="610" rx="430" ry="72" fill="${rc}" stroke="${shadeHex(rc,.3)}" stroke-width="8"/><ellipse cx="600" cy="610" rx="370" ry="54" fill="none" stroke="${shadeHex(rc,.35)}" stroke-width="4" stroke-dasharray="14 10"/>`}
  return s}
+
+/* ---------- static seasonal town decorations (replaces falling items) ---------- */
+const DOORISH=new Set(["shop","food","post","bank","catalog","hotel","station","airport","dept","museum","library","theater","tea","toys","house","tower","castle","castlelane","stand","market","conservatory"]);
+function sPumpkin(x,y,r){r=r||14;return`<g><ellipse cx="${x-r*.45}" cy="${y-r*.8}" rx="${r*.6}" ry="${r*.8}" fill="#d9661f"/><ellipse cx="${x+r*.45}" cy="${y-r*.8}" rx="${r*.6}" ry="${r*.8}" fill="#d9661f"/><ellipse cx="${x}" cy="${y-r*.8}" rx="${r*.55}" ry="${r*.85}" fill="#ef7d2a"/><path d="M${x} ${y-r*1.6} q2 -7 7 -8" stroke="#3e6b2a" stroke-width="3" fill="none"/></g>`}
+function sWreath(x,y,r,leaf,bow,berry){let s=`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${leaf}" stroke-width="${r*.55}"/>`;for(let k=0;k<10;k++){const a=k/10*6.283;s+=`<circle cx="${x+Math.cos(a)*r}" cy="${y+Math.sin(a)*r}" r="${r*.22}" fill="${k%2?berry:shadeHex(leaf,.18)}"/>`}return`<g>${s}<path d="M${x} ${y+r*.9} l-${r*.6} -${r*.35} v${r*.7}Z M${x} ${y+r*.9} l${r*.6} -${r*.35} v${r*.7}Z" fill="${bow}"/><circle cx="${x}" cy="${y+r*.9}" r="${r*.18}" fill="${shadeHex(bow,-.2)}"/></g>`}
+function sCurve(x1,x2,y,sag,n){const P=[];for(let k=0;k<=n;k++){const t=k/n;P.push([x1+(x2-x1)*t,y+sag*4*t*(1-t)])}return P}
+function sBulbs(x1,x2,y,sag,cols,tw){const P=sCurve(x1,x2,y,sag,12);return`<path d="M${x1} ${y} Q${(x1+x2)/2} ${y+sag*2} ${x2} ${y}" stroke="#2b2b2b" stroke-width="1.5" fill="none"/>`+P.slice(1,-1).map((p,k)=>`<ellipse cx="${p[0]}" cy="${p[1]+5}" rx="4" ry="6" fill="${cols[k%cols.length]}" class="${tw?"twinkle":""}" style="animation-delay:${(k%5)*.4}s"/>`).join("")}
+function sBunting(x1,x2,y,sag,cols){const P=sCurve(x1,x2,y,sag,10);return`<path d="M${x1} ${y} Q${(x1+x2)/2} ${y+sag*2} ${x2} ${y}" stroke="#7a5a3a" stroke-width="1.5" fill="none"/>`+P.slice(0,-1).map((p,k)=>{const q=P[k+1];return`<path d="M${p[0]+2} ${p[1]} L${q[0]-2} ${q[1]} L${(p[0]+q[0])/2} ${(p[1]+q[1])/2+20}Z" fill="${cols[k%cols.length]}"/>`}).join("")}
+function sGarland(x1,x2,y,sag,cols){const P=sCurve(x1,x2,y,sag,16);return`<path d="M${x1} ${y} Q${(x1+x2)/2} ${y+sag*2} ${x2} ${y}" stroke="#2f5d2a" stroke-width="7" fill="none" stroke-linecap="round"/>`+P.map((p,k)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${k%3?3:4.5}" fill="${cols[k%cols.length]}"/>`).join("")}
+function sBanner(x,y,col,sym){return`<g><path d="M${x} ${y} h34 v52 l-17 -12 l-17 12Z" fill="${col}" stroke="${shadeHex(col,-.3)}" stroke-width="2"/><text x="${x+17}" y="${y+30}" text-anchor="middle" font-size="18" fill="#fffaf0">${sym}</text></g>`}
+function sTree(x,y,h){let s=`<rect x="${x-7}" y="${y-18}" width="14" height="18" fill="#5a3a26"/>`;[0,1,2].forEach(k=>{const w=(3-k)*h*.18,t=y-18-k*h*.26;s+=`<path d="M${x-w} ${t} L${x} ${t-h*.42} L${x+w} ${t}Z" fill="${["#1f5b2e","#24693a","#2c7a44"][k]}"/>`});const C=["#ff6b6b","#ffcf40","#6bd1ff","#fff"];for(let k=0;k<14;k++){const yy=y-26-((k*37)%Math.round(h*.75)),half=(h*.5)*(1-(y-26-yy)/(h*.9));s+=`<circle cx="${x+((k*53)%100/100*2-1)*half*.8}" cy="${yy}" r="3.5" fill="${C[k%4]}" class="twinkle" style="animation-delay:${(k%6)*.3}s"/>`}return s+`<path d="M${x} ${y-18-h*.95} l4 9 h10 l-8 6 l3 10 l-9 -6 l-9 6 l3 -10 l-8 -6 h10Z" fill="#ffd700"/>`+[[-22,"#c0392b"],[8,"#27408b"],[24,"#c9a227"]].map(([dx,c])=>`<rect x="${x+dx-8}" y="${y-14}" width="16" height="14" fill="${c}"/><path d="M${x+dx} ${y-14} v14 M${x+dx-8} ${y-8} h16" stroke="#fff" stroke-width="2"/>`).join("")}
+function sSnowman(x,y){return`<g><circle cx="${x}" cy="${y-16}" r="17" fill="#fff" stroke="#d6e4ef" stroke-width="2"/><circle cx="${x}" cy="${y-44}" r="12" fill="#fff" stroke="#d6e4ef" stroke-width="2"/><rect x="${x-9}" y="${y-68}" width="18" height="12" fill="#222"/><rect x="${x-13}" y="${y-57}" width="26" height="3" fill="#222"/><path d="M${x} ${y-44} l10 2 l-10 2Z" fill="#ef7d2a"/><path d="M${x-12} ${y-35} h24" stroke="#c0392b" stroke-width="5"/></g>`}
+function sFlowerBox(x,y,w,cols){let s=`<rect x="${x-w/2}" y="${y-12}" width="${w}" height="14" rx="3" fill="#8b5a2b"/>`;for(let k=0;k<w/10;k++)s+=`<path d="M${x-w/2+6+k*10} ${y-12} v-10" stroke="#3e8e41" stroke-width="2"/><circle cx="${x-w/2+6+k*10}" cy="${y-24}" r="5" fill="${cols[k%cols.length]}"/>`;return s}
+function sBalloons(x,y,cols){let s="";cols.forEach((c,k)=>{const bx=x+(k-(cols.length-1)/2)*14,by=y-70-(k%2)*16;s+=`<path d="M${x} ${y} Q${(x+bx)/2} ${(y+by)/2+10} ${bx} ${by+14}" stroke="#777" stroke-width="1" fill="none"/><ellipse cx="${bx}" cy="${by}" rx="11" ry="14" fill="${c}"/><ellipse cx="${bx-4}" cy="${by-5}" rx="3" ry="4" fill="#fff" opacity=".5"/>`});return s}
+function sHeart(x,y,r,c){return`<path d="M${x} ${y+r} C${x-r*1.6} ${y-r*.2} ${x-r*.8} ${y-r*1.3} ${x} ${y-r*.4} C${x+r*.8} ${y-r*1.3} ${x+r*1.6} ${y-r*.2} ${x} ${y+r}Z" fill="${c}"/>`}
+function sHay(x,y){return`<g><rect x="${x-30}" y="${y-30}" width="60" height="30" rx="5" fill="#d9b44a"/><path d="M${x-30} ${y-20} h60 M${x-30} ${y-10} h60" stroke="#b8922e" stroke-width="2"/></g>`}
+function sCorn(x,y){return`<g>${[-8,0,8].map(d=>`<path d="M${x+d} ${y} q${d} -40 ${d*1.6} -70" stroke="#c9a24a" stroke-width="5" fill="none"/>`).join("")}<path d="M${x-6} ${y-30} h12" stroke="#8b5a2b" stroke-width="4"/></g>`}
+function sLeaves(x1,x2,y,sag){return sGarland(x1,x2,y,sag,["#c0392b","#e67e22","#d4a017","#8b4513"]).replace(/#2f5d2a/,"#7a4a22")}
+function sParasol(x,y,c){return`<g><path d="M${x} ${y} V${y-70}" stroke="#555" stroke-width="3"/><path d="M${x-40} ${y-62} Q${x} ${y-100} ${x+40} ${y-62}Z" fill="${c}"/><path d="M${x-40} ${y-62} q10 6 20 0 q10 6 20 0 q10 6 20 0 q10 6 20 0" fill="#fff"/><ellipse cx="${x}" cy="${y-24}" rx="24" ry="6" fill="#fffaf0" stroke="#bbb"/><path d="M${x} ${y-24} V${y}" stroke="#777" stroke-width="3"/></g>`}
+function sCart(x,y,load){return`<g><rect x="${x-34}" y="${y-34}" width="68" height="22" fill="#a0522d"/><circle cx="${x-20}" cy="${y-8}" r="9" fill="none" stroke="#5a3a26" stroke-width="4"/><circle cx="${x+20}" cy="${y-8}" r="9" fill="none" stroke="#5a3a26" stroke-width="4"/>${load}</g>`}
+function sCake(x,y){return`<g><rect x="${x-24}" y="${y-30}" width="48" height="30" rx="4" fill="#f8bbd0"/><rect x="${x-18}" y="${y-48}" width="36" height="18" rx="4" fill="#fffaf0"/>${[-10,0,10].map(d=>`<rect x="${x+d-1.5}" y="${y-60}" width="3" height="12" fill="#6bd1ff"/><ellipse cx="${x+d}" cy="${y-63}" rx="2.5" ry="4" fill="#ffcf40" class="twinkle"/>`).join("")}</g>`}
+const SEASON={
+ 0:{str:"bulbs",cols:["#e8f6ff","#bfe3f5","#fff"],ban:["#5b8fc9","❄"],door:"snow",prop:"snowman"},
+ 1:{str:"bulbs",cols:["#ff6b8a","#c0392b","#f8bbd0"],ban:["#c0392b","♥"],door:"heart",prop:"rosecart"},
+ 2:{str:"bunting",cols:["#f8bbd0","#b9e0f2","#fff3b0","#c8e6c9"],ban:["#3e8e41","✿"],door:"flowers",prop:"tulipcart"},
+ 3:{str:"bunting",cols:["#f8bbd0","#b9e0f2","#fff3b0","#d1c4e9"],ban:["#9575cd","✿"],door:"flowers",prop:"parasol"},
+ 4:{str:"bunting",cols:["#ff6b6b","#ffcf40","#6bd1ff","#b388ff","#69f0ae"],ban:["#e91e63","★"],door:"balloons",prop:"cake",star:"Lizzie"},
+ 5:{str:"bunting",cols:["#c0392b","#fff","#27408b","#ffcf40","#3e8e41"],ban:["#2e86c1","☀"],door:"flowers",prop:"parasol"},
+ 6:{str:"bunting",cols:["#c0392b","#fff","#27408b","#ffcf40","#3e8e41"],ban:["#2e86c1","☀"],door:"flowers",prop:"parasol"},
+ 7:{str:"bunting",cols:["#c0392b","#fff","#27408b","#ffcf40","#3e8e41"],ban:["#2e86c1","☀"],door:"flowers",prop:"parasol"},
+ 8:{str:"bunting",cols:["#ff6b6b","#ffcf40","#6bd1ff","#b388ff","#69f0ae"],ban:["#7a1f2e","★"],door:"balloons",prop:"cake",star:"Christina"},
+ 9:{str:"bulbs",cols:["#ff8c1a","#7b3fa0","#ffcf40"],ban:["#d9661f","▲"],door:"pumpkins",prop:"hay"},
+ 10:{str:"leaves",cols:["#ffe9b0"],ban:["#8b4513","❦"],door:"harvest",prop:"harvestcart"},
+ 11:{str:"garland",cols:["#c0392b","#ffcf40","#6bd1ff","#fff"],ban:["#c0392b","✦"],door:"wreath",prop:"tree"}};
+function seasonSVG(blds,month,W){const T=SEASON[month]||SEASON[10];let s="";
+ // strings of lights / bunting / garland swagged between lamp posts along the shopfronts
+ for(let i=0;i<blds.length;i++){const x1=60+i*SLOT+14,x2=60+(i+1)*SLOT-14,y=BASE-205;
+  s+=T.str=="bunting"?sBunting(x1,x2,y,30,T.cols):T.str=="garland"?sGarland(x1,x2,y,26,T.cols)+sBulbs(x1,x2,y+4,26,T.cols,true):T.str=="leaves"?sLeaves(x1,x2,y,26)+sBulbs(x1,x2,y+6,26,T.cols,false):sBulbs(x1,x2,y,26,T.cols,true)}
+ // lamp-post banners (and bows/snow caps)
+ for(let i=0;i<=blds.length;i++){const lx=60+i*SLOT-8;s+=sBanner(lx+4,BASE-176,T.ban[0],T.ban[1]);if(month==11)s+=`<path d="M${lx} ${BASE-196} l-10 -6 v12Z M${lx} ${BASE-196} l10 -6 v12Z" fill="#c0392b"/>`;if(month==0||month==11)s+=`<ellipse cx="${lx+24}" cy="${BASE-218}" rx="14" ry="5" fill="#fff"/>`}
+ // shopfront decor at each building
+ blds.forEach((b,i)=>{const x=60+i*SLOT,dx=x+150,bld=DOORISH.has(b.kind);
+  if(T.door=="wreath"&&bld)s+=sWreath(x+58,BASE-112,16,"#2f6b34","#c0392b","#c0392b")+sWreath(x+242,BASE-112,16,"#2f6b34","#c0392b","#c0392b");
+  if(T.door=="harvest"){if(bld)s+=sWreath(x+58,BASE-112,15,"#a0522d","#d4a017","#c0392b")+sWreath(x+242,BASE-112,15,"#a0522d","#d4a017","#c0392b");s+=sCorn(x+22,BASE)+sCorn(x+278,BASE)+sPumpkin(x+44,BASE,13)+sPumpkin(x+262,BASE,11)}
+  if(T.door=="pumpkins")s+=sPumpkin(x+30,BASE,15)+sPumpkin(x+52,BASE,10)+sPumpkin(x+262,BASE,14);
+  if(T.door=="heart"&&bld)s+=sHeart(x+58,BASE-112,14,"#e84a6f")+sHeart(x+242,BASE-112,14,"#e84a6f");
+  if(T.door=="flowers")s+=sFlowerBox(x+58,BASE-60,60,month==2||month==3?["#f48fb1","#fff176","#ce93d8"]:["#e53935","#fff","#ffb300"])+sFlowerBox(x+242,BASE-60,60,["#f48fb1","#fff176","#ef5350"]);
+  if(T.door=="balloons")s+=sBalloons(x+28,BASE,["#ff6b6b","#ffcf40","#6bd1ff"])+sBalloons(x+272,BASE,["#b388ff","#69f0ae","#ff8a80"]);
+  if(T.door=="snow"&&bld)s+=`<path d="M${x+20} ${BASE} q20 -18 40 0Z M${x+240} ${BASE} q20 -18 40 0Z" fill="#fff"/>`;
+  // a town-square prop every third building, out on the sidewalk
+  if(i%3==1){const px=x+SLOT,py=575;
+   s+=T.prop=="tree"?sTree(px,py,150):T.prop=="snowman"?sSnowman(px,py):T.prop=="hay"?sHay(px-10,py)+sPumpkin(px+30,py,16)+sPumpkin(px-34,py-30,12)+sCorn(px+58,py):T.prop=="harvestcart"?sCart(px,py,sPumpkin(px-14,py-34,11)+sPumpkin(px+12,py-34,12)+`<rect x="${px-30}" y="${py-40}" width="16" height="8" fill="#d9b44a"/>`)+sCorn(px+50,py)+sCorn(px-50,py):T.prop=="rosecart"?sCart(px,py,[-20,-8,4,16].map(d=>sHeart(px+d,py-42,6,"#e84a6f")).join("")):T.prop=="tulipcart"?sCart(px,py,sFlowerBox(px,py-34,60,["#f48fb1","#fff176","#ef5350","#ce93d8"])):T.prop=="parasol"?sParasol(px,py,month==3?"#b39ddb":"#e53935"):T.prop=="cake"?sCake(px,py)+sBalloons(px+44,py,["#ff6b6b","#ffcf40","#6bd1ff"]):""}});
+ // birthday banner across the street
+ if(T.star&&blds.length>2){const x=60+SLOT*1.5;s+=`<g><path d="M${x-150} ${BASE-305} Q${x} ${BASE-275} ${x+150} ${BASE-305}" stroke="#7a5a3a" stroke-width="2" fill="none"/><rect x="${x-140}" y="${BASE-301}" width="280" height="34" rx="8" fill="#fffaf0" stroke="${T.ban[0]}" stroke-width="3"/><text x="${x}" y="${BASE-278}" text-anchor="middle" font-family="Georgia" font-weight="700" font-size="19" fill="${T.ban[0]}">Happy Birthday, ${T.star}!</text></g>`}
+ return`<g class="season">${s}</g>`}
 
 /* ============ SOUND: procedural ambience + gentle music ============ */
 const SND={ctx:null,master:null,bus:null,vol:.55,muted:false,cur:null,timers:[],nodes:[],noise:null,musicOn:true};
@@ -1261,7 +1342,7 @@ function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,st
   if(GEO[a.id])cap.real=a.id}
  else if(v.t=="shopin"){const shop=v.shop,Sh=SHOPS[shop];cap={t:Sh.n,d:Sh.sub};kind="shop";
   if(PHOTO_SHOPS[shop]){const P=PHOTO_SHOPS[shop];bg=bgShelves(Sh.n,"#7a1f2e");kind="photoshop";start={x:600,y:690};
-   P.spots.forEach(([px,py,lb,ids])=>{const x=Math.max(70,Math.min(1130,px*0.9115-41.7)),y=py*0.9115;const I=ITEMS[ids[0]];const ic=I.c=="wear"?wearIcon(I):I.i;const pr=ids.length>1?"from 🍯"+fmt(Math.min(...ids.map(i=>ITEMS[i].p))):"🍯"+fmt(I.p);
+   P.spots.forEach(([px,py,lb,ids])=>{const x=Math.max(70,Math.min(1130,px*0.9115-41.7)),y=py*0.9115;const I=ITEMS[ids[0]];const ic=I.pic?`<img class="bdgpic" src="${I.pic}" alt="">`:I.c=="wear"?wearIcon(I):I.i;const pr=ids.length>1?"from 🍯"+fmt(Math.min(...ids.map(i=>ITEMS[i].p))):"🍯"+fmt(I.p);
     spots.push(spotObj(x,y,90,90,lb+" · "+pr,ids.length>1?"shop":"buy",{id:ids[0],shop,ids,title:lb,icon:ic,bx:x+(x>600?-110:110),by:690}))});
    const VIEW={bern_swiss:[1180,250,"Look out at the Zytglogge","The clock tower is just up the street!"],paris_couture:[905,250,"Look out at Place Vendôme","I can see the column and the Eiffel Tower!"],munich_tracht:[330,160,"Look out at the Frauenkirche","The twin onion domes of Munich!"]}[shop];
    if(VIEW){const x=Math.max(70,Math.min(1130,VIEW[0]*0.9115-41.7));spots.push(spotObj(x,VIEW[1]*0.9115,90,90,VIEW[2],"hl",{line:VIEW[3],icon:"🪟",bx:x+(x>600?-110:110),by:690}))}}
@@ -1323,7 +1404,7 @@ function startShow(){const box=stage().querySelector(".sbox");const ov=document.
  const t=SND.ctx;if(t)[0,4,7,12,7,4,9,5,7,11,12].forEach((n,i)=>setTimeout(()=>{if(SND.ctx)tone("strings",60+n,SND.ctx.currentTime,.5,1.4,SND.master)},1200+i*320));react("wonder","The curtain is going up!");setTimeout(()=>{sfx("cheer");react("twirl","Bravo! Bravo!")},5200);setTimeout(()=>ov.remove(),7000)}
 /* ---------- item & menu dialogs ---------- */
 function openItem(id,isFood){const I=ITEMS[id];if(!I)return;let btn;if(I.c=="food")btn=`<button class="btn gold big" data-act="buyEat" data-arg="${id}">Eat now · 🍯 ${fmt(I.p)}</button><button class="btn" data-act="buy" data-arg="${id}">Take one home</button>`;else btn=shopBtns(I);
- openModal(esc(I.n),`<div class="itemview"><div class="ivart">${I.c=="food"?foodSVG(id,"bigfood"):I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:`<span class="bigemoji">${esc(I.i)}</span>`}</div><div class="ivtxt"><p class="lede">${I.note?esc(I.note)+" · ":""}${I.p?"🍯 "+fmt(I.p):""}${I.o&&I.o!="bern"?" · from "+esc(CITIES[I.o].n.split(/[,&]/)[0]):""}</p><div class="row wrap">${btn}</div>${I.c=="food"&&I.msg?`<p class="note">“${esc(I.msg)}”</p>`:""}</div></div>`);curShop={shop:I.shop,opt:{}}}
+ openModal(esc(I.n),`<div class="itemview"><div class="ivart">${I.pic?`<img class="cardphoto" src="${I.pic}" alt="">`+(I.c=="wear"?`<div class="ivmini" title="How it looks on ${esc(B().name)}">${bearMini(I,B().color)}</div>`:""):I.c=="food"?foodSVG(id,"bigfood"):I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:`<span class="bigemoji">${esc(I.i)}</span>`}</div><div class="ivtxt"><p class="lede">${I.note?esc(I.note)+" · ":""}${I.p?"🍯 "+fmt(I.p):""}${I.o&&I.o!="bern"?" · from "+esc(CITIES[I.o].n.split(/[,&]/)[0]):""}</p><div class="row wrap">${btn}</div>${I.c=="food"&&I.msg?`<p class="note">“${esc(I.msg)}”</p>`:""}</div></div>`);curShop={shop:I.shop,opt:{}}}
 function openMenu(ck){const C=CITIES[ck];const menu=C.food||[];openModal("🍽️ "+esc(ck=="bern"?"Bärengraben Stübli":C.n.split(/[,&]/)[0].trim()+" menu"),`<p class="lede">Real local food from ${esc(C.n)}.</p><div class="grid tight menu">${menu.map(f=>{const I=ITEMS[f];return`<div class="wcard food">${foodSVG(f,"menufood")}<small>${esc(I.n)}</small><div class="row"><button class="btn small" data-act="buyEat" data-arg="${f}">Eat · 🍯${I.p}</button><button class="btn small ghost" data-act="buy" data-arg="${f}">Take home</button></div></div>`}).join("")}</div>`)}
 
 /* ============ RICH SCENE BACKDROPS ============ */
@@ -1455,9 +1536,9 @@ CITIES.bern.att=Object.values(BERN_ATT);
 function cityStreet(ck){if(ck=="bern")return BERN_ST;const C=CITIES[ck],L=[];
  L.push(C.travel=="plane"?{kind:"airport",label:C.n.split(" ").slice(-2).join(" ")+" Airport",act:"plane"}:{kind:"station",label:"Train Station",act:"train"});
  if(ck=="nordic")L.push({kind:"market",label:C.att[0].n,act:"att",aid:C.att[0].id,icon:C.att[0].i});
- L.push({kind:"hotel",label:C.hotel,act:"hotel"});for(const[k,P] of Object.entries(PHOTO_SHOPS))if(P.city==ck)L.push({kind:"shop",label:P.n,act:"shop",shop:k,icons:P.spots.slice(0,3).map(x=>{const I=ITEMS[x[3][0]];return I.c=="wear"?wearIcon(I):I.i}),col:"#7a1f2e"});L.push({kind:"food",label:C.n.split(/[ ,&]/)[0]+" Café",act:"shop",shop:ck+"_food",icons:C.food.slice(0,3).map(f=>ITEMS[f].i),col:"#e67e22"});
+ L.push({kind:"hotel",label:C.hotel,act:"hotel"});if(C.shop)L.push({kind:"shop",label:C.shop.n,act:"shop",shop:ck+"_shop",icons:C.shop.items.slice(0,3).map(x=>ITEMS[x].i||wearIcon(ITEMS[x])),col:"#2e86c1"});for(const[k,P] of Object.entries(PHOTO_SHOPS))if(P.city==ck)L.push({kind:"shop",label:P.n,act:"shop",shop:k,icons:P.spots.slice(0,3).map(x=>{const I=ITEMS[x[3][0]];return I.c=="wear"?wearIcon(I):I.i}),col:"#7a1f2e"});L.push({kind:"food",label:C.n.split(/[ ,&]/)[0]+" Café",act:"shop",shop:ck+"_food",icons:C.food.slice(0,3).map(f=>ITEMS[f].i),col:"#e67e22"});
  const atts=C.att.filter(a=>!(ck=="nordic"&&a.id=="farmersmkt"));const stores=(C.stores||[]).slice();let k=0;
- atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}if(C.shop&&i==Math.floor(atts.length/2))L.push({kind:"shop",label:C.shop.n,act:"shop",shop:ck+"_shop",icons:C.shop.items.slice(0,3).map(x=>ITEMS[x].i||wearIcon(ITEMS[x])),col:"#2e86c1"})});
+ atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}});
  stores.forEach(st=>L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"}));
  L.push({kind:"post",label:"Post Office & Postcards",act:"post"});return L}
 function att(ck,aid){return(CITIES[ck].att||[]).find(a=>a.id==aid)}
@@ -1568,7 +1649,7 @@ function potClick(e){sndInit();applySound();S.clicks=(S.clicks||0)+1;let n=(6+Ma
  const s=document.createElement("span");s.className="potfloat"+(big?" big":"");s.textContent=(big?big+" ":"")+"+"+fmt(got);pot.appendChild(s);setTimeout(()=>s.remove(),1500);
  for(let i=0;i<(big?14:3);i++){const c=document.createElement("span");c.className="drop";c.textContent=big?"🪙":"🍯";c.style.setProperty("--dx",(Math.random()*160-80)+"px");c.style.animationDelay=i*.03+"s";pot.appendChild(c);setTimeout(()=>c.remove(),1100)}}
 /* ---------- month effects ---------- */
-function renderFX(){const M=MONTHS[curMonth()],fx=$("#fx");fx.innerHTML=Array.from({length:14},(_,i)=>`<span style="left:${(i*7.3+3)%100}%;animation-delay:${-i*1.3}s;animation-duration:${9+(i%5)*2}s">${M.fx[i%M.fx.length]}</span>`).join("")}
+function renderFX(){const fx=$("#fx");if(fx)fx.innerHTML=""}
 function applySound(){if(!SND.ctx)return;SND.musicOn=S.snd.music;sndMute(S.snd.muted);sndVolume(S.snd.vol);const b=B(),v=b.view;let p=CITIES[b.loc].sound||"bern";
  if(v.t=="castle")p="castle";else if(v.t=="hotel")p="hotel";else if(v.t=="window"||v.t=="windowclose")p="window";else if(v.t=="shopin")p=v.shop.endsWith("_food")?"cafe":"shop";else if(v.t=="inside"){const a=att(b.loc,v.aid);if(a&&["boat","ship"].includes(a.k))p="boat";else if(a&&["museum","library","house"].includes(a.k))p="museum";else if(a&&a.k=="aquarium")p="aquarium";else if(a&&a.k=="ballpark")p="ballpark";else if(a&&a.k=="theater")p="theater";else if(a&&a.k=="market")p="market"}if(b.loc=="boston"&&p=="boston")p="harbor";setSound(p)}
 
@@ -1591,7 +1672,7 @@ function toast(t){const box=$("#toasts");while(box.children.length>=3)box.firstC
 const shown={};function toastOnce(k,t){if(shown[k])return;shown[k]=1;toast(t)}
 function away(){return B().loc!="bern"}
 function ownedWear(id){return!!S.ward[id]}
-function itemCard(I,btns,extra){return`<div class="card"><div class="ic">${I.c=="decor"&&I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.c=="food"?foodSVG(I.id,"cardfood"):esc(I.i||"✨")}</div><div class="cn"><b>${esc(I.n)}</b><small>${extra||(I.p?"🍯 "+fmt(I.p):"")}</small></div><div class="cb">${btns}</div></div>`}
+function itemCard(I,btns,extra){return`<div class="card"><div class="ic">${I.pic?`<img class="cardphoto" src="${I.pic}" alt="">`:I.c=="decor"&&I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.c=="food"?foodSVG(I.id,"cardfood"):esc(I.i||"✨")}</div><div class="cn"><b>${esc(I.n)}</b><small>${extra||(I.p?"🍯 "+fmt(I.p):"")}</small></div><div class="cb">${btns}</div></div>`}
 function wearIcon(I){const m={outfit:"👗",head:"👒",feet:"👠",neck:"📿",ears:"💎",wrist:"💍",watch:"⌚",bag:"👜"};if(I.st=="lederhosen")return"🩳";if(["alpine","waistcoat","tweed","coat","sweater","tee"].includes(I.st))return I.st=="coat"||I.st=="tweed"?"🧥":"👔";if(I.st=="tiara")return"👑";if(I.st=="tophat"||I.st=="felthat")return"🎩";if(I.st=="cap")return"🧢";if(I.st=="beret")return"🎨";if(I.st=="clogs")return"👞";if(I.st=="boots")return"🥾";if(I.st=="scarf")return"🧣";if(I.st=="pocketwatch")return"⌚";return m[I.slot]||"👗"}
 function shopItems(shop){return Object.values(ITEMS).filter(i=>i.shop==shop)}
 function openShop(shop,opt){opt=opt||{};const Sh=SHOPS[shop];let list=shopItems(shop);if(opt.stand)list=[ITEMS.bratwurst];if(opt.slots)list=list.filter(i=>i.c=="wear"&&opt.slots.includes(i.slot));if(opt.ids)list=opt.ids.map(i=>ITEMS[i]).filter(Boolean);if(opt.filter)list=list.filter(i=>opt.filter.includes(i.c=="furniture"?i.k:i.c));
