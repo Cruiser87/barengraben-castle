@@ -1530,8 +1530,8 @@ const BERN_ST=[
  {kind:"station",label:"Bern Train Station",act:"train"},{kind:"catalog",label:"Town Catalog",act:"catalog",icons:["📖","🧸","🏰"],col:"#27408b"},{kind:"shop",label:"Honeycomb Market",act:"shop",shop:"market",icons:["🍯","🧀","🥐"],col:"#e6a817"},{kind:"stand",label:"Sausage & Sauerkraut",act:"stand"},
  {kind:"pit",label:"Bern Bear Pit (Bärengraben)",act:"att",aid:"bern_pit",icon:"🐻"},{kind:"tower",sp:"clocktower",label:"Zytglogge Clock Tower",act:"att",aid:"bern_zyt",icon:"🕰️"},{kind:"shop",label:"Bern Swiss Treasures",act:"shop",shop:"bern_swiss",icons:["🐻","🍫","🔔"],col:"#8b4513"},{kind:"shop",label:"Alpine & Victorian Bear Boutique",act:"shop",shop:"boutique",icons:["👗","👒","👠"],col:"#d8576b"},{kind:"shop",label:"Victorian Bären Home & Hearth",act:"shop",shop:"home",icons:["🛋️","🕯️","🪞"],col:"#1f6b4a"},
  {kind:"riverbridge",label:"Aare River Bridge",act:"att",aid:"bern_aare",icon:"🌉"},{kind:"bank",label:"Bear Bank",act:"bank"},{kind:"food",label:"Bärengraben Stübli",act:"shop",shop:"bern_food",icons:["🫕","🌭","🍫"],col:"#7a1f2e"},{kind:"shop",label:"Town Market",act:"shop",shop:"townmarket",icons:["🔔","🌼","🧺"],col:"#7a1f2e"},{kind:"bearfountain",label:"Bear Fountain",act:"att",aid:"bern_fount",icon:"⛲"},
- {kind:"castlelane",label:"Castle Lane — Bear Castles",act:"castles"},{kind:"conservatory",label:"Glass Conservatory",act:"att",aid:"bern_cons",icon:"🌿"},{kind:"post",label:"Post Office & Postcards",act:"post"},{kind:"airport",label:"Bern International Airport",act:"plane"}];
-const BERN_ATT={bern_pit:{id:"bern_pit",n:"Bern Bear Pit",k:"pit",i:"🐻",d:"The bears' favorite turquoise pool."},bern_zyt:{id:"bern_zyt",n:"Zytglogge Clock Tower",k:"tower",sp:"clocktower",i:"🕰️",d:"Watch the clock figures twirl."},bern_aare:{id:"bern_aare",n:"Aare River Bridge",k:"riverbridge",i:"🌉",d:"Turquoise water under stone arches."},bern_fount:{id:"bern_fount",n:"Bear Fountain",k:"bearfountain",i:"⛲",d:"A bear statue on top!"},bern_cons:{id:"bern_cons",n:"Glass Conservatory",k:"conservatory",i:"🌿",d:"Roses and ferns under glass."}};
+ {kind:"castlelane",label:"Castle Lane — Bear Castles",act:"castles"},{kind:"airport",label:"Bern International Airport",act:"plane"}];
+const BERN_ATT={bern_pit:{id:"bern_pit",n:"Bern Bear Pit",k:"pit",i:"🐻",d:"The bears' favorite turquoise pool."},bern_zyt:{id:"bern_zyt",n:"Zytglogge Clock Tower",k:"tower",sp:"clocktower",i:"🕰️",d:"Watch the clock figures twirl."},bern_aare:{id:"bern_aare",n:"Aare River Bridge",k:"riverbridge",i:"🌉",d:"Turquoise water under stone arches."},bern_fount:{id:"bern_fount",n:"Bear Fountain",k:"bearfountain",i:"⛲",d:"A bear statue on top!"}};
 CITIES.bern.att=Object.values(BERN_ATT);
 function cityStreet(ck){if(ck=="bern")return BERN_ST;const C=CITIES[ck],L=[];
  L.push(C.travel=="plane"?{kind:"airport",label:C.n.split(" ").slice(-2).join(" ")+" Airport",act:"plane"}:{kind:"station",label:"Train Station",act:"train"});
@@ -1540,7 +1540,7 @@ function cityStreet(ck){if(ck=="bern")return BERN_ST;const C=CITIES[ck],L=[];
  const atts=C.att.filter(a=>!(ck=="nordic"&&a.id=="farmersmkt"));const stores=(C.stores||[]).slice();let k=0;
  atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}});
  stores.forEach(st=>L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"}));
- L.push({kind:"post",label:"Post Office & Postcards",act:"post"});return L}
+ return L}
 function att(ck,aid){return(CITIES[ck].att||[]).find(a=>a.id==aid)}
 /* ---------- rendering ---------- */
 function renderAll(){applySound();renderTop();renderLoc();renderStage();renderPot();renderFX()}
@@ -1565,7 +1565,7 @@ function renderStage(){const b=B(),v=b.view,st=stage();st.className="";$("#gift"
  st.className="pic";st.innerHTML=`<div class="picbox">${html}${bearEl(b,"wonder","center")}</div><div class="bar"><button class="btn back" data-act="backStreet">◀ Back to the street</button>${chips.map(c=>`<button class="btn" data-act="chip" data-arg="${c[1]}">${esc(c[0])}</button>`).join("")}</div>`;
  if(v.t=="inside"&&a){const cap=`<div class="caption"><b>${a.i||""} ${esc(a.n)}</b><span>${esc(a.d||"")}</span></div>`;st.querySelector(".picbox").insertAdjacentHTML("beforeend",cap)}
  setTimeout(()=>react("wonder"),350)}
-function renderStreet(){const b=B(),ck=b.loc,C=CITIES[ck],L=cityStreet(ck),W=120+L.length*SLOT;const st=stage();st.className="streetview";
+function renderStreet(){const b=B(),ck=b.loc,C=CITIES[ck],L=cityStreet(ck),W=120+L.length*SLOT;b.x=Math.max(60,Math.min(W-60,b.x||220));const st=stage();st.className="streetview";
  st.innerHTML=`<div class="scroller"><div class="swrap" style="aspect-ratio:${W}/600">${streetSVG(L,C.style,ck,curMonth())}<div class="others"></div>${bearEl(b,"normal","walker")}</div></div><div class="hint">Tap any building to walk over · scroll sideways to explore</div>`;
  const wrap=st.querySelector(".swrap"),bel=wrap.querySelector(".walker");bel.style.left=(b.x/W*100)+"%";
  // other bears in the same city stroll here too
