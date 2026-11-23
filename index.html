@@ -245,6 +245,14 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 @media (max-width:640px){#loc .realbtn{font-size:12px;padding:4px 8px}#savebtn{padding:4px 8px}#savebtn b{font-size:12px}#savebtn small{display:none}header{padding:6px}.chip .nm small{display:none}.chip{padding-right:10px;min-height:44px}.chip .av{width:36px;height:36px}#coins b{font-size:18px}#loc{font-size:13px}nav button{min-width:56px;font-size:11px}.walker{height:24%}.hint{display:none}.caption{max-width:86%}}
 @media (min-width:1000px){#pot{z-index:65}}
 @media (prefers-reduced-motion:reduce){#fx{display:none}.flame,.twinkle,.pend,.swim,.waves,.snowdot,.bee{animation:none}}
+.roomimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hallspots{position:absolute;inset:0;pointer-events:none}
+.hsp{position:absolute;pointer-events:auto;background:transparent;border:3px solid transparent;border-radius:48% 48% 10px 10px/30% 30% 10px 10px;cursor:pointer;transition:.2s}
+.hsp:hover,.hsp:focus{border-color:rgba(255,236,170,.85);box-shadow:0 0 28px rgba(255,220,140,.55) inset}
+.hsp span{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);white-space:nowrap;background:rgba(43,26,16,.82);color:#fdf3d6;font:600 clamp(11px,1.4vw,15px) Georgia,serif;padding:5px 10px;border-radius:14px;border:2px solid var(--gold)}
+.spphoto{max-width:100%;max-height:100%;object-fit:contain}
+.cardphoto{width:100%;height:100%;object-fit:contain}
+.pshop .sp .sl{opacity:0;transition:opacity .15s}.pshop .sp:hover .sl,.pshop .sp:focus .sl{opacity:1;z-index:5}.pshop .sp .bdg{width:min(54px,70%)!important}
 </style>
 </head>
 <body>
@@ -534,6 +542,72 @@ const STORY={
   11:{mid:["Santa Bear's workshop was open, and they helped wrap presents.","They decorated the castle tree with ornaments from every trip."]}},
  adj:["sunny","golden","sparkly","cozy","breezy","lovely"]};
 
+/* ---------- PHOTO SHOPS (her pictures; px = pixel spot in the 1408x768 photo) ---------- */
+const PHOTO_SHOPS={
+ bern_swiss:{n:"Bern Swiss Treasures",sub:"Kramgasse, by the Zytglogge · Bern",city:"bern",spots:[
+  [890,470,"Hand-carved Bern bear statue",["sw_bear"]],[1083,660,"Edelweiss silver brooch",["sw_brooch"]],[695,560,"Swiss chocolate box",["sw_choc"]],[588,520,"Miniature brass cowbell",["sw_cowbell"]],
+  [165,300,"White Swiss linen blouse",["sw_blouse"]],[388,330,"Cream embroidered tunic",["sw_tunic"]],[212,395,"Alpine cashmere shawl",["sw_shawl"]],[285,240,"Stoneware bowls & pitchers",["sw_stone"]],
+  [645,345,"Carved alpine figurines",["sw_figs"]],[700,440,"Keepsake & music boxes",["sw_musicbox"]]]},
+ paris_couture:{n:"Paris Couture Salon",sub:"Place Vendôme · Paris",city:"paris",spots:[
+  [575,500,"Haute couture pink ballgown",["pc_gown"]],[878,465,"Royal queen diamond tiara",["pc_tiara"]],[878,545,"Five-strand pearl & diamond necklace",["pc_pearls"]],[945,585,"Crystal perfume flacon",["pc_flacon"]],
+  [228,360,"Lavender cashmere coat",["pc_coat_lav"]],[95,300,"Parisian silk scarves",["pc_scarf_blush","pc_scarf_cream","pc_scarf_slate"]],[222,150,"Crystal evening clutch",["pc_clutch_crystal"]],[85,440,"Taupe & burgundy handbags",["pc_bag_taupe","pc_bag_burg"]],
+  [1185,370,"Powder blue wool coat",["pc_coat_blue"]],[1195,150,"Burgundy top-handle tote",["pc_tote"]],[1330,215,"Designer handbags (set of 3)",["pc_bag_cream","pc_bag_wine","pc_bag_tan"]],[1300,320,"Signature eau de parfum",["pc_parfum"]],[1345,470,"Jeweled evening clutches",["pc_clutch_gold","pc_clutch_silver"]]]},
+ munich_tracht:{n:"Munich Tracht & Treasures",sub:"Marienplatz · Munich",city:"germany",spots:[
+  [270,520,"Embroidered silk dirndl gowns",["mu_dirndl_burg","mu_dirndl_green","mu_dirndl_navy"]],[240,390,"Lace dirndl blouses",["mu_blouse"]],[560,420,"Loden Tracht jackets",["mu_jacket_char","mu_jacket_green","mu_jacket_gray"]],[540,560,"Hand-tooled lederhosen",["mu_leder"]],
+  [888,488,"Emerald & diamond royal tiaras",["mu_tiara"]],[1010,600,"Emerald & diamond necklaces",["mu_necklace"]],[930,665,"Emerald earrings & rings",["mu_earrings","mu_ring"]],
+  [1300,190,"Beer steins with pewter lids",["mu_stein"]],[955,270,"Crystal beer glasses & goblets",["mu_goblets"]],[1150,330,"Porcelain figurines",["mu_figurines"]],[965,400,"Porcelain plates & tea sets",["mu_teaset"]],[1335,420,"Glockenspiel music boxes",["mu_glock"]],[1290,520,"Nutcrackers & ornaments",["mu_nutcracker"]]]}};
+for(const[k,v] of Object.entries(PHOTO_SHOPS))SHOPS[k]={n:v.n,sub:v.sub,photo:true};
+// Bern Swiss shop
+D("sw_bear","Hand-carved Bern bear statue","🐻",1200,"bern_swiss","bern",{photo:"items/carved_bear.png",par:291/352,note:"Signature Bern exclusive"});
+W("sw_brooch","Edelweiss silver brooch","neck","cameo","#f4f4f4",350,"bern_swiss","bern");
+D("sw_choc","Artisan Swiss chocolate box","🍫",45,"bern_swiss","bern");
+D("sw_cowbell","Miniature brass Swiss cowbell","🔔",90,"bern_swiss","bern");
+W("sw_blouse","White Swiss linen blouse","outfit","blouse","#ffffff",180,"bern_swiss","bern","girl");
+W("sw_tunic","Cream embroidered tunic","outfit","dress","#f3e7cf",200,"bern_swiss","bern");
+W("sw_shawl","Woven alpine cashmere shawl","neck","scarf","#a0674b",260,"bern_swiss","bern");
+D("sw_stone","Handcrafted stoneware bowls & pitchers","🏺",140,"bern_swiss","bern");
+D("sw_figs","Carved wooden alpine figurines","🦌",110,"bern_swiss","bern");
+D("sw_musicbox","Swiss wooden keepsake music box","🎶",160,"bern_swiss","bern",{play:"musicbox"});
+// Paris couture salon
+W("pc_gown","Haute couture layered pink ballgown","outfit","photo","#f2b8c6",3500,"paris_couture","paris","girl");Object.assign(ITEMS.pc_gown,{photo:"items/gown_couture.png",fit:"gown",px:[418,430],lm:[0.05,0.25,1],rb:4,rw:8,prof:[null,null,[0.49,0.667],[0.445,0.667],[0.452,0.663],[0.464,0.648],[0.474,0.641],[0.478,0.636],[0.455,0.663],[0.423,0.691],[0.395,0.73],[0.376,0.73],[0.354,0.754],[0.335,0.773],[0.316,0.797],[0.297,0.818],[0.278,0.84],[0.263,0.859],[0.242,0.878],[0.22,0.868],[0.201,0.854],[0.215,0.871],[0.227,0.888],[0.211,0.907],[0.196,0.926],[0.177,0.945],[0.16,0.967],[0.144,0.983],[0.122,0.998],[0.091,0.969],[0.043,0.981],[0.014,0.983],[0.002,0.983]]});
+W("pc_tiara","Royal queen diamond tiara","head","tiara","#e6f2ff",3000,"paris_couture","paris","girl");
+W("pc_pearls","Five-strand pearl & diamond necklace","neck","pearls","#fbf6ec",1800,"paris_couture","paris");
+D("pc_flacon","Crystal perfume flacon","🧴",220,"paris_couture","paris");
+W("pc_coat_lav","Pastel lavender cashmere coat","outfit","coat","#c9a7dc",900,"paris_couture","paris");
+W("pc_scarf_blush","Blush pink silk scarf","neck","scarf","#f2b8c6",180,"paris_couture","paris");
+W("pc_scarf_cream","Cream silk scarf","neck","scarf","#f3e7cf",180,"paris_couture","paris");
+W("pc_scarf_slate","Slate blue silk scarf","neck","scarf","#6f86a6",180,"paris_couture","paris");
+W("pc_clutch_crystal","Crystal-encrusted evening clutch","bag","bag","#e4e4ee",650,"paris_couture","paris","girl");
+W("pc_bag_taupe","Taupe leather handbag","bag","bag","#a89080",750,"paris_couture","paris");
+W("pc_bag_burg","Burgundy leather handbag","bag","bag","#7a1f2e",750,"paris_couture","paris");
+W("pc_coat_blue","Powder blue tailored wool coat","outfit","coat","#a9c6e8",900,"paris_couture","paris");
+W("pc_tote","Burgundy top-handle tote","bag","bag","#6d1a2a",700,"paris_couture","paris");
+W("pc_bag_cream","Cream designer handbag","bag","bag","#efe3cc",750,"paris_couture","paris");
+W("pc_bag_wine","Wine designer handbag","bag","bag","#8b2635",750,"paris_couture","paris");
+W("pc_bag_tan","Caramel-tan designer handbag","bag","bag","#c48a5a",750,"paris_couture","paris");
+D("pc_parfum","Signature Parisian eau de parfum","🧴",260,"paris_couture","paris");
+W("pc_clutch_gold","Jeweled gold evening clutch","bag","bag","#d4af37",600,"paris_couture","paris","girl");
+W("pc_clutch_silver","Jeweled silver evening clutch","bag","bag","#c0c0c8",600,"paris_couture","paris","girl");
+// Munich Tracht shop
+W("mu_dirndl_burg","Burgundy silk dirndl gown","outfit","dirndl","#7a1f2e",480,"munich_tracht","germany","girl");
+W("mu_dirndl_green","Forest green silk dirndl gown","outfit","dirndl","#1f5b3a",480,"munich_tracht","germany","girl");
+W("mu_dirndl_navy","Midnight navy silk dirndl gown","outfit","dirndl","#1f2f5b",480,"munich_tracht","germany","girl");
+W("mu_blouse","Lace dirndl blouse","outfit","blouse","#ffffff",160,"munich_tracht","germany","girl");
+W("mu_jacket_char","Charcoal loden Tracht jacket","outfit","tracht","#4a4a4a",420,"munich_tracht","germany");
+W("mu_jacket_green","Forest green loden Tracht jacket","outfit","tracht","#3d5a3a",420,"munich_tracht","germany");
+W("mu_jacket_gray","Alpine gray loden Tracht jacket","outfit","tracht","#8a8f8a",420,"munich_tracht","germany");
+W("mu_leder","Hand-tooled leather lederhosen","outfit","lederhosen","#6b4a2a",380,"munich_tracht","germany");
+W("mu_tiara","Bavarian emerald & diamond tiara","head","tiara","#3aa86b",2800,"munich_tracht","germany","girl");
+W("mu_necklace","Emerald & diamond statement necklace","neck","necklace","#2e8b57",1600,"munich_tracht","germany");
+W("mu_earrings","Emerald drop earrings","ears","earrings","#2e8b57",700,"munich_tracht","germany");
+W("mu_ring","Emerald cocktail ring","wrist","bracelet","#2e8b57",650,"munich_tracht","germany");
+D("mu_stein","Hand-painted beer stein with pewter lid","🍺",120,"munich_tracht","germany");
+D("mu_goblets","Etched Bavarian crystal goblets","🥂",140,"munich_tracht","germany");
+D("mu_figurines","Nymphenburg-style porcelain figurines","🩰",180,"munich_tracht","germany");
+D("mu_teaset","Hand-painted porcelain tea set","🫖",200,"munich_tracht","germany");
+D("mu_glock","Carved Glockenspiel music box","🎎",260,"munich_tracht","germany",{play:"musicbox"});
+D("mu_nutcracker","Wooden nutcracker & star ornaments","💂",120,"munich_tracht","germany");
+
 /* ============ ART: BEARS ============ */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function shadeHex(h,amt){let c=h.replace("#","");if(c.length==3)c=c.split("").map(x=>x+x).join("");let n=parseInt(c,16);let r=(n>>16)&255,g=(n>>8)&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));return"#"+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,"0")).join("")}
@@ -586,11 +660,12 @@ function bearSVG(bear,expr,opt){
  else if(fs=="clogs"){front+=[76,124].map(x=>`<path d="M${x-22} 246 Q${x-24} 232 ${x} 232 Q${x+24} 232 ${x+24} 246 L${x+20} 254 L${x-20} 254Z" fill="${fc}" stroke="${shadeHex(fc,-.3)}" stroke-width="2"/><path d="M${x-10} 240 Q${x} 236 ${x+10} 240" stroke="#c0392b" stroke-width="2" fill="none"/>`).join("")}
  else if(fs=="boots"){front+=[76,124].map(x=>`<path d="M${x-18} 226 L${x+16} 226 L${x+20} 254 L${x-22} 254Z" fill="${fc}" stroke="${shadeHex(fc,-.3)}" stroke-width="2"/>`).join("")}
  // neck
- const ns=wornSt(w.neck),nc=wornCol(w.neck);
+ const ns=wornSt(w.neck),nc=wornCol(w.neck);const _f0=front.length;
  if(ns=="scarf")front+=`<path d="M66 144 Q100 160 134 144 L136 156 Q100 172 64 156Z" fill="${nc}" stroke="${shadeHex(nc,-.3)}" stroke-width="2"/><path d="M118 156 L126 196 L112 198 L108 160Z" fill="${nc}" stroke="${shadeHex(nc,-.3)}" stroke-width="2"/>`;
  if(ns=="necklace")front+=`<path d="M74 146 Q100 168 126 146" fill="none" stroke="${nc}" stroke-width="2.5"/><path d="M100 160 l7 7 l-7 9 l-7 -9z" fill="${nc=="#c0c0c0"?"#81d8d0":nc}" stroke="#fff" stroke-width="1.5"/><circle cx="100" cy="166" r="2" fill="#fff"/>`;
  if(ns=="pearls")front+=Array.from({length:11},(_,i)=>{const a=Math.PI*(0.1+0.8*i/10);return`<circle cx="${100-Math.cos(a)*28}" cy="${145+Math.sin(a)*18}" r="4" fill="${nc}" stroke="#d8cfbf" stroke-width="1"/>`}).join("");
  if(ns=="cameo")front+=`<ellipse cx="100" cy="156" rx="9" ry="11" fill="#d4af37" stroke="#8a6d10" stroke-width="1.5"/><ellipse cx="100" cy="156" rx="6.5" ry="8.5" fill="${nc}"/><path d="M98 150 q4 2 2 6 q-3 4 1 7" stroke="#fffaf0" stroke-width="2.5" fill="none"/><path d="M86 146 Q100 152 114 146" stroke="#3b2a1f" stroke-width="2" fill="none"/>`;
+ const neckS=front.slice(_f0);front=front.slice(0,_f0);
  const ws=wornSt(w.wrist),wc=wornCol(w.wrist);
  if(ws)front+=`<ellipse cx="52" cy="204" rx="11" ry="5" fill="none" stroke="${wc}" stroke-width="4" transform="rotate(18 52 204)"/><circle cx="46" cy="204" r="2.5" fill="#fff"/>`;
  const wt=wornSt(w.watch),wtc=wornCol(w.watch);
@@ -625,18 +700,18 @@ function bearSVG(bear,expr,opt){
  if(PB){const img=`<image href="${bear.photo}" x="33" y="-10" width="178" height="270" preserveAspectRatio="xMidYMax meet"/>`;
   const gown=w.outfit&&ITEMS[w.outfit.id]&&ITEMS[w.outfit.id].fit=="gown";const uid2="pc"+Math.random().toString(36).slice(2,7);
   const paws=gown?`<defs><radialGradient id="${uid2}g"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="${uid2}" maskUnits="userSpaceOnUse" x="-30" y="-36" width="260" height="300"><ellipse cx="80" cy="160" rx="22" ry="20" fill="url(#${uid2}g)"/><ellipse cx="126" cy="163" rx="22" ry="20" fill="url(#${uid2}g)"/></mask></defs><g mask="url(#${uid2})">${img}</g>`:"";
-  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${img}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${front}</g>${pw.under}${paws}${pw.over}</g><g class="bhead" transform="translate(0 -30)">${top}</g>${pw.head}</svg>`}
- return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${pw.under}${pw.over}</g><g class="bhead">${head}${top}${pw.head}</g></svg>`;
+  return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${img}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${front}</g>${pw.under}${paws}<g transform="translate(100 258) scale(1.38 1.47) translate(-100 -258)">${neckS}</g>${pw.over}</g><g class="bhead" transform="translate(0 -30)">${top}</g>${pw.head}</svg>`}
+ return `<svg viewBox="-30 -36 260 300" class="bearsvg" xmlns="http://www.w3.org/2000/svg">${sh}<g class="bbody">${back}${body}${front}${pw.under}${neckS}${pw.over}</g><g class="bhead">${head}${top}${pw.head}</g></svg>`;
 }
 /* photo clothes fitted to the bear */
 function photoGeom(PB){return PB?{cx:100,chest:84,waist:140,hem:258,wTop:84,wHem:200,headTop:-4,tiaraW:54,neckY:70,neckW:58,neckH:60}:{cx:100,chest:146,waist:180,hem:258,wTop:62,wHem:150,headTop:27,tiaraW:66,neckY:140,neckW:44,neckH:45}}
 function photoWear(w,G){let under="",over="",head="";
  const o=w.outfit&&ITEMS[w.outfit.id];
  if(o&&o.fit=="gown"){const[PW,PH]=o.px,pr=o.prof;let s="";const rows=pr.length-1;
-  const Y=r=>r<=0.2?G.chest+(G.waist-G.chest)*Math.max(0,(r-0.03)/0.17):G.waist+(G.hem-G.waist)*Math.min(1,(r-0.2)/0.74);
-  const wB=(pr[3][1]-pr[3][0])*PW,sxB=G.wTop/wB,wW=(pr[6][1]-pr[6][0])*PW*sxB;
-  const SUB=4;for(let k=SUB;k<rows*SUB;k++){const i=Math.floor(k/SUB),f=(k%SUB)/SUB,f2=f+1/SUB;const p0=pr[i],p1=pr[i+1]||p0;if(!p0||!p1)continue;const L=(a,b,t)=>a+(b-a)*t;const p=[L(p0[0],p1[0],f),L(p0[1],p1[1],f)],q=[L(p0[0],p1[0],f2),L(p0[1],p1[1],f2)];const r0=k/(rows*SUB),r1=(k+1)/(rows*SUB);if(r0>0.95)break;const gw=((p[1]-p[0])+(q[1]-q[0]))/2*PW,gc=((p[0]+p[1])+(q[0]+q[1]))/4*PW;
-   let tw;if(r0<0.2)tw=gw*sxB;else{const t=Math.min(1,(r0-0.2)/0.7);tw=wW+(G.wHem-wW)*Math.pow(t,0.9)}const sx=tw/gw;const y0=Y(r0),y1=Y(r1)+0.4;
+  const[LT,LW,LH]=o.lm||[0.03,0.2,0.94];const Y=r=>r<=LW?G.chest+(G.waist-G.chest)*Math.max(0,(r-LT)/(LW-LT)):G.waist+(G.hem-G.waist)*Math.min(1,(r-LW)/(LH-LW));
+  const RB=o.rb||3,RW=o.rw||6;const wB=(pr[RB][1]-pr[RB][0])*PW,sxB=G.wTop/wB,wW=(pr[RW][1]-pr[RW][0])*PW*sxB;
+  const SUB=4;for(let k=SUB;k<rows*SUB;k++){const i=Math.floor(k/SUB),f=(k%SUB)/SUB,f2=f+1/SUB;const p0=pr[i],p1=pr[i+1]||p0;if(!p0||!p1)continue;const L=(a,b,t)=>a+(b-a)*t;const p=[L(p0[0],p1[0],f),L(p0[1],p1[1],f)],q=[L(p0[0],p1[0],f2),L(p0[1],p1[1],f2)];const r0=k/(rows*SUB),r1=(k+1)/(rows*SUB);if(r0>LH+0.01)break;const gw=((p[1]-p[0])+(q[1]-q[0]))/2*PW,gc=((p[0]+p[1])+(q[0]+q[1]))/4*PW;
+   let tw;if(r0<LW)tw=gw*sxB;else{const t=Math.min(1,(r0-LW)/(LH-LW-0.04));tw=wW+(G.wHem-wW)*Math.pow(t,0.9)}const sx=tw/gw;const y0=Y(r0),y1=Y(r1)+0.4;
    s+=`<svg x="${G.cx-gc*sx}" y="${y0}" width="${PW*sx}" height="${Math.max(0.5,y1-y0)}" viewBox="0 ${r0*PH} ${PW} ${(r1-r0)*PH}" preserveAspectRatio="none"><image href="${o.photo}" width="${PW}" height="${PH}"/></svg>`}
   under+=s}
  else if(o&&o.photo)under+=`<image href="${o.photo}" x="${G.cx-60}" y="${G.chest}" width="120" height="${G.hem-G.chest}" preserveAspectRatio="xMidYMax meet"/>`;
@@ -852,10 +927,12 @@ function furnSVG(k,c){c=c||"#8b4513";const d=shadeHex(c,-.3),l=shadeHex(c,.28),w
 const FURN_SIZE={};
 function furnVB(k){if(["sofa","chester","settee","couch","table","piano"].includes(k))return"-215 -300 430 310";if(["ottoman","bench","side","bistro","suitcase","dchair","wing","dresser"].includes(k))return"-160 -280 320 290";if(["fern"].includes(k))return"-110 -170 220 180";return"-230 -470 460 480"}
 function decorSVG(it){
+ if(it.photo){const h=200,w=h*(it.par||1);return`<g><ellipse cx="0" cy="-3" rx="${w*0.42}" ry="9" fill="#000" opacity=".18"/><image href="${it.photo}" x="${-w/2}" y="${-h}" width="${w}" height="${h}"/></g>`}
  if(it.card){const C=CITIES[it.card];return`<g><rect x="-60" y="-84" width="120" height="80" rx="4" fill="#fffaf0" stroke="#c9b99a" stroke-width="3"/><rect x="-54" y="-78" width="108" height="44" fill="${C.sky[0]}"/><path d="M-54 -34 L-24 -64 L0 -46 L24 -70 L54 -34Z" fill="${STYLE[C.style].walls[0]}"/><text x="0" y="-14" text-anchor="middle" font-size="11" font-family="Georgia" fill="#5a3a26">Greetings from ${esc(C.n.split(" ")[0].replace(",",""))}</text><rect x="34" y="-76" width="16" height="18" fill="#c0392b"/></g>`}
  if(it.poster){const C=CITIES[it.poster];return`<g><rect x="-64" y="-176" width="128" height="170" fill="#c9a227" stroke="#8a6d10" stroke-width="4"/><rect x="-52" y="-164" width="104" height="146" fill="${C.sky[0]}"/><path d="M-52 -18 V-70 L-20 -110 L10 -80 L52 -120 V-18Z" fill="${STYLE[C.style].walls[1%STYLE[C.style].walls.length]}"/><text x="0" y="-140" text-anchor="middle" font-size="13" font-family="Georgia" font-weight="700" fill="#3b2a1f">${esc(C.n.split(/[ ,&]/)[0])}</text><text x="0" y="-36" text-anchor="middle" font-size="22">🏅</text></g>`}
  return`<g><ellipse cx="0" cy="-2" rx="30" ry="6" fill="#000" opacity=".15"/><text x="0" y="-6" text-anchor="middle" font-size="70">${it.i}</text></g>`}
 function roomSVG(room,bearsHere){
+ if(room.photo)return`<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" class="roomsvg" preserveAspectRatio="xMidYMid slice"><image href="scenes/${room.photo}.jpg" width="1200" height="700" preserveAspectRatio="xMidYMid slice"/>`;
  const R=room,wc=R.wall||"#7a1f2e",rc=R.rug||"#27408b",cc=R.curt||"#c9a227";const type=R.type;let s=`<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" class="roomsvg" preserveAspectRatio="xMidYMid meet"><defs><pattern id="dam" width="80" height="90" patternUnits="userSpaceOnUse"><rect width="80" height="90" fill="${wc}"/><path d="M40 10 Q58 30 40 50 Q22 30 40 10Z M40 50 Q50 64 40 78 Q30 64 40 50Z M0 55 Q12 45 0 35 M80 55 Q68 45 80 35" fill="${shadeHex(wc,.14)}" opacity=".75"/></pattern></defs>`;
  if(type=="garden"){s+=`<rect width="1200" height="700" fill="#9fd3f0"/><rect y="300" width="1200" height="400" fill="#7cb86b"/>`+Array.from({length:10},(_,i)=>`<circle cx="${i*130+40}" cy="300" r="80" fill="#3e8e41"/>`).join("")+Array.from({length:30},(_,i)=>`<circle cx="${(i*83)%1200}" cy="${260+(i*41)%60}" r="8" fill="${i%2?"#e74c3c":"#f8bbd0"}"/>`).join("")+`<ellipse cx="600" cy="590" rx="420" ry="70" fill="${rc}" opacity=".5"/>`}
  else{s+=`<rect width="1200" height="520" fill="url(#dam)"/><rect y="0" width="1200" height="24" fill="#f3e7cf"/><rect y="24" width="1200" height="8" fill="#c9a227"/>`;
@@ -1127,7 +1204,7 @@ const OUTDOOR=new Set(["landmark","tower","bridge","castle","monument","fountain
 function spotObj(x,y,w,h,lb,act,o){return Object.assign({x,y,w,h,lb,act},o||{})}
 function svgOpen(){return`<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" class="scenesvg">`}
 function stripClose(s){return s.replace(/<\/svg>\s*$/,"")}
-function itemIconHTML(I,big){if(!I)return"";if(I.c=="food")return foodSVG(I.id,"spfood");if(I.c=="wear")return`<span class="spbear">${bearMini(I,B().color)}</span>`;if(I.c=="furniture")return`<svg viewBox="${furnVB(I.k)}" class="spfurn">${furnSVG(I.k,I.col)}</svg>`;return`<span class="spemoji">${esc(I.i)}</span>`}
+function itemIconHTML(I,big){if(!I)return"";if(I.c=="food")return foodSVG(I.id,"spfood");if(I.c=="wear")return`<span class="spbear">${bearMini(I,B().color)}</span>`;if(I.c=="furniture")return`<svg viewBox="${furnVB(I.k)}" class="spfurn">${furnSVG(I.k,I.col)}</svg>`;if(I.photo)return`<img class="spphoto" src="${I.photo}" alt="">`;return`<span class="spemoji">${esc(I.i)}</span>`}
 /* ---------- backgrounds ---------- */
 function paintType(n){n=n.toLowerCase();if(/mona|milkmaid|night watch|portrait|ballet/.test(n))return 4;if(/sunflower/.test(n))return 6;if(/starry|night/.test(n))return 3;if(/lil|blossom|almond/.test(n))return 1;if(/hay wain|lake|sea|ship/.test(n))return 2;if(/alpine|landscape|bedroom/.test(n))return 0;if(/soup/.test(n))return 5;return null}
 function bgGallery(a,hl){const seed=hashStr(a.id);const wall=["#7a1f2e","#1f4d3a","#27408b","#5b3a6b"][seed%4];let s=svgOpen()+`<rect width="1200" height="520" fill="${wall}"/><rect y="0" width="1200" height="30" fill="#f3e7cf"/><rect y="30" width="1200" height="8" fill="${GILT}"/><rect y="440" width="1200" height="80" fill="#3b2414"/><rect y="520" width="1200" height="180" fill="#8b5a2b"/>`+Array.from({length:13},(_,i)=>`<path d="M${i*100} 520 L${i*100-60} 700" stroke="#6b4423" stroke-width="3"/>`).join("");
@@ -1183,7 +1260,12 @@ function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,st
    spots.push(spotObj(170,560,180,200,"Snack cart","menu",{bx:300,by:690}),spotObj(1010,610,250,110,"Sit on the bench","sit",{bx:1010,by:630}))}
   if(GEO[a.id])cap.real=a.id}
  else if(v.t=="shopin"){const shop=v.shop,Sh=SHOPS[shop];cap={t:Sh.n,d:Sh.sub};kind="shop";
-  if(shop.endsWith("_food")){bg=bgCafe(ck);const menu=Object.values(ITEMS).filter(i=>i.shop==shop);menu.forEach((I,i)=>spots.push(spotObj(110+i*(680/Math.max(1,menu.length-1||1)),400,130,110,I.n+" · 🍯"+I.p,"eat",{food:I.id,html:foodSVG(I.id,"spfood"),bx:150+i*150,by:690})));spots.push(spotObj(960,560,170,120,"Sit at a café table","sit",{bx:960,by:640}),spotObj(320,165,520,210,"Read the menu","menu",{bx:320,by:690}));kind="cafe"}
+  if(PHOTO_SHOPS[shop]){const P=PHOTO_SHOPS[shop];bg=bgShelves(Sh.n,"#7a1f2e");kind="photoshop";start={x:600,y:690};
+   P.spots.forEach(([px,py,lb,ids])=>{const x=Math.max(70,Math.min(1130,px*0.9115-41.7)),y=py*0.9115;const I=ITEMS[ids[0]];const ic=I.c=="wear"?wearIcon(I):I.i;const pr=ids.length>1?"from 🍯"+fmt(Math.min(...ids.map(i=>ITEMS[i].p))):"🍯"+fmt(I.p);
+    spots.push(spotObj(x,y,90,90,lb+" · "+pr,ids.length>1?"shop":"buy",{id:ids[0],shop,ids,title:lb,icon:ic,bx:x+(x>600?-110:110),by:690}))});
+   const VIEW={bern_swiss:[1180,250,"Look out at the Zytglogge","The clock tower is just up the street!"],paris_couture:[905,250,"Look out at Place Vendôme","I can see the column and the Eiffel Tower!"],munich_tracht:[330,160,"Look out at the Frauenkirche","The twin onion domes of Munich!"]}[shop];
+   if(VIEW){const x=Math.max(70,Math.min(1130,VIEW[0]*0.9115-41.7));spots.push(spotObj(x,VIEW[1]*0.9115,90,90,VIEW[2],"hl",{line:VIEW[3],icon:"🪟",bx:x+(x>600?-110:110),by:690}))}}
+  else   if(shop.endsWith("_food")){bg=bgCafe(ck);const menu=Object.values(ITEMS).filter(i=>i.shop==shop);menu.forEach((I,i)=>spots.push(spotObj(110+i*(680/Math.max(1,menu.length-1||1)),400,130,110,I.n+" · 🍯"+I.p,"eat",{food:I.id,html:foodSVG(I.id,"spfood"),bx:150+i*150,by:690})));spots.push(spotObj(960,560,170,120,"Sit at a café table","sit",{bx:960,by:640}),spotObj(320,165,520,210,"Read the menu","menu",{bx:320,by:690}));kind="cafe"}
   else if(shop=="home"){bg=bgShowroom();const cat=(n,ks,x,y,w,h)=>spots.push(spotObj(x,y,w,h,n,"shop",{shop,filter:ks,title:n,bx:x+(x>600?-130:130),by:690}));cat("Sofas, chairs & thrones",["sofa","chester","settee","wing","throne","couch","ottoman","dchair","bench"],200,540,230,150);cat("Beds, dressers & wardrobes",["bed","crownbed","dresser","vanity","wardrobe","mirror"],450,500,200,240);cat("Chandeliers, lamps & fireplaces",["chand","lamp","fire","grand"],640,190,220,170);cat("Candles, vases & decor",["decor"],660,580,140,120);cat("Consoles, tables & mirrors",["console","table","side","shelf","fern"],870,500,170,260);cat("Pianos & harps",["piano","harp"],1080,560,200,170);spots.push(spotObj(200,470,230,50,"Try the velvet sofa","sit",{bx:200,by:610}))}
   else if(STORES[shop]&&shop!="tiffany"||shop=="boutique"||shop=="tiffany"){const cats=shopCats(shop);bg=bgDept(shop,cats);cats.forEach((c,i)=>spots.push(spotObj(cats.xs[i],c.k=="jewel"?440:c.k=="head"?420:380,240,c.k=="jewel"?200:300,c.n,"shop",{shop,slots:c.slots,title:c.n,bx:cats.xs[i]+(cats.xs[i]>600?-140:140),by:690})));spots.push(spotObj(1080,360,150,300,"Fitting-room mirror","mirror",{bx:980,by:690}),spotObj(1110,630,150,110,"Velvet chair","sit",{bx:1110,by:650}))}
   else{const items=Object.values(ITEMS).filter(i=>i.shop==shop).slice(0,15);bg=bgShelves(Sh.n,shop=="fao"?"#c0392b":"#1f6b4a");items.forEach((I,i)=>{const r=Math.floor(i/5),c=i%5;spots.push(spotObj(160+c*220,140+r*140,150,110,I.n+(I.p?" · 🍯"+fmt(I.p):""),I.c=="food"?"eat":"buy",{id:I.id,food:I.c=="food"?I.id:null,html:itemIconHTML(I),bx:160+c*220+90,by:690}))})}
@@ -1199,7 +1281,7 @@ function buildScene(v,loc){const ck=loc,C=CITIES[ck];let bg,spots=[],cap=null,st
 function renderScene(){const b=B(),v=b.view;const sc=buildScene(v,b.loc);curScene=sc;const st=stage();st.className="scene";
  const sp=sc.spots.map((s,i)=>`<button class="sp ${s.badge?"badge":""} ${s.html?"hasart":""}" style="left:${(s.x-s.w/2)/12}%;top:${(s.y-s.h/2)/7}%;width:${s.w/12}%;height:${s.h/7}%" data-act="spot" data-arg="${i}" title="${esc(s.lb)}"><span class="bdg">${s.icon||"✨"}</span>${s.html||""}<span class="sl">${esc(s.lb)}</span></button>`).join("");
  const pos=b.scenePos&&b.scenePos.key==sceneKey(v)?b.scenePos:{x:sc.start.x,y:sc.start.y,cls:""};
- st.innerHTML=`<div class="scenebox"><div class="sbox">${sc.bg}<div class="spots">${sp}</div><div class="bear sb ${pos.cls||""}" data-b="${b.id}" style="left:${pos.x/12}%;top:${(pos.y-235)/7}%"><div class="bwrap">${bearSVG(b,pos.cls=="nap"?"sleep":"happy")}</div><div class="fxs"></div></div></div>${sc.cap?`<div class="caption" id="scap"><b>${esc(sc.cap.t)}</b><span id="scapd">${esc(sc.cap.d)}</span></div>`:""}</div>
+ st.innerHTML=`<div class="scenebox"><div class="sbox ${sc.kind=="photoshop"?"pshop":""}">${sc.bg}<div class="spots">${sp}</div><div class="bear sb ${pos.cls||""}" data-b="${b.id}" style="left:${pos.x/12}%;top:${(pos.y-235)/7}%"><div class="bwrap">${bearSVG(b,pos.cls=="nap"?"sleep":"happy")}</div><div class="fxs"></div></div></div>${sc.cap?`<div class="caption" id="scap"><b>${esc(sc.cap.t)}</b><span id="scapd">${esc(sc.cap.d)}</span></div>`:""}</div>
  <div class="bar"><button class="btn back" data-act="backStreet">◀ Back to the street</button><button class="btn" data-act="camera">📷 Take a photo</button>${sc.cap&&sc.cap.real?`<button class="btn teal" data-act="real" data-arg="${sc.cap.real}">🌍 See the real place</button>`:""}<span class="note">Tap the glowing things to look, sit, shop or eat</span></div>`;
  fitBox(st.querySelector(".scenebox"),st.querySelector(".sbox"));tryBackdrop(v,b.loc);if(!b.scenePos||b.scenePos.key!=sceneKey(v))setTimeout(()=>react(QUIET.has(v.aid)?"quiet":"wonder",QUIET.has(v.aid)?"A quiet, thoughtful place.":null),300)}
 function sceneKey(v){return v.t+":"+(v.aid||v.shop||v.store||"")+(v.n||"")}
@@ -1219,7 +1301,7 @@ function doSpot(s){const b=B(),ck=b.loc;switch(s.act){
  case"nap":sceneMove(s.bx,s.by,"nap");sfx("zzz");react("nap");break;
  case"eat":openItem(s.food,true);break;
  case"buy":openItem(s.id);break;
- case"shop":openShop(s.shop,{slots:s.slots,filter:s.filter,title:s.title});break;
+ case"shop":openShop(s.shop,{slots:s.slots,filter:s.filter,title:s.title,ids:s.ids});break;
  case"menu":openMenu(ck);break;
  case"mirror":openWardrobe();react("twirl","How do I look?");break;
  case"suitcase":openSuitcase();break;
@@ -1241,7 +1323,7 @@ function startShow(){const box=stage().querySelector(".sbox");const ov=document.
  const t=SND.ctx;if(t)[0,4,7,12,7,4,9,5,7,11,12].forEach((n,i)=>setTimeout(()=>{if(SND.ctx)tone("strings",60+n,SND.ctx.currentTime,.5,1.4,SND.master)},1200+i*320));react("wonder","The curtain is going up!");setTimeout(()=>{sfx("cheer");react("twirl","Bravo! Bravo!")},5200);setTimeout(()=>ov.remove(),7000)}
 /* ---------- item & menu dialogs ---------- */
 function openItem(id,isFood){const I=ITEMS[id];if(!I)return;let btn;if(I.c=="food")btn=`<button class="btn gold big" data-act="buyEat" data-arg="${id}">Eat now · 🍯 ${fmt(I.p)}</button><button class="btn" data-act="buy" data-arg="${id}">Take one home</button>`;else btn=shopBtns(I);
- openModal(esc(I.n),`<div class="itemview"><div class="ivart">${I.c=="food"?foodSVG(id,"bigfood"):I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:`<span class="bigemoji">${esc(I.i)}</span>`}</div><div class="ivtxt"><p class="lede">${I.p?"🍯 "+fmt(I.p):""}${I.o&&I.o!="bern"?" · from "+esc(CITIES[I.o].n.split(/[,&]/)[0]):""}</p><div class="row wrap">${btn}</div>${I.c=="food"&&I.msg?`<p class="note">“${esc(I.msg)}”</p>`:""}</div></div>`);curShop={shop:I.shop,opt:{}}}
+ openModal(esc(I.n),`<div class="itemview"><div class="ivart">${I.c=="food"?foodSVG(id,"bigfood"):I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:`<span class="bigemoji">${esc(I.i)}</span>`}</div><div class="ivtxt"><p class="lede">${I.note?esc(I.note)+" · ":""}${I.p?"🍯 "+fmt(I.p):""}${I.o&&I.o!="bern"?" · from "+esc(CITIES[I.o].n.split(/[,&]/)[0]):""}</p><div class="row wrap">${btn}</div>${I.c=="food"&&I.msg?`<p class="note">“${esc(I.msg)}”</p>`:""}</div></div>`);curShop={shop:I.shop,opt:{}}}
 function openMenu(ck){const C=CITIES[ck];const menu=C.food||[];openModal("🍽️ "+esc(ck=="bern"?"Bärengraben Stübli":C.n.split(/[,&]/)[0].trim()+" menu"),`<p class="lede">Real local food from ${esc(C.n)}.</p><div class="grid tight menu">${menu.map(f=>{const I=ITEMS[f];return`<div class="wcard food">${foodSVG(f,"menufood")}<small>${esc(I.n)}</small><div class="row"><button class="btn small" data-act="buyEat" data-arg="${f}">Eat · 🍯${I.p}</button><button class="btn small ghost" data-act="buy" data-arg="${f}">Take home</button></div></div>`}).join("")}</div>`)}
 
 /* ============ RICH SCENE BACKDROPS ============ */
@@ -1330,8 +1412,9 @@ function curMonth(){return S&&S.month!=="auto"&&S.month!=null?+S.month:new Date(
 function uid(){return"u"+(S.nextId++)}
 function pick(a,r){return a[Math.floor((r?r():Math.random())*a.length)]}
 const FAMILY=["Christina","Matthew","Lizzie"];
+function photoRooms(){return PHOTO_HALLS.map(h=>({id:h.id,n:h.n,type:"photo",photo:h.photo,items:[]}))}
 function defaultRooms(){const R=(id,n,type,wall,rug,curt,items)=>({id,n,type,wall,rug,curt,items:items.map(x=>({u:"r"+Math.random().toString(36).slice(2,8),id:x[0],x:x[1],y:x[2],r:0,f:false,col:null}))});
- return[R("parlor","Grand Parlor","parlor","#7a1f2e","#27408b","#c9a227",[["chandelier_crystal",600,300],["fireplace_marble",960,560],["sofa_velvet",560,620],["chair_wing",240,610],["harp_gold",80,640]]),
+ return[...photoRooms(),R("parlor","Grand Parlor","parlor","#7a1f2e","#27408b","#c9a227",[["chandelier_crystal",600,300],["fireplace_marble",960,560],["sofa_velvet",560,620],["chair_wing",240,610],["harp_gold",80,640]]),
   R("bedroom","Victorian Bedroom","bedroom","#f3b6c8","#7a1f2e","#fffaf0",[["bed_canopy",330,610],["dresser_mahog",780,535],["vanity_ward",1040,535],["suitcase",620,650],["lamp_wrought",130,560]]),
   R("dining","Dining Hall","dining","#1f6b4a","#7a1f2e","#c9a227",[["chandelier_crystal",600,290],["table_dining",600,600],["chair_dining",330,612],["chair_dining",870,612],["honeyjar",560,470],["croissant",660,470]]),
   R("souvenir","Souvenir Room","souvenir","#27408b","#c9a227","#7a1f2e",[["shelf_curio",170,540],["table_side",1020,600],["decor_portrait",860,250]])]}
@@ -1364,7 +1447,7 @@ function borrow(n){S.loan+=n;S.coins+=n;renderCoins();save()}
 /* ---------- streets ---------- */
 const BERN_ST=[
  {kind:"station",label:"Bern Train Station",act:"train"},{kind:"catalog",label:"Town Catalog",act:"catalog",icons:["📖","🧸","🏰"],col:"#27408b"},{kind:"shop",label:"Honeycomb Market",act:"shop",shop:"market",icons:["🍯","🧀","🥐"],col:"#e6a817"},{kind:"stand",label:"Sausage & Sauerkraut",act:"stand"},
- {kind:"pit",label:"Bern Bear Pit (Bärengraben)",act:"att",aid:"bern_pit",icon:"🐻"},{kind:"tower",sp:"clocktower",label:"Zytglogge Clock Tower",act:"att",aid:"bern_zyt",icon:"🕰️"},{kind:"shop",label:"Alpine & Victorian Bear Boutique",act:"shop",shop:"boutique",icons:["👗","👒","👠"],col:"#d8576b"},{kind:"shop",label:"Victorian Bären Home & Hearth",act:"shop",shop:"home",icons:["🛋️","🕯️","🪞"],col:"#1f6b4a"},
+ {kind:"pit",label:"Bern Bear Pit (Bärengraben)",act:"att",aid:"bern_pit",icon:"🐻"},{kind:"tower",sp:"clocktower",label:"Zytglogge Clock Tower",act:"att",aid:"bern_zyt",icon:"🕰️"},{kind:"shop",label:"Bern Swiss Treasures",act:"shop",shop:"bern_swiss",icons:["🐻","🍫","🔔"],col:"#8b4513"},{kind:"shop",label:"Alpine & Victorian Bear Boutique",act:"shop",shop:"boutique",icons:["👗","👒","👠"],col:"#d8576b"},{kind:"shop",label:"Victorian Bären Home & Hearth",act:"shop",shop:"home",icons:["🛋️","🕯️","🪞"],col:"#1f6b4a"},
  {kind:"riverbridge",label:"Aare River Bridge",act:"att",aid:"bern_aare",icon:"🌉"},{kind:"bank",label:"Bear Bank",act:"bank"},{kind:"food",label:"Bärengraben Stübli",act:"shop",shop:"bern_food",icons:["🫕","🌭","🍫"],col:"#7a1f2e"},{kind:"shop",label:"Town Market",act:"shop",shop:"townmarket",icons:["🔔","🌼","🧺"],col:"#7a1f2e"},{kind:"bearfountain",label:"Bear Fountain",act:"att",aid:"bern_fount",icon:"⛲"},
  {kind:"castlelane",label:"Castle Lane — Bear Castles",act:"castles"},{kind:"conservatory",label:"Glass Conservatory",act:"att",aid:"bern_cons",icon:"🌿"},{kind:"post",label:"Post Office & Postcards",act:"post"},{kind:"airport",label:"Bern International Airport",act:"plane"}];
 const BERN_ATT={bern_pit:{id:"bern_pit",n:"Bern Bear Pit",k:"pit",i:"🐻",d:"The bears' favorite turquoise pool."},bern_zyt:{id:"bern_zyt",n:"Zytglogge Clock Tower",k:"tower",sp:"clocktower",i:"🕰️",d:"Watch the clock figures twirl."},bern_aare:{id:"bern_aare",n:"Aare River Bridge",k:"riverbridge",i:"🌉",d:"Turquoise water under stone arches."},bern_fount:{id:"bern_fount",n:"Bear Fountain",k:"bearfountain",i:"⛲",d:"A bear statue on top!"},bern_cons:{id:"bern_cons",n:"Glass Conservatory",k:"conservatory",i:"🌿",d:"Roses and ferns under glass."}};
@@ -1372,7 +1455,7 @@ CITIES.bern.att=Object.values(BERN_ATT);
 function cityStreet(ck){if(ck=="bern")return BERN_ST;const C=CITIES[ck],L=[];
  L.push(C.travel=="plane"?{kind:"airport",label:C.n.split(" ").slice(-2).join(" ")+" Airport",act:"plane"}:{kind:"station",label:"Train Station",act:"train"});
  if(ck=="nordic")L.push({kind:"market",label:C.att[0].n,act:"att",aid:C.att[0].id,icon:C.att[0].i});
- L.push({kind:"hotel",label:C.hotel,act:"hotel"});L.push({kind:"food",label:C.n.split(/[ ,&]/)[0]+" Café",act:"shop",shop:ck+"_food",icons:C.food.slice(0,3).map(f=>ITEMS[f].i),col:"#e67e22"});
+ L.push({kind:"hotel",label:C.hotel,act:"hotel"});for(const[k,P] of Object.entries(PHOTO_SHOPS))if(P.city==ck)L.push({kind:"shop",label:P.n,act:"shop",shop:k,icons:P.spots.slice(0,3).map(x=>{const I=ITEMS[x[3][0]];return I.c=="wear"?wearIcon(I):I.i}),col:"#7a1f2e"});L.push({kind:"food",label:C.n.split(/[ ,&]/)[0]+" Café",act:"shop",shop:ck+"_food",icons:C.food.slice(0,3).map(f=>ITEMS[f].i),col:"#e67e22"});
  const atts=C.att.filter(a=>!(ck=="nordic"&&a.id=="farmersmkt"));const stores=(C.stores||[]).slice();let k=0;
  atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}if(C.shop&&i==Math.floor(atts.length/2))L.push({kind:"shop",label:C.shop.n,act:"shop",shop:ck+"_shop",icons:C.shop.items.slice(0,3).map(x=>ITEMS[x].i||wearIcon(ITEMS[x])),col:"#2e86c1"})});
  stores.forEach(st=>L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"}));
@@ -1430,8 +1513,9 @@ let decorate=false,selU=null,gather=false;
 function renderCastle(){const b=B(),v=b.view,owner=bearById(v.owner)||b,rooms=owner.castle.rooms,room=rooms.find(r=>r.id==v.room)||rooms[0];v.room=room.id;const st=stage();st.className="castle";
  const items=room.items.map(it=>itemG(it)).join("");
  st.innerHTML=`<div class="tabs">${rooms.map(r=>`<button class="tab ${r.id==room.id?"on":""}" data-act="room" data-arg="${r.id}">${esc(r.n)}</button>`).join("")}<button class="tab add" data-act="openCatalog" data-arg="wings">＋ Add a wing</button></div>
- <div class="roombox"><div class="room">${roomSVG(room)}<g id="items">${items}</g></svg><div class="roombears"></div></div></div>
+ <div class="roombox"><div class="room">${room.photo?`<img class="roomimg" src="scenes/${room.photo}.jpg" alt="">`:""}${room.photo?`<svg viewBox="0 0 1200 700" class="roomsvg" preserveAspectRatio="xMidYMid slice">`:roomSVG(room)}<g id="items">${room.photo?"":items}</g></svg>${room.photo?`<div class="hallspots">${hallSpots(room).map((h,i)=>`<button class="hsp" style="left:${(h.x-h.w/2)/12}%;top:${(h.y-h.h/2)/7}%;width:${h.w/12}%;height:${h.h/7}%" data-act="hallDo" data-arg="${i}" title="${esc(h.lb)}"><span>${h.icon} ${esc(h.lb)}</span></button>`).join("")}</div>`:""}<div class="roombears"></div></div></div>
  <div class="bar">${decorate?`<button class="btn on" data-act="decorate">✓ Done decorating</button><button class="btn" data-act="colors">🎨 Room colors</button><button class="btn" data-act="place">📦 Place from storage</button>`+(selU?`<span class="sel"><button class="btn" data-act="itRot">↻ Rotate</button><button class="btn" data-act="itFlip">⇋ Flip</button><button class="btn" data-act="itColor">🎨 Color</button><button class="btn" data-act="itFront">⬆ Front</button><button class="btn" data-act="itStore">📥 Store</button></span>`:`<span class="note">Tap an item to select it, drag to move</span>`)
+  :room.photo?`<button class="btn" data-act="feast">🍽️ Feast Menu</button><button class="btn" data-act="wardrobe">👗 Wardrobe</button><button class="btn" data-act="suitcase">🧳 Suitcase</button>${giftReady()?`<button class="btn gold" data-act="gift">🎁 Open porch gift</button>`:""}<span class="note">Tap a doorway to step inside</span>`
   :`<button class="btn" data-act="decorate">🪄 Decorate & rearrange</button><button class="btn" data-act="feast">🍽️ Feast Menu</button><button class="btn" data-act="bell">🔔 Ring Dinner Bell</button><button class="btn" data-act="suitcase">🧳 Suitcase</button>${giftReady()?`<button class="btn gold" data-act="gift">🎁 Open porch gift</button>`:""}<span class="note">Tap furniture to use it</span>`}</div>`;
  fitRoom();const svg=st.querySelector(".room svg");placeBears(room,owner);
  svg.addEventListener("pointerdown",e=>itemDown(e,svg,room));
@@ -1488,6 +1572,18 @@ function renderFX(){const M=MONTHS[curMonth()],fx=$("#fx");fx.innerHTML=Array.fr
 function applySound(){if(!SND.ctx)return;SND.musicOn=S.snd.music;sndMute(S.snd.muted);sndVolume(S.snd.vol);const b=B(),v=b.view;let p=CITIES[b.loc].sound||"bern";
  if(v.t=="castle")p="castle";else if(v.t=="hotel")p="hotel";else if(v.t=="window"||v.t=="windowclose")p="window";else if(v.t=="shopin")p=v.shop.endsWith("_food")?"cafe":"shop";else if(v.t=="inside"){const a=att(b.loc,v.aid);if(a&&["boat","ship"].includes(a.k))p="boat";else if(a&&["museum","library","house"].includes(a.k))p="museum";else if(a&&a.k=="aquarium")p="aquarium";else if(a&&a.k=="ballpark")p="ballpark";else if(a&&a.k=="theater")p="theater";else if(a&&a.k=="market")p="market"}if(b.loc=="boston"&&p=="boston")p="harbor";setSound(p)}
 
+/* ---------- photo castle halls (her pictures) ---------- */
+const PHOTO_HALLS=[
+ {id:"hall",n:"Grand Hall",photo:"castle_hall",arch:[["🔥","Warm up by the marble fireplace","sit","The fire is so cozy in the red parlor."],["🍽️","Dinner at the long table","feast","Candlelight and crystal — dinner is served!"],["🛏️","Nap in the rose canopy bed","nap","The pink canopy bed is so soft..."]]},
+ {id:"bedwing",n:"Bedroom Wing",photo:"castle_bedwing",arch:[["🛏️","Nap in the lavender canopy bed","nap","Lavender dreams..."],["🪞","Get ready at the vanity","wardrobe","Time to pick something pretty!"],["🌙","Nap in the navy royal bed","nap","Like sleeping under the stars."]]},
+ {id:"salon",n:"Salon Wing",photo:"castle_salon",arch:[["🛋️","Relax on the red velvet sofa","sit","Ahh, velvet cushions."],["🕯️","Supper in the dining room","feast","Everyone to the table!"],["📖","Read by the family portraits","sit","Grandma Bear's portrait is watching!"]]}];
+function hallSpots(room){const H=PHOTO_HALLS.find(h=>h.photo==room.photo);if(!H)return[];return H.arch.map((a,i)=>({icon:a[0],lb:a[1],act:a[2],line:a[3],x:[177,601,1025][i],y:360,w:290,h:440}))}
+function hallDo(i){const room=curRoom();const h=hallSpots(room)[i];if(!h)return;gather=false;
+ if(h.act=="nap"){moveBearTo({x:h.x,y:620,cls:"nap"});sfx("zzz");react("nap",h.line);return}
+ if(h.act=="sit"){moveBearTo({x:h.x,y:650,cls:"sit"});sfx("zzz");react("relax",h.line);return}
+ moveBearTo({x:h.x,y:660});react("wonder",h.line);setTimeout(()=>h.act=="feast"?openFeast():openWardrobe(),500)}
+function ensurePhotoRooms(b){const R=b.castle&&b.castle.rooms;if(!R)return;const add=photoRooms().filter(p=>!R.some(r=>r.id==p.id));if(add.length)R.unshift(...add)}
+
 /* ============ GAME: shops, modals, actions ============ */
 function openModal(title,body,cls){const m=$("#modal");m.className="show "+(cls||"");m.innerHTML=`<div class="sheet" role="dialog" aria-label="${esc(title)}"><div class="mh"><h2>${title}</h2><button class="x" data-act="close" aria-label="Close">✕</button></div><div class="mb">${body}</div></div>`;m.querySelector(".mb").scrollTop=0}
 function closeModal(){$("#modal").className="";$("#modal").innerHTML=""}
@@ -1495,10 +1591,10 @@ function toast(t){const box=$("#toasts");while(box.children.length>=3)box.firstC
 const shown={};function toastOnce(k,t){if(shown[k])return;shown[k]=1;toast(t)}
 function away(){return B().loc!="bern"}
 function ownedWear(id){return!!S.ward[id]}
-function itemCard(I,btns,extra){return`<div class="card"><div class="ic">${I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.c=="food"?foodSVG(I.id,"cardfood"):esc(I.i||"✨")}</div><div class="cn"><b>${esc(I.n)}</b><small>${extra||(I.p?"🍯 "+fmt(I.p):"")}</small></div><div class="cb">${btns}</div></div>`}
+function itemCard(I,btns,extra){return`<div class="card"><div class="ic">${I.c=="decor"&&I.photo?`<img class="cardphoto" src="${I.photo}" alt="">`:I.c=="wear"?bearMini(I,B().color):I.c=="furniture"?`<svg viewBox="${furnVB(I.k)}">${furnSVG(I.k,I.col)}</svg>`:I.c=="food"?foodSVG(I.id,"cardfood"):esc(I.i||"✨")}</div><div class="cn"><b>${esc(I.n)}</b><small>${extra||(I.p?"🍯 "+fmt(I.p):"")}</small></div><div class="cb">${btns}</div></div>`}
 function wearIcon(I){const m={outfit:"👗",head:"👒",feet:"👠",neck:"📿",ears:"💎",wrist:"💍",watch:"⌚",bag:"👜"};if(I.st=="lederhosen")return"🩳";if(["alpine","waistcoat","tweed","coat","sweater","tee"].includes(I.st))return I.st=="coat"||I.st=="tweed"?"🧥":"👔";if(I.st=="tiara")return"👑";if(I.st=="tophat"||I.st=="felthat")return"🎩";if(I.st=="cap")return"🧢";if(I.st=="beret")return"🎨";if(I.st=="clogs")return"👞";if(I.st=="boots")return"🥾";if(I.st=="scarf")return"🧣";if(I.st=="pocketwatch")return"⌚";return m[I.slot]||"👗"}
 function shopItems(shop){return Object.values(ITEMS).filter(i=>i.shop==shop)}
-function openShop(shop,opt){opt=opt||{};const Sh=SHOPS[shop];let list=shopItems(shop);if(opt.stand)list=[ITEMS.bratwurst];if(opt.slots)list=list.filter(i=>i.c=="wear"&&opt.slots.includes(i.slot));if(opt.filter)list=list.filter(i=>opt.filter.includes(i.c=="furniture"?i.k:i.c));
+function openShop(shop,opt){opt=opt||{};const Sh=SHOPS[shop];let list=shopItems(shop);if(opt.stand)list=[ITEMS.bratwurst];if(opt.slots)list=list.filter(i=>i.c=="wear"&&opt.slots.includes(i.slot));if(opt.ids)list=opt.ids.map(i=>ITEMS[i]).filter(Boolean);if(opt.filter)list=list.filter(i=>opt.filter.includes(i.c=="furniture"?i.k:i.c));
  const body=`<p class="lede">${esc(Sh.sub)}${away()&&(shop.indexOf(B().loc)==0||STORES[shop])?" · Things you buy here go into "+esc(B().name)+"'s suitcase until you unpack at home.":""}</p><div class="grid">${list.map(I=>itemCard(I,shopBtns(I))).join("")}</div>`;
  openModal(opt.stand?"🌭 Sausage & Sauerkraut Stand":opt.title?esc(Sh.n)+" · "+esc(opt.title):esc(Sh.n),body,"shopm");curShop={shop,opt}}
 let curShop=null;
@@ -1538,7 +1634,7 @@ function travel(ck){const b=B();const go2=()=>{closeModal();sfx("whoosh");const 
 function goHome(){const b=B();if(b.loc!="bern"){travel("bern");return}b.view={t:"street"};b.roomPos=null;save();renderAll()}
 /* ---------- castles ---------- */
 function openCastleList(){openModal("🏰 Castle Lane",`<p class="lede">Every bear has a castle. Pop in to visit anyone.</p><div class="grid">${S.bears.map(x=>`<div class="card"><div class="ic av">${bearHead(x)}</div><div class="cn"><b>${esc(x.name)}'s Castle</b><small>${x.castle.rooms.length} rooms</small></div><div class="cb"><button class="btn small" data-act="enterCastle" data-arg="${x.id}">Go inside</button></div></div>`).join("")}</div>`)}
-function enterCastle(ownerId){const b=B();if(b.loc!="bern"){b.loc="bern";}const o=bearById(ownerId)||b;b.view={t:"castle",owner:o.id,room:"parlor"};b.roomPos=null;decorate=false;selU=null;gather=false;closeModal();save();renderAll()}
+function enterCastle(ownerId){const b=B();if(b.loc!="bern"){b.loc="bern";}const o=bearById(ownerId)||b;b.view={t:"castle",owner:o.id,room:"hall"};b.roomPos=null;decorate=false;selU=null;gather=false;closeModal();save();renderAll()}
 function curRoom(){const b=B(),o=bearById(b.view.owner)||b;return o.castle.rooms.find(r=>r.id==b.view.room)||o.castle.rooms[0]}
 function curItem(){return curRoom().items.find(i=>i.u==selU)}
 /* ---------- dept stores ---------- */
@@ -1642,6 +1738,7 @@ const ACT={
  window:st=>{closeModal();go({t:"window",store:st})},storeIn:st=>{closeModal();go({t:"shopin",shop:st})},
  backStreet:()=>{go({t:"street"})},
  chip:a=>{const b=B();if(a=="look")react("wonder");else if(a=="breeze")react("breeze");else if(a=="wish"){if(S.coins>=1)S.coins-=1;renderCoins();react("wish")}else if(a=="nap"){const el=stage().querySelector(".bear.center");el.classList.add("napping");el.querySelector(".bwrap").innerHTML=bearSVG(b,"sleep");sfx("zzz");react("nap")}else if(a=="suitcase")openSuitcase();else if(a.startsWith("eat:"))eat(ITEMS[a.slice(4)]);else if(a.startsWith("store:"))go({t:"shopin",shop:a.slice(6)});else if(a.startsWith("real:"))realWalk(a.slice(5))},
+ hallDo:i=>hallDo(+i),
  room:id=>{B().view.room=id;B().roomPos=null;selU=null;gather=false;save();renderLoc();renderCastle()},
  decorate:()=>{decorate=!decorate;selU=null;gather=false;renderCastle()},colors:()=>openColors(),place:()=>openPlace(),placeIt:id=>placeIt(id),
  roomCol:a=>{const[k,c]=a.split("|");curRoom()[k]=c;save();renderCastle();openColors()},
@@ -1661,7 +1758,7 @@ const ACT={
  loadSave:()=>{const v=$("#saveBox").value.trim();if(!v){toast("Paste a backup code into the box first.");return}try{const o=JSON.parse(decodeURIComponent(escape(atob(v))));if(!o.bears)throw 0;openConfirm("Replace this game with the backup?","Yes, restore it",()=>{S=o;save();closeModal();renderAll();toast("✅ Backup restored!")})}catch(e){toast("That code didn't work — make sure you copied all of it.")}}
 };
 /* ---------- boot ---------- */
-function migrate(){S.up=S.up||{silver:0,gold:0,crown:0,bees:0};S.snd=S.snd||{vol:.55,muted:false,music:true};S.story=S.story||{first:todayStr(),list:[]};S.bears.forEach(b=>{b.suit=b.suit||{packed:[],snacks:[],camera:true,neu:[]};b.view=b.view||{t:"street"};if(!CITIES[b.loc])b.loc="bern"});if(!bearById(S.active))S.active=S.bears[0].id;
+function migrate(){S.up=S.up||{silver:0,gold:0,crown:0,bees:0};S.snd=S.snd||{vol:.55,muted:false,music:true};S.story=S.story||{first:todayStr(),list:[]};S.bears.forEach(b=>{ensurePhotoRooms(b);b.suit=b.suit||{packed:[],snacks:[],camera:true,neu:[]};b.view=b.view||{t:"street"};if(!CITIES[b.loc])b.loc="bern"});if(!bearById(S.active))S.active=S.bears[0].id;
  if(!S.photoV1){S.photoV1=1;const a=bearById(S.active);const c=a&&a.color=="white"?a:S.bears.find(b=>b.name=="Christina")||S.bears.find(b=>b.color=="white");["p_gown_ruffle","p_tiara","p_necklace"].forEach(i=>S.ward[i]=1);if(c){c.photo="bears/polar_cub.png";c.wear={outfit:{id:"p_gown_ruffle"},head:{id:"p_tiara"},neck:{id:"p_necklace"}}}S._photoNews=c?c.name:"";save()}}
 function boot(){if(!load())newState();migrate();
  document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(el){e.preventDefault();sndInit();applySound();const f=ACT[el.dataset.act];f&&f(el.dataset.arg,el,e)}});
