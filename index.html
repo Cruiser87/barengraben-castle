@@ -254,8 +254,9 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 .cardphoto{width:100%;height:100%;object-fit:contain}
 .pshop .sp .sl{opacity:0;transition:opacity .15s}.pshop .sp:hover .sl,.pshop .sp:focus .sl{opacity:1;z-index:5}.pshop .sp .bdg{width:min(54px,70%)!important}
 .bdgpic{width:82%;height:82%;object-fit:contain}.ivart{position:relative}.ivmini{position:absolute;right:-8px;bottom:-8px;width:42%;aspect-ratio:1;background:#fffaf0;border:3px solid var(--gold);border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}.ivmini svg{width:100%;height:100%}
-.trip{position:absolute;left:1.5%;right:1.5%;top:13%;height:50%;display:flex;gap:1%;align-items:center;justify-content:center;z-index:0}.tpanel{min-width:0;height:100%;display:flex;align-items:center}.tpanel img{width:100%;height:auto;display:block;border:5px solid #c9a227;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.55),inset 0 0 0 2px #fff}
+.trip{position:absolute;left:50%;transform:translateX(-50%);max-width:97%;top:21%;height:45%;display:flex;gap:1%;align-items:center;justify-content:center;z-index:0}.tpanel{min-width:0;height:100%;display:flex;align-items:center}.tpanel img{width:100%;height:auto;display:block;border:5px solid #c9a227;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.55),inset 0 0 0 2px #fff}
 #jump{background:linear-gradient(180deg,#181a1f,#23262e);border-bottom:2px solid #c5a059;padding:3px 10px}.jrow{display:flex;gap:6px;overflow-x:auto;padding:3px 0;scrollbar-width:none}.jrow::-webkit-scrollbar{display:none}.jp{background:#2c303a;color:#e8e2d5;border:1px solid #4a4f5c;border-radius:16px;padding:4px 11px;font:600 13px Georgia,serif;white-space:nowrap;cursor:pointer;flex:none}.jp:hover{border-color:#c5a059;color:#fff}.jp.on{background:linear-gradient(135deg,#c5a059,#9e7b36);color:#141518;border-color:#f3d59b}.jp.pl{background:#1f2229;font-size:12px;padding:3px 10px}
+.saksbase{filter:brightness(.75) contrast(1.05)}.saksblink{mix-blend-mode:lighten;filter:brightness(1.4) contrast(1.6) saturate(1.4);animation:lightsOnlyBlink 1.5s infinite ease-in-out}@keyframes lightsOnlyBlink{0%,100%{opacity:1}50%{opacity:0}}.tblink{position:relative;width:100%;border:5px solid #c9a227;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.55)}.tblink img{display:block;width:100%;height:auto;border:0!important;box-shadow:none!important;border-radius:0!important}.tblink .saksblink{position:absolute;inset:0;height:100%;object-fit:cover}@media (prefers-reduced-motion:reduce){.saksblink{animation:none;opacity:.6}}
 </style>
 </head>
 <body>
@@ -854,7 +855,7 @@ function bernExtras(b,x){const cx=x+SLOT/2;
  return null}
 function facade(b,i,style,city){
  const x=60+i*SLOT,S=STYLE[style],wall=S.walls[(i*3+hashStr(b.label))%S.walls.length];let s="";
- if(b.kind=="residence")return residenceSVG(b,i,city);if(["shop","food","bank","catalog","hotel","dept"].includes(b.kind))return archFacade(b,i,city);
+ if(b.kind=="residence")return residenceSVG(b,i,city);if(b.kind=="dept"&&STORE_FACADE[b.store])return photoFacade(b,i,STORE_FACADE[b.store]);if(["shop","food","bank","catalog","hotel","dept"].includes(b.kind))return archFacade(b,i,city);
  const ex=city=="bern"?bernExtras(b,x):null;
  if(ex)s+=ex;
  else if(b.kind=="shop"||b.kind=="food"||b.kind=="post"||b.kind=="bank"||b.kind=="catalog"||b.kind=="hotel"||b.kind=="station"||b.kind=="airport"||b.kind=="dept"){
@@ -1044,6 +1045,9 @@ const ARCH={
  uk:{mat:"brick",walls:["#c8b48a","#b9a27a","#a5452f","#d3c29b"],roof:"flat",roofCol:"#4d5656",trim:"#f7f4ec",floors:4,win:"sash",shut:null,gf:"painted",fascia:"#1b3a2b",lamp:"lantern",tree:"plane",sky:"london",stuccoBase:true},
  nyc:{mat:"brownstone",walls:["#7a4f3a","#8a5d45","#c9b89c","#b8a88c","#6b4434"],roof:"flat",roofCol:"#555",trim:"#e8dfcd",floors:5,win:"sash",shut:null,gf:"castiron",fascia:"#1f1f1f",lamp:"crook",tree:"elm",sky:"nyc",fireEscape:true},
  boston:{mat:"brick",walls:["#9b3d2e","#a8432f","#8e3b2b","#b04a35"],roof:"flat",roofCol:"#3b3b3b",trim:"#f2f0ea",floors:4,win:"sash",shut:"#1e1e1e",gf:"painted",fascia:"#1b2a3a",lamp:"gas",tree:"elm",sky:"boston"}};
+const STORE_FACADE={saks:"scenes/saks_night.jpg"};
+function photoFacade(b,i,url){const x=60+i*SLOT+10,w=SLOT-20,top=BASE-380,h=BASE-top,id=aid("pf");
+ return`<g class="bld" data-i="${i}"><rect x="${x-10}" y="0" width="${SLOT}" height="${BASE+30}" fill="transparent"/><rect x="${x+10}" y="${top+12}" width="${w}" height="${h-12}" fill="#2a1a0c" opacity=".35" filter="url(#aBlur)"/><clipPath id="${id}"><rect x="${x}" y="${top}" width="${w}" height="${h}"/></clipPath><g clip-path="url(#${id})"><image class="saksbase" href="${url}" x="${x-60}" y="${top}" width="${w+120}" height="${h}" preserveAspectRatio="xMidYMax slice"/><image class="saksblink" href="${url}" x="${x-60}" y="${top}" width="${w+120}" height="${h}" preserveAspectRatio="xMidYMax slice"/></g><rect x="${x}" y="${top}" width="${w}" height="${h}" fill="none" stroke="url(#aGold)" stroke-width="4"/>${aSign(x+w/2,BASE-24,w-30,b.label,"#111")}</g>`}
 const SHOP_PHOTO={bern_swiss:"scenes/bern_swiss.jpg",paris_couture:"scenes/paris_couture.jpg",munich_tracht:"scenes/munich_tracht.jpg"};
 const STORE_PHOTOS={macys:["scenes/macys_window.jpg","scenes/macys_window2.jpg"]};
 let ADEFS=new Map(),AUID=0;
@@ -1576,9 +1580,9 @@ function renderScene(){const b=B(),v=b.view;const sc=buildScene(v,b.loc);curScen
 function sceneKey(v){return v.t+":"+(v.aid||v.shop||v.store||"")+(v.n||"")}
 const BD_MISS={},BD_AR={};
 function backdropName(v,loc){return v.t=="inside"?v.aid:v.t=="shopin"?v.shop:v.t=="hotel"?"hotel_"+loc:v.t=="window"?v.store+"_front":v.t=="windowclose"?v.store+"_window"+((v.n||1)>1?v.n:""):null}
-const TRIPTYCH={macys:[["scenes/macys_front.jpg",1.498],["scenes/macys_window.jpg",1.333],["scenes/macys_window2.jpg",0.752]]};
+const TRIPTYCH={macys:[["scenes/macys_front.jpg",1.498],["scenes/macys_window.jpg",1.333],["scenes/macys_window2.jpg",0.752]],saks:[["scenes/saks_night.jpg",1.499,1],["scenes/saks_day.jpg",0.748]]};
 function showTriptych(v){const T=TRIPTYCH[v.store],box=stage().querySelector(".sbox");if(!box)return;const svg=box.querySelector(".scenesvg,svg");if(svg)svg.style.display="none";box.classList.add("imgmode");
- box.insertAdjacentHTML("afterbegin",`<img class="bdblur" src="${T[0][0]}" alt=""><div class="trip">${T.map(([u,ar])=>`<div class="tpanel" style="flex:${ar} 1 0"><img src="${u}" alt=""></div>`).join("")}</div>`)}
+ box.insertAdjacentHTML("afterbegin",`<img class="bdblur" src="${T[0][0]}" alt=""><div class="trip" style="aspect-ratio:${T.reduce((a,t)=>a+t[1],0)+.02*T.length}">${T.map(([u,ar,bl])=>`<div class="tpanel" style="flex:${ar} 1 0">${bl?`<div class="tblink"><img class="saksbase" src="${u}" alt=""><img class="saksblink" src="${u}" alt=""></div>`:`<img src="${u}" alt="">`}</div>`).join("")}</div>`)}
 function tryBackdrop(v,loc){if(v.t=="window"&&TRIPTYCH[v.store])return showTriptych(v);const n=backdropName(v,loc);if(!n||BD_MISS[n]===true)return;const exts=["webp","jpg","png"];const go=k=>{if(k>=exts.length){BD_MISS[n]=true;return}const url="scenes/"+n+"."+exts[k];if(BD_MISS[n]===url)return apply(url);const im=new Image();im.onload=()=>{BD_MISS[n]=url;BD_AR[url]=im.naturalWidth/im.naturalHeight;apply(url)};im.onerror=()=>go(k+1);im.src=url};
  const apply=url=>{const box=stage().querySelector(".sbox");if(!box||sceneKey(B().view)!=sceneKey(v))return;const svg=box.querySelector(".scenesvg,svg");if(svg&&!box.querySelector(".bdimg")){svg.style.display="none";const tall=BD_AR[url]&&BD_AR[url]<1.3;box.insertAdjacentHTML("afterbegin",(tall?`<img class="bdblur" src="${url}" alt="">`:"")+`<img class="bdimg ${tall?"contain":""}" src="${url}" alt="">`);box.classList.add("imgmode");box.querySelectorAll(".sp").forEach(el=>{if(parseFloat(el.style.top)<16)el.style.top="16%"})}};go(0)}
 function fitBox(box,inner){if(!box||!inner)return;const W=box.clientWidth,H=box.clientHeight;let w=Math.min(W,H*12/7*1.16),h=w*7/12;if(h<H&&w<W){}inner.style.width=w+"px";inner.style.height=h+"px"}
@@ -1744,13 +1748,13 @@ const BERN_ST=[
  {kind:"riverbridge",label:"Aare River Bridge",act:"att",aid:"bern_aare",icon:"🌉"},{kind:"bank",label:"Bear Bank",act:"bank"},{kind:"food",label:"Bärengraben Stübli",act:"shop",shop:"bern_food",icons:["🫕","🌭","🍫"],col:"#7a1f2e"},{kind:"shop",label:"Town Market",act:"shop",shop:"townmarket",icons:["🔔","🌼","🧺"],col:"#7a1f2e"},{kind:"bearfountain",label:"Bear Fountain",act:"att",aid:"bern_fount",icon:"⛲"},
  {kind:"castlelane",label:"Castle Lane — Bear Castles",act:"castles"},{kind:"airport",label:"Bern International Airport",act:"plane"}];
 const BERN_ATT={bern_pit:{id:"bern_pit",n:"Bern Bear Pit",k:"pit",i:"🐻",d:"The bears' favorite turquoise pool."},bern_zyt:{id:"bern_zyt",n:"Zytglogge Clock Tower",k:"tower",sp:"clocktower",i:"🕰️",d:"Watch the clock figures twirl."},bern_aare:{id:"bern_aare",n:"Aare River Bridge",k:"riverbridge",i:"🌉",d:"Turquoise water under stone arches."},bern_fount:{id:"bern_fount",n:"Bear Fountain",k:"bearfountain",i:"⛲",d:"A bear statue on top!"}};
-CITIES.bern.att=Object.values(BERN_ATT);
+CITIES.bern.att=Object.values(BERN_ATT);CITIES.nyc.att=CITIES.nyc.att.filter(a=>a.id!="nypl");
 function cityStreet(ck){if(ck=="bern")return BERN_ST;const C=CITIES[ck],L=[];
  L.push(C.travel=="plane"?{kind:"airport",label:C.n.split(" ").slice(-2).join(" ")+" Airport",act:"plane"}:{kind:"station",label:"Train Station",act:"train"});
  if(ck=="nordic")L.push({kind:"market",label:C.att[0].n,act:"att",aid:C.att[0].id,icon:C.att[0].i});
  L.push({kind:"hotel",label:C.hotel,act:"hotel"});L.push({kind:"residence",label:resName(ck),act:"residence",icon:"🏛️"});if(C.shop)L.push({kind:"shop",label:C.shop.n,act:"shop",shop:ck+"_shop",icons:C.shop.items.slice(0,3).map(x=>ITEMS[x].i||wearIcon(ITEMS[x])),col:"#2e86c1"});for(const[k,P] of Object.entries(PHOTO_SHOPS))if(P.city==ck)L.push({kind:"shop",label:P.n,act:"shop",shop:k,icons:P.spots.slice(0,3).map(x=>{const I=ITEMS[x[3][0]];return I.c=="wear"?wearIcon(I):I.i}),col:"#7a1f2e"});L.push({kind:"food",label:C.n.split(/[ ,&]/)[0]+" Café",act:"shop",shop:ck+"_food",icons:C.food.slice(0,3).map(f=>ITEMS[f].i),col:"#e67e22"});
- const atts=C.att.filter(a=>!(ck=="nordic"&&a.id=="farmersmkt"));const stores=(C.stores||[]).slice();let k=0;
- atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}});
+ const atts=C.att.filter(a=>!(ck=="nordic"&&a.id=="farmersmkt"));const AFTER={moma:"saks"},placed=Object.values(AFTER);const stores=(C.stores||[]).filter(st=>!placed.includes(st));let k=0;
+ atts.forEach((a,i)=>{L.push({kind:a.k,sp:a.sp,label:a.n,act:"att",aid:a.id,icon:a.i});if(AFTER[a.id]&&STORES[AFTER[a.id]])L.push({kind:"dept",store:AFTER[a.id],label:STORES[AFTER[a.id]].n,act:"dept",icon:"🛍️"});if(stores.length&&i%2==0){const st=stores.shift();L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"})}});
  stores.forEach(st=>L.push({kind:"dept",store:st,label:STORES[st].n,act:"dept"}));
  return L}
 function att(ck,aid){return(CITIES[ck].att||[]).find(a=>a.id==aid)}
