@@ -257,6 +257,7 @@ figcaption{font:700 15px 'Playfair Display',Georgia;padding-top:6px;display:flex
 .trip{position:absolute;left:50%;transform:translateX(-50%);max-width:97%;top:21%;height:45%;display:flex;gap:1%;align-items:center;justify-content:center;z-index:0}.tpanel{min-width:0;height:100%;display:flex;align-items:center}.tpanel img{width:100%;height:auto;display:block;border:5px solid #c9a227;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.55),inset 0 0 0 2px #fff}
 #jump{background:linear-gradient(180deg,#181a1f,#23262e);border-bottom:2px solid #c5a059;padding:3px 10px}.jrow{display:flex;gap:6px;overflow-x:auto;padding:3px 0;scrollbar-width:none}.jrow::-webkit-scrollbar{display:none}.jp{background:#2c303a;color:#e8e2d5;border:1px solid #4a4f5c;border-radius:16px;padding:4px 11px;font:600 13px Georgia,serif;white-space:nowrap;cursor:pointer;flex:none}.jp:hover{border-color:#c5a059;color:#fff}.jp.on{background:linear-gradient(135deg,#c5a059,#9e7b36);color:#141518;border-color:#f3d59b}.jp.pl{background:#1f2229;font-size:12px;padding:3px 10px}
 .saksbase{filter:brightness(.75) contrast(1.05)}.saksblink{mix-blend-mode:lighten;filter:brightness(1.4) contrast(1.6) saturate(1.4);animation:lightsOnlyBlink 1.5s infinite ease-in-out}@keyframes lightsOnlyBlink{0%,100%{opacity:1}50%{opacity:0}}.tblink{position:relative;width:100%;border:5px solid #c9a227;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.55)}.tblink img{display:block;width:100%;height:auto;border:0!important;box-shadow:none!important;border-radius:0!important}.tblink .diamond{position:absolute;inset:0;width:100%;height:100%;animation:blink-white 1.2s infinite ease-in-out}@keyframes blink-white{0%,100%{filter:brightness(1) drop-shadow(0 0 0px rgba(255,255,255,0))}50%{filter:brightness(3) drop-shadow(0 0 12px #ffffff)}}.tblink .saksblink{position:absolute;inset:0;height:100%;object-fit:cover}@media (prefers-reduced-motion:reduce){.saksblink,.tblink .diamond{animation:none;opacity:.6}}
+.journal{background:#fffaf0;border:2px solid var(--gold);border-radius:12px;padding:12px 14px;margin-bottom:14px}.journal h3{margin:0 0 8px;font-family:Georgia,serif;color:#7a1f2e}.jhol{font-size:13px;background:#c0392b;color:#fff;border-radius:10px;padding:2px 8px;margin-left:6px}.jentry{line-height:1.5;margin:0 0 10px}.jentry b{font-family:Georgia,serif;font-size:1.05em}.jentry.old{opacity:.85;border-top:1px dashed #d8c7a0;padding-top:8px}.journal details summary{cursor:pointer;font-weight:700;margin-top:6px}
 </style>
 </head>
 <body>
@@ -1206,7 +1207,7 @@ function aTree(x,ck){const t=(ARCH[ck]||ARCH.bern).tree;let s=`<rect x="${x-14}"
 
 /* ---------- LUXURY RESIDENCE: open-front 4-room dollhouse in every town ---------- */
 const RES_BED=["hall_r","bed_l","bed_r"],RES_LNG=["hall_l","salon_l","salon_r"];
-const SHORT={bern:"Bärengraben",lucerne:"Lucerne",amsterdam:"Amsterdam",nordic:"Bergen",paris:"Paris",prague:"Prague",germany:"Munich",rothenburg:"Rothenburg",italy:"Rome",uk:"London",nyc:"New York",boston:"Boston"};
+const SHORT={bern:"Bärengraben",lucerne:"Lucerne",amsterdam:"Amsterdam",nordic:"Nordic Harbor",paris:"Paris",prague:"Prague",germany:"Munich",rothenburg:"Rothenburg",italy:"Rome",uk:"London",nyc:"New York",boston:"Boston"};
 function resName(ck){return(SHORT[ck]||CITIES[ck].n)+" Luxury Residence"}
 function resRooms(ck){const k=Object.keys(CITIES).indexOf(ck),nyc=ck=="nyc";
  return[{n:nyc?"Master Bedroom":"Upstairs Bedroom",img:RES_BED[k%3],act:"nap",line:"So soft and cozy..."},{n:nyc?"Wood-Paneled Lounge":"Drawing Room",img:nyc?"salon_r":RES_LNG[k%3],act:"sit",line:"Ahh, velvet cushions."},
@@ -1236,6 +1237,91 @@ function renderJump(){const el=$("#jump");if(!el)return;const b=B(),L=cityStreet
  const on=el.querySelector(".jp.on");on&&on.scrollIntoView({block:"nearest",inline:"center"})}
 function jumpTown(ck){const b=B();if(ck==b.loc&&b.view.t=="street"){b.x=ck=="bern"?420:220;renderStage();return}sfx("whoosh");b.loc=ck;b.view={t:"street"};b.x=ck=="bern"?420:220;b.roomPos=null;b.scenePos=null;save();renderAll();if(ck=="bern"&&b.suit.neu.length)toast(`🧳 ${b.name} has ${b.suit.neu.length} new treasure${b.suit.neu.length>1?"s":""} to unpack — open the suitcase!`)}
 function jumpPlace(i){const b=B();if(b.view.t!="street"){b.view={t:"street"};save();renderAll()}setTimeout(()=>walkTo(60+i*SLOT+150),b.view.t=="street"?0:60)}
+
+/* ---------- DAILY BEAR TRAVEL JOURNAL (built in, no AI key needed) ----------
+   Same idea as the pasted code: a town with a holiday today is chosen first;
+   otherwise a random town that wasn't yesterday's. Every fact, hotel and restaurant is real. */
+function nthWeekday(y,m,wd,n){const d=new Date(y,m-1,1);const off=(wd-d.getDay()+7)%7;return new Date(y,m-1,1+off+(n-1)*7)}
+function md(d){return String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+const JTOWNS={
+ bern:{name:"Bern",hotel:"the Hotel Bellevue Palace",
+  hol:{"08-01":"Swiss National Day, with fireworks glittering over the Aare River"},rules:[[y=>md(nthWeekday(y,11,1,4)),"the Zibelemärit onion market, where the whole old town fills with braided onion garlands and confetti"]],
+  see:["strolled under the stone arcades to watch the Zytglogge clock figures dance on the hour","visited the bears at the BärenPark beside the turquoise Aare River","wandered through the Rose Garden for the best view over the old town's red rooftops"],
+  fact:["The Zytglogge began life in the early 1200s as a gate tower, and its astronomical clock has been ticking since 1530.","Bern's whole old town is a UNESCO World Heritage Site, with about six kilometers of covered arcades for rainy-day shopping.","Albert Einstein worked out his famous theory of relativity in 1905 while living in a little flat on Bern's Kramgasse."],
+  eat:[["the Kornhauskeller","a grand vaulted cellar under an old granary","a Berner Platte piled high with ham and sausages","crispy golden Rösti"],["the Altes Tramdepot","a cozy spot in an old tram depot right beside the bear park","a giant pretzel","Bratwurst with onion gravy and Rösti"]]},
+ lucerne:{name:"Lucerne",hotel:"the Hotel Schweizerhof Luzern",
+  hol:{"08-01":"Swiss National Day, with lantern parades and fireworks over Lake Lucerne"},
+  see:["walked across the flower-covered Chapel Bridge to the old water tower","rode the cogwheel railway up Mount Pilatus to wave at the Alps","took a paddle steamer across sparkling Lake Lucerne"],
+  fact:["The Chapel Bridge was first built in 1333 and is one of the oldest covered wooden bridges in Europe.","The Mount Pilatus cogwheel railway, opened in 1889, is the steepest in the world, climbing grades of 48 percent.","Lucerne's Musegg Wall still has nine towers, and the Zyt tower holds the oldest clock in town, which may chime a minute early."],
+  eat:[["the Wirtshaus Galliker","a traditional Lucerne inn with wooden beams and checkered curtains","a Luzerner Chügelipastete puff-pastry pie","creamy potato Rösti"],["the Old Swiss House","a famous timbered restaurant beside the Lion Monument park","a Wiener schnitzel cooked in butter right at the table","a warm apple strudel"]]},
+ amsterdam:{name:"Amsterdam",hotel:"the Hotel De L'Europe",
+  hol:{"04-27":"King's Day, when the whole city dresses in orange and the canals fill with music boats"},
+  see:["took a glass-roofed boat along the canal ring past the tall gabled houses","admired the Night Watch at the Rijksmuseum","rode bicycles past tulip stalls at the floating Flower Market"],
+  fact:["Amsterdam's ring of canals was dug in the 1600s and became a UNESCO World Heritage Site in 2010.","The Rijksmuseum opened its grand building in 1885, designed by the architect Pierre Cuypers.","Amsterdam has more bicycles than people, roughly 880,000 of them."],
+  eat:[["the Pancake Bakery","a canal-side restaurant in a 17th-century warehouse","a giant Dutch apple pancake","a plate of tiny poffertjes dusted with powdered sugar"],["Haesje Claes","a cozy old Dutch restaurant with wood-paneled rooms","a hearty bowl of stamppot","Dutch beef hachee stew"]]},
+ nordic:{name:"Copenhagen",hotel:"the Hotel d'Angleterre",
+  hol:{"06-23":"Sankt Hans Eve, the midsummer celebration with bonfires and singing along the harbor","12-13":"Saint Lucia Day, with candlelit processions and singing"},
+  see:["strolled past the colorful harbor houses of Nyhavn","rode the old wooden roller coaster at Tivoli Gardens","waved hello to the Little Mermaid statue by the water"],
+  fact:["The Nyhavn canal was dug in the 1670s, and fairy-tale writer Hans Christian Andersen lived in three different houses along it.","Tivoli Gardens opened in 1843, making it one of the oldest amusement parks in the world.","The Little Mermaid statue was unveiled in 1913 to honor Hans Christian Andersen's fairy tale."],
+  eat:[["Schønnemann","a smørrebrød lunch room that has been serving open-faced sandwiches since 1877","smørrebrød with pickled herring","smørrebrød with roast beef and crispy onions"],["Conditori La Glace","Copenhagen's oldest pastry shop, open since 1870","a slice of the famous Sportskage cake","rich hot chocolate with whipped cream"]]},
+ paris:{name:"Paris",hotel:"Le Meurice",
+  hol:{"07-14":"Bastille Day, with the big parade down the Champs-Élysées and fireworks sparkling around the Eiffel Tower","12-31":"New Year's Eve, with the Eiffel Tower twinkling at midnight"},
+  see:["rode the elevator up the Eiffel Tower to see the whole city","waved at the glass pyramid outside the Louvre","took a riverboat along the Seine under the old stone bridges"],
+  fact:["The Eiffel Tower was built for the 1889 World's Fair and is repainted by hand about every seven years.","The Louvre was a royal palace before it opened as a public museum in 1793.","Paris's Pont Neuf, which means New Bridge, is actually the oldest standing bridge across the Seine, finished in 1607."],
+  eat:[["Angelina","an elegant tearoom on the Rue de Rivoli, open since 1903","its famous thick African hot chocolate","a Mont-Blanc chestnut-cream pastry"],["Bouillon Chartier","a bustling Belle Époque dining hall open since 1896","crispy steak frites","escargots in garlic butter"]]},
+ prague:{name:"Prague",hotel:"the Hotel Paris Prague",
+  hol:{"12-05":"St. Nicholas Eve, when St. Nicholas and his angels hand out treats in Old Town Square","12-24":"Christmas Eve, with the giant Christmas tree glowing in Old Town Square"},
+  see:["watched the twelve apostles parade past the windows of the Astronomical Clock","crossed the statue-lined Charles Bridge at sunrise","climbed up to Prague Castle for a view of a hundred spires"],
+  fact:["Prague's Astronomical Clock was installed in 1410 and is the oldest astronomical clock in the world still working.","Building work on the Charles Bridge began in 1357 under King Charles IV.","Prague Castle is listed by Guinness as the largest ancient castle complex in the world."],
+  eat:[["Café Louvre","a grand café open since 1902, once visited by Franz Kafka","svíčková beef in creamy sauce with bread dumplings","a warm apple strudel"],["Lokál","a lively Czech pub restaurant with long wooden tables","golden pork schnitzel with potato salad","fluffy fruit dumplings"]]},
+ germany:{name:"Munich",hotel:"the Hotel Bayerischer Hof",
+  hol:{"10-03":"the Day of German Unity festival"},rules:[[y=>{const d=new Date(y,8,16);while(d.getDay()!=6)d.setDate(d.getDate()+1);return md(d)},"the opening day of Oktoberfest, with horse-drawn carriages and a big parade of costumes"]],
+  see:["watched the Glockenspiel figures dance on the Marienplatz tower","took a day trip to fairy-tale Neuschwanstein Castle","browsed the colorful stalls of the Viktualienmarkt"],
+  fact:["The Glockenspiel in Munich's New Town Hall was installed in 1908 and has 43 bells and 32 life-size figures.","King Ludwig II began building Neuschwanstein Castle in 1869, and it inspired Disney's Sleeping Beauty castle.","Munich's Viktualienmarkt has been the city's open-air food market since 1807."],
+  eat:[["the Hofbräuhaus","Munich's famous beer hall, founded in 1589, with an oompah band","a giant soft pretzel","Weisswurst with sweet mustard"],["Café Frischhut","a little bakery by the Viktualienmarkt famous for its doughnuts","warm sugar-dusted Schmalznudel doughnuts","a fluffy Auszogne pastry"]]},
+ rothenburg:{name:"Rothenburg ob der Tauber",hotel:"the Hotel Eisenhut",
+  hol:{"12-01":"the Reiterlesmarkt, one of Germany's oldest Christmas markets"},
+  see:["walked the covered walkway on top of the medieval town walls","took photos at the crooked little Plönlein square","peeked inside the year-round Christmas village shop"],
+  fact:["Rothenburg's medieval town wall is still complete, and visitors can walk about 2.5 kilometers of it.","The Plönlein, a tiny triangular square with a yellow half-timbered house, is one of the most photographed spots in Germany.","Rothenburg's Christmas market, the Reiterlesmarkt, dates back to the 1400s."],
+  eat:[["Zur Höll","a restaurant in the oldest house in town, with parts dating back to the year 900","Franconian bratwurst with sauerkraut","roast pork with crackling"],["Café Diller","a bakery famous for Rothenburg's crunchy snowball pastries","a chocolate-dipped Schneeball","a powdered-sugar Schneeball"]]},
+ italy:{name:"Rome",hotel:"the Hotel Hassler Roma at the top of the Spanish Steps",
+  hol:{"04-21":"the Birthday of Rome, with a parade of costumed Romans by the Circus Maximus","06-02":"Italy's Republic Day parade, with jets painting the sky green, white and red"},
+  see:["toured the Colosseum and imagined the crowds of ancient Rome","tossed a coin over their shoulders into the Trevi Fountain","stood under the giant dome of the Pantheon"],
+  fact:["The Colosseum was finished in the year 80 and could hold around 50,000 spectators.","About 3,000 euros are tossed into the Trevi Fountain every day, and the coins are given to charity.","The Pantheon's dome is still the largest unreinforced concrete dome in the world, nearly 1,900 years after it was built."],
+  eat:[["Giolitti","Rome's famous gelato shop near the Pantheon, open since 1900","pistachio gelato","stracciatella gelato with whipped cream"],["Roscioli","a beloved deli and restaurant near the Campo de' Fiori","spaghetti carbonara","cacio e pepe pasta"]]},
+ uk:{name:"London",hotel:"The Savoy",
+  hol:{"11-05":"Bonfire Night, with fireworks bursting over the River Thames","12-31":"New Year's Eve, with fireworks over the London Eye"},
+  see:["watched the Changing of the Guard at Buckingham Palace","listened for the bongs of Big Ben by the Thames","walked across Tower Bridge as it lifted for a tall ship"],
+  fact:["Big Ben is really the name of the great bell, and its tower was renamed the Elizabeth Tower in 2012.","Tower Bridge opened in 1894, and its roads still lift to let tall ships sail through.","The Savoy opened in 1889 and was the first hotel in Britain lit by electricity."],
+  eat:[["Fortnum & Mason","the Piccadilly store famous for tea since 1707","warm scones with clotted cream and strawberry jam","dainty finger sandwiches"],["Rules","London's oldest restaurant, open since 1798","a steak and kidney pudding","a sticky toffee pudding"]]},
+ nyc:{name:"New York City",hotel:"The Plaza Hotel",
+  hol:{"12-31":"the Times Square New Year's Eve Ball Drop"},rules:[[y=>md(nthWeekday(y,11,4,4)),"the Macy's Thanksgiving Day Parade, with giant balloons floating down Central Park West"]],
+  see:["rode up to the observation deck of the Empire State Building","went ice skating under the giant tree at Rockefeller Center","took the ferry to wave at the Statue of Liberty"],
+  fact:["The Empire State Building was built in just 410 days and opened in 1931.","The first Macy's Thanksgiving Day Parade marched in 1924.","The Statue of Liberty was a gift from France and was dedicated in 1886."],
+  eat:[["Katz's Delicatessen","a famous Lower East Side deli open since 1888","a towering pastrami sandwich on rye","a bowl of matzo ball soup"],["Serendipity 3","a whimsical café near Bloomingdale's famous for desserts","the famous Frrrozen Hot Chocolate","a foot-long hot dog"]]},
+ boston:{name:"Boston",hotel:"the Omni Parker House",
+  hol:{"07-04":"the Boston Pops Fireworks Spectacular on the Charles River Esplanade","03-17":"the St. Patrick's Day parade in South Boston"},
+  see:["rode the Swan Boats in the Public Garden","followed the red-brick Freedom Trail through the old city","cheered from the bleachers at Fenway Park"],
+  fact:["Boston Common, created in 1634, is the oldest public park in America.","The Swan Boats have been gliding around the Public Garden pond since 1877.","Boston cream pie was invented at the Omni Parker House hotel in 1856."],
+  eat:[["the Union Oyster House","America's oldest restaurant in continuous service, open since 1826","creamy New England clam chowder","a buttery lobster roll"],["Mike's Pastry","a famous North End bakery on Hanover Street","a crunchy ricotta cannoli","a lobster tail pastry filled with cream"]]}};
+// fixed holidays are "MM-DD"; holidays that move each year (Thanksgiving, Oktoberfest, Zibelemärit) are date rules
+function jHoliday(key,date){const T=JTOWNS[key],y=date.getFullYear(),m=md(date);if(T.hol&&T.hol[m])return T.hol[m];for(const r of(T.rules||[]))if(r[0](y)==m)return r[1];return null}
+function jPick(arr,seed,salt){return arr[(Math.imul(hashStr(seed+salt),2654435761)>>>0)%arr.length]}
+function journalFor(date,lastKey){const seed=todayStr(date),keys=Object.keys(JTOWNS);let key=null,hol=null;
+ for(const k of keys){const h=jHoliday(k,date);if(h){key=k;hol=h;break}}
+ if(!key){const avail=keys.filter(k=>k!=lastKey);key=avail[(Math.imul(hashStr(seed+"town"),2654435761)>>>0)%avail.length]}
+ const T=JTOWNS[key],names=S.bears.slice(0,3).map(b=>b.name);while(names.length<3)names.push(["Teddy","Honey","Pip"][names.length]);
+ const[A,Bn,C]=names,how=key=="bern"?"came home to Bern":CITIES[key].travel=="plane"?"stepped off the plane":"hopped off the train",display=date.toLocaleDateString("en-US",{month:"long",day:"numeric"});
+ const R=jPick(T.eat,seed,"eat");
+ const s1=hol?`${A}, ${Bn} and ${C} ${how} and checked into ${T.hotel} just in time for ${hol}!`:`${A}, ${Bn} and ${C} ${how}, checked into ${T.hotel}, and ${jPick(T.see,seed,"see")}.`;
+ const s2=jPick(T.fact,seed,"fact");
+ const s3=`${/café|bakery|gelato|pastry|tea/i.test(R[1])?"For a treat":"For dinner"} they hurried to ${R[0]}, ${R[1]}.`;
+ const s4=`${A} ordered ${R[2]}, ${Bn} couldn't stop eating ${R[3]}, and ${C} declared it the best meal of the whole trip!`;
+ return{d:seed,key,title:`${display} — ${T.name}`,text:[s1,s2,s3,s4].join(" "),hol:!!hol}}
+function todaysJournal(){S.journal=S.journal||{list:[]};const t=todayStr(),L=S.journal.list;let e=L.find(x=>x.d==t);
+ if(!e){const last=L.length?L[L.length-1].key:"";e=journalFor(new Date(),last);L.push(e);if(L.length>60)L.splice(0,L.length-60);save()}return e}
+function journalHTML(){const e=todaysJournal(),past=S.journal.list.filter(x=>x.d!=e.d).slice(-14).reverse();
+ return`<div class="journal"><h3>📔 Today's Bear Travel Journal${e.hol?` <span class="jhol">🎉 Holiday!</span>`:""}</h3><p class="jentry"><b>${esc(e.title)}</b><br>${esc(e.text)}</p><button class="btn small" data-act="jumpTown" data-arg="${e.key}">🧳 Go to ${esc(JTOWNS[e.key].name)}</button>${past.length?`<details><summary>Earlier journal pages (${past.length})</summary>${past.map(x=>`<p class="jentry old"><b>${esc(x.title)}</b><br>${esc(x.text)}</p>`).join("")}</details>`:""}</div>`}
 
 /* ============ SOUND: procedural ambience + gentle music ============ */
 const SND={ctx:null,master:null,bus:null,vol:.55,muted:false,cur:null,timers:[],nodes:[],noise:null,musicOn:true};
@@ -1788,7 +1874,8 @@ function renderStreet(){const b=B(),ck=b.loc,C=CITIES[ck],L=cityStreet(ck),W=120
  const others=S.bears.filter(x=>x.id!=b.id&&x.loc==ck&&x.view.t=="street");wrap.querySelector(".others").innerHTML=others.slice(0,6).map(o=>`<div class="bear npc" style="left:${(o.x||300)/W*100}%" data-act="pickBear" data-arg="${o.id}" title="${esc(o.name)}"><div class="bwrap">${bearSVG(o,"normal")}</div><div class="tag">${esc(o.name)}</div></div>`).join("");
  const sc=st.querySelector(".scroller");requestAnimationFrame(()=>{sc.scrollLeft=Math.max(0,b.x/W*sc.scrollWidth-sc.clientWidth/2)});
  wrap.querySelector("svg").addEventListener("click",e=>{const g=e.target.closest(".bld");const pt=svgPt(wrap.querySelector("svg"),e);if(g){const i=+g.dataset.i;walkTo(60+i*SLOT+150,()=>doBuilding(L[i],i))}else walkTo(pt.x)});
- if(ck=="bern"&&giftReady())toastOnce("gift","🎁 A morning gift box is waiting on your castle porch!")}
+ if(ck=="bern"&&giftReady())toastOnce("gift","🎁 A morning gift box is waiting on your castle porch!");
+ {const e=todaysJournal();if(S.journal.toasted!=e.d){S.journal.toasted=e.d;save();setTimeout(()=>toast("📔 New journal page: "+e.title+" — open Stories to read it!"),1200)}}}
 function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
 let walking=false;
 function walkTo(x,then){const b=B();if(walking)return;const st=stage(),wrap=st.querySelector(".swrap"),bel=wrap.querySelector(".walker"),W=+wrap.querySelector("svg").getAttribute("width");x=Math.max(60,Math.min(W-60,x));
@@ -1998,7 +2085,7 @@ function makeStory(seed,mon){const r=rnd(seed*131+17);const P=STORY,MO=P.month[m
  let s=[g("open"),g("mid"),g("det"),g("close")];if(star&&!s.slice(1).join(" ").includes(star))s[3]=fill(pick(MO.close||[`${star} said it was the happiest day of the month.`],r));return s.join(" ")}
 function storiesWaiting(){const first=new Date(S.story.first+"T00:00:00"),days=Math.floor((new Date(todayStr()+"T00:00:00")-first)/864e5)+1;const daily=S.story.list.filter(x=>!x.extra).length;return Math.max(0,days-daily)}
 function unlockStory(extra){const seed=S.story.list.length+1+Math.floor(Math.random()*1e5)*(extra?1:0);S.story.list.push({d:todayStr(),m:curMonth(),t:makeStory(seed,curMonth()),extra:!!extra});save();openStory()}
-function openStory(){const w=storiesWaiting();const L=S.story.list.slice().reverse();openModal("📖 Story Scrapbook",`<div class="row wrap">${w?`<button class="btn gold big" data-act="nextStory">${S.story.list.filter(x=>!x.extra).length==0?"✨ Unlock today's story":"✨ Next Story"+(w>1?` (${w} waiting)`:"")}</button>`:`<span class="note">Today's story is unlocked — a new one arrives tomorrow.</span>`}<button class="btn" data-act="newAdv">🌟 New Adventure</button></div><div class="stories">${L.map(x=>`<article class="story"><h4>${MONTHS[x.m].n} · ${x.d}${x.extra?" · bonus adventure":""}</h4><p>${esc(x.t)}</p></article>`).join("")||`<p class="empty">Your scrapbook is waiting for its first story!</p>`}</div>`)}
+function openStory(){const w=storiesWaiting();const L=S.story.list.slice().reverse();openModal("📖 Story Scrapbook",journalHTML()+`<div class="row wrap">${w?`<button class="btn gold big" data-act="nextStory">${S.story.list.filter(x=>!x.extra).length==0?"✨ Unlock today's story":"✨ Next Story"+(w>1?` (${w} waiting)`:"")}</button>`:`<span class="note">Today's story is unlocked — a new one arrives tomorrow.</span>`}<button class="btn" data-act="newAdv">🌟 New Adventure</button></div><div class="stories">${L.map(x=>`<article class="story"><h4>${MONTHS[x.m].n} · ${x.d}${x.extra?" · bonus adventure":""}</h4><p>${esc(x.t)}</p></article>`).join("")||`<p class="empty">Your scrapbook is waiting for its first story!</p>`}</div>`)}
 /* ---------- settings ---------- */
 function openSettings(){openModal("⚙️ Settings",`<h3>Town season</h3><label class="lbl">Theme <select id="setMonth"><option value="auto" ${S.month=="auto"?"selected":""}>Follow the calendar (${MONTHS[new Date().getMonth()].n})</option>${MONTHS.map((m,i)=>`<option value="${i}" ${S.month==i?"selected":""}>${m.n} — ${m.t}</option>`).join("")}</select></label>
  <h3>Sound</h3><div class="row wrap"><label class="bc2"><input type="checkbox" id="setMute" ${S.snd.muted?"":"checked"}> Sounds on</label><label class="bc2"><input type="checkbox" id="setMusic" ${S.snd.music?"checked":""}> Music on</label><label class="lbl">Volume <input type="range" id="setVol" min="0" max="1" step=".05" value="${S.snd.vol}"></label></div>
